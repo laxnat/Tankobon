@@ -17,8 +17,8 @@ const config: Config = {
         'muted-blue': '#8BA0B2',
         'white-purple': '#cfcfe8',
         'light-purple': '#a1a1ce',
-        'blue-purple': '#7474b0',
-        'dark-purple': '#4e4e94',
+        'blue-purple': '#373766',
+        'dark-purple': '#36366e',
         'darker-purple': '#353570' 
       }
     },
