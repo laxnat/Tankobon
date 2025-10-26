@@ -69,6 +69,8 @@ model MangaLibrary {
   rating      Int?     // 1-10
   chaptersRead Int?    @default(0)
   totalChapters Int?
+  totalVolumes Int?                       
+  ownedVolumes Int[]   @default([])
   startedAt   DateTime?
   completedAt DateTime?
   notes       String?  @db.Text
