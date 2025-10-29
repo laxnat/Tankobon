@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Loader2 } from "lucide-react";
+import { Loader2, Plus, Star } from "lucide-react";
 
 interface Manga {
   malId: number;
@@ -15,6 +15,7 @@ interface Manga {
   synopsis: string;
   score: number;
   chapters: number | null;
+  volumes: number | null;
   status: string;
   genres: string[];
 }
@@ -65,6 +66,7 @@ export default function SearchPage() {
           imageUrl: manga.imageUrl,
           author: manga.authors?.[0]?.name || "Unknown",
           totalChapters: manga.chapters,
+          totalVolumes: manga.volumes,
           status: "PLAN_TO_READ",
         }),
       });
@@ -79,6 +81,39 @@ export default function SearchPage() {
     } catch (err) {
       alert(err instanceof Error ? err.message : "An error occurred");
     }
+  };
+
+  const [windowWidth, setWindowWidth] = useState(0);
+
+  // Track window width
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    handleResize(); // Initial value
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const getPopupPosition = (index: number) => {
+    if (windowWidth === 0) return 'left-full ml-2'; // Default during SSR
+
+    // Disable popup on small screens (less than 768px / md breakpoint)
+    if (windowWidth < 768) return 'hidden';
+
+    let cols = 2;
+    if (windowWidth >= 1280) cols = 6;      // xl
+    else if (windowWidth >= 1024) cols = 5; // lg
+    else if (windowWidth >= 768) cols = 3;  // md
+    else cols = 2;                          // default
+
+    const columnIndex = (index % cols) + 1;
+    const isLastColumn = columnIndex === cols;
+    const isSecondToLastColumn = columnIndex === cols - 1;
+
+    // Show on left if in last 2 columns, otherwise show on right
+    if (isLastColumn || isSecondToLastColumn) {
+      return 'right-full mr-2';
+    }
+    return 'left-full ml-2';
   };
 
   return (
@@ -98,7 +133,7 @@ export default function SearchPage() {
             <button
               type="submit"
               disabled={loading}
-              className="px-6 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 disabled:opacity-50"
+              className="px-6 py-2 bg-blue-700 text-white font-bold rounded-lg hover:bg-blue-900 disabled:opacity-50"
             >
               Search
             </button>
@@ -119,88 +154,86 @@ export default function SearchPage() {
         )}
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-6">
-          {results.map((manga) => (
-            <div key={manga.malId} className="group relative">
-              {/* Main Card - Image and Title */}
-              <div className="rounded-lg overflow-hidden transition-transform group-hover:scale-105">
-                <div className="relative w-full aspect-[2/3] bg-gray-100">
-                  <Image
-                    src={manga.imageUrl}
-                    alt={manga.title}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-                <div className="pt-2">
-                  <h3 className="font-bold text-white text-sm line-clamp-2">{manga.title}</h3>
-                </div>
-              </div>
+          {results.map((manga, index) => {
+            const popupPosition = getPopupPosition(index);
 
-              {/* Hover Card - Additional Info */}
-              <div className="absolute left-0 top-0 w-64 bg-dark-purple rounded-lg shadow-2xl p-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10 pointer-events-none group-hover:pointer-events-auto">
-                <div className="flex gap-3 mb-3">
-                  <div className="relative w-20 h-28 flex-shrink-0 bg-gray-100 rounded">
+            return (
+              <div key={manga.malId} className="group relative">
+                <div className="rounded-lg overflow-hidden transition-transform">
+                  <div className="relative w-full aspect-[2/3] bg-gray-100">
                     <Image
                       src={manga.imageUrl}
                       alt={manga.title}
                       fill
-                      className="object-cover rounded"
+                      className="object-cover"
                     />
+
+                    <button
+                      onClick={() => addToLibrary(manga)}
+                      className="absolute bottom-2 right-2 w-10 h-10 flex items-center justify-center bg-blue-600 font-bold text-white rounded-full hover:bg-blue-700 transition opacity-0 group-hover:opacity-100 shadow-lg z-10"
+                    >
+                      <Plus className="w-5 h-5" />
+                    </button>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-bold text-white text-sm mb-1 line-clamp-2">{manga.title}</h3>
-                    {manga.titleEnglish && (
-                      <p className="text-xs text-white-purple mb-2 line-clamp-2">{manga.titleEnglish}</p>
-                    )}
-                    {manga.authors && manga.authors.length > 0 && (
-                      <p className="text-xs text-white-purple mb-2">
-                        {manga.authors.length === 1 ? "Author" : "Authors"}: {manga.authors.map(a => a.name).join(", ")}
-                      </p>
-                    )}
-                    <div className="flex items-center gap-2 mb-2 text-xs">
-                      {manga.score && (
-                        <span className="font-bold text-white-purple">
-                          ⭐ {manga.score}
-                        </span>
-                      )}
-                      <span className="text-white-purple">
-                        {manga.chapters ? `${manga.chapters} chapter(s)` : "? chapter(s)"}
-                      </span>
-                    </div>
-                    {manga.status && (
-                      <p className="text-xs text-white-purple mb-2">Status: {manga.status}</p>
-                    )}
+                  <div className="pt-2">
+                    <h3 className="font-bold text-white text-sm line-clamp-2">{manga.title}</h3>
                   </div>
                 </div>
 
-                {manga.genres && manga.genres.length > 0 && (
-                  <div className="mb-3">
-                    <div className="flex flex-wrap gap-1">
-                      {manga.genres.slice(0, 4).map((genre) => (
-                        <span
-                          key={genre}
-                          className="text-xs bg-blue-600 text-white px-2 py-0.5 rounded"
-                        >
-                          {genre}
+                {/* Hover Card with dynamic positioning */}
+                <div
+                  className={`
+                    absolute top-0 w-64 bg-light-navy rounded-lg border border-white/5
+                    shadow-2xl p-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible
+                    transition-all duration-200 z-10 pointer-events-none
+                    ${popupPosition}
+                  `}
+                >
+                  <div className="flex gap-3 mb-3">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-bold text-white text-sm mb-1 line-clamp-2">{manga.title}</h3>
+                      {manga.titleEnglish && (
+                        <p className="text-xs text-white-purple mb-2 line-clamp-2">{manga.titleEnglish}</p>
+                      )}
+                      {manga.authors && manga.authors.length > 0 && (
+                        <p className="text-xs text-white-purple mb-2">
+                          {manga.authors.length === 1 ? "Author" : "Authors"}: {manga.authors.map(a => a.name).join(", ")}
+                        </p>
+                      )}
+                      <div className="flex items-center gap-2 mb-2 text-xs">
+                        <Star className="w-3 h-3 fill-blue-400 text-blue-400" />
+                        <span className="font-bold text-white-purple">{manga.score}</span>
+                        <span className="text-white-purple">
+                          {manga.chapters ? `${manga.chapters} ch` : "? ch"}
                         </span>
-                      ))}
+                        <span className="text-white-purple">
+                          {manga.volumes ? `${manga.volumes} vol` : "? vol"}
+                        </span>
+                      </div>
+                      {manga.status && (
+                        <p className="text-xs text-white-purple mb-2">Status: {manga.status}</p>
+                      )}
                     </div>
                   </div>
-                )}
 
-                <p className="text-xs font-bold text-white-purple line-clamp-4 mb-3">
-                  {manga.synopsis || "No synopsis available"}
-                </p>
-
-                <button
-                  onClick={() => addToLibrary(manga)}
-                  className="w-full px-4 py-2 bg-blue-600 font-bold text-white rounded hover:bg-blue-700 transition"
-                >
-                  Add to Library
-                </button>
+                  {manga.genres && manga.genres.length > 0 && (
+                    <div className="mb-3">
+                      <div className="flex flex-wrap gap-1">
+                        {manga.genres.slice(0, 4).map((genre) => (
+                          <span
+                            key={genre}
+                            className="text-xs bg-blue-600 text-white px-2 py-0.5 rounded"
+                          >
+                            {genre}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         {results.length === 0 && !loading && query && (
