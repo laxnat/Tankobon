@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { malId, title, imageUrl, status, totalChapters } = body;
+    const { malId, title, imageUrl, status, totalChapters, totalVolumes, ownedVolumes } = body;
 
     if (!malId || !title) {
       return NextResponse.json(
@@ -96,6 +96,8 @@ export async function POST(request: NextRequest) {
         imageUrl,
         status: status || "PLAN_TO_READ",
         totalChapters: totalChapters ? parseInt(totalChapters) : null,
+        totalVolumes: totalVolumes ? parseInt(totalVolumes) : null,
+        ownedVolumes: ownedVolumes || [],
       },
     });
 
@@ -127,7 +129,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { id, status, rating, chaptersRead, notes, startedAt, completedAt } = body;
+    const { id, status, rating, chaptersRead, notes, startedAt, completedAt, ownedVolumes } = body;
 
     if (!id) {
       return NextResponse.json({ error: "Entry ID required" }, { status: 400 });
@@ -143,6 +145,8 @@ export async function PATCH(request: NextRequest) {
         ...(rating !== undefined && { rating }),
         ...(chaptersRead !== undefined && { chaptersRead }),
         ...(notes !== undefined && { notes }),
+        ...(chaptersRead !== undefined && { chaptersRead }),
+        ...(ownedVolumes !== undefined && { ownedVolumes }),
         ...(startedAt !== undefined && { startedAt: startedAt ? new Date(startedAt) : null }),
         ...(completedAt !== undefined && { completedAt: completedAt ? new Date(completedAt) : null }),
       },
