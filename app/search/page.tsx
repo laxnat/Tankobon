@@ -6,6 +6,13 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Loader2, Plus, Star } from "lucide-react";
 
+interface TopManga {
+  malId: number;
+  title: string;
+  imageUrl: string;
+  score: number;
+}
+
 interface Manga {
   malId: number;
   title: string;
@@ -26,6 +33,26 @@ export default function SearchPage() {
   const [results, setResults] = useState<Manga[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [topManga, setTopManga] = useState<TopManga[]>([]);
+
+  useEffect(() => {
+    const fetchTopManga = async () => {
+      try {
+        const response = await fetch('/api/manga/top');
+        const data = await response.json();
+        
+        if (response.ok) {
+          setTopManga(data.results.slice(0, 20));
+        }
+      } catch (error) {
+        console.error("Error fetching top manga:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTopManga();
+  }, []);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -120,6 +147,64 @@ export default function SearchPage() {
     <div className="min-h-screen p-8 pt-24">
       <div className="max-w-7xl mx-auto">
         <h1 className="text-4xl font-bold text-white mb-8">Search Manga</h1>
+
+        {/* Scrollable Top Manga Section */}
+        <section className="mb-20">
+          {/* Title aligned to the same container as the scroller */}
+          <div className="max-w-7xl mx-auto px-8">
+            <h2 className="text-3xl font-bold text-white mb-6">Top 20 Manga</h2>
+          </div>
+
+          {/* Scroller + fades inside the same bounding box */}
+          <div className="relative mx-auto">
+            {/* Fades that match the container edges */}
+            <div className="pointer-events-none absolute left-[-2rem] top-0 h-full w-40 bg-gradient-to-r from-[#11111a] to-transparent z-10" />
+            <div className="pointer-events-none absolute right-[-2rem] top-0 h-full w-40 bg-gradient-to-l from-[#11111a] to-transparent z-10" />
+
+            {/* Scroll container with snap + scroll padding */}
+            <div 
+              className="overflow-x-auto scrollbar-hide snap-x snap-mandatory scroll-smooth [scroll-padding-left:10.5rem] [scroll-padding-right:0]"
+            >
+              <div className="flex gap-8 pb-4">
+                {/* Spacer before first card */}
+                <div className="shrink-0 w-40" />
+
+                {topManga.map((manga) => (
+                  <div
+                    key={manga.malId}
+                    className="group relative flex-shrink-0 w-80 h-[500px] rounded-2xl border border-white/10 hover:border-white/30 transition-all cursor-pointer overflow-hidden snap-start"
+                  >
+                    <div className="relative w-full h-full rounded-2xl">
+                      <Image
+                        src={manga.imageUrl}
+                        alt={manga.title}
+                        fill
+                        className="object-cover rounded-2xl transition-all duration-500"
+                      />
+
+                      {/* Dark overlay */}
+                      <div className="absolute inset-0 rounded-2xl bg-gradient-to-t from-black/60 via-black/40 to-transparent transition-all duration-500 group-hover:from-black/80 group-hover:via-black/60" />
+
+                      <div className="absolute inset-0 p-6 flex flex-col justify-end">
+                        <div className="flex items-center justify-between">
+                          <h3 className="font-bold text-white text-lg truncate max-w-[75%] leading-tight">
+                            {manga.title}
+                          </h3>
+                          <div className="flex items-center gap-1 flex-shrink-0">
+                            <Star className="w-4 h-4 fill-blue-400 text-blue-400" />
+                            <span className="text-white font-bold text-sm">{manga.score}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                {/* Spacer after last card */}
+                <div className="shrink-0 w-16" />
+              </div>
+            </div>
+          </div>
+        </section>
 
         <form onSubmit={handleSearch} className="mb-8">
           <div className="flex gap-4">
