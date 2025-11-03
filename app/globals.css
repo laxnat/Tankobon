@@ -8,6 +8,42 @@
   }
 }
 
+@layer utilities {
+  /* Hide scrollbar for Chrome, Safari, and Edge */
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Hide scrollbar for Firefox */
+  .scrollbar-hide {
+    scrollbar-width: none;
+    -ms-overflow-style: none; /* IE and Edge */
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 1.2s ease-out both;
+}
+
+::-webkit-scrollbar-thumb {
+  background: transparent;
+}
+
+html, body {
+  overflow-x: hidden; /* hides horizontal scrollbar */
+}
+
 body {
   background: #11111a;
 }
