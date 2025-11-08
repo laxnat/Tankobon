@@ -51,10 +51,12 @@ export default function Navbar() {
                   My Library
                 </Link>
                 <div className="flex items-center space-x-8">
-                  <span className="text-white-purple hover:text-white text-xl font-bold">{session.user?.name}</span>
-                  <button onClick={() => signOut({ callbackUrl: "/" })} className="px-4 py-2 bg-red-600 text-xl font-bold text-white rounded-lg hover:bg-red-700 transition">
-                    Sign Out
-                  </button>
+                  <Link
+                    href="/profile"
+                    className="text-white-purple hover:text-white text-xl font-bold transition transform hover:scale-105"
+                  >
+                    {session.user?.name}
+                  </Link>
                 </div>
               </>
             ) : (
