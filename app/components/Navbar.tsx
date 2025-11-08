@@ -2,8 +2,8 @@
 
 import { useSession } from "next-auth/react";
 import Link from "next/link";
+import Image from "next/image";
 import { useState, useEffect } from "react";
-import { Search } from "lucide-react";
 
 export default function Navbar() {
   const { data: session } = useSession();
@@ -53,9 +53,16 @@ export default function Navbar() {
                 <div className="flex items-center space-x-8">
                   <Link
                     href="/profile"
-                    className="text-white-purple hover:text-white text-xl font-bold transition transform hover:scale-105"
+                    className="relative w-10 h-10 rounded-full overflow-hidden ring-2 ring-white/20 hover:ring-blue-400 transition transform hover:scale-105"
                   >
-                    {session.user?.name}
+                    <Image
+                      src={
+                        session.user?.image || "/default-avatar.png"
+                      }
+                      alt="Profile"
+                      fill
+                      className="object-cover"
+                    />
                   </Link>
                 </div>
               </>
