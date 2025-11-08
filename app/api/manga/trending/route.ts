@@ -1,11 +1,11 @@
-// app/api/manga/top/route.ts
+// app/api/manga/trending/route.ts
 
 import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
     const response = await fetch(
-      'https://api.jikan.moe/v4/top/manga?limit=20',
+      'https://api.jikan.moe/v4/top/manga?filter=bypopularity',
       {
         headers: {
           "Content-Type": "application/json",
@@ -45,9 +45,9 @@ export async function GET() {
 
     return NextResponse.json(formattedData);
   } catch (error) {
-    console.error("Error fetching top manga:", error);
+    console.error("Error fetching trending manga:", error);
     return NextResponse.json(
-      { error: "Failed to fetch top manga" },
+      { error: "Failed to fetch trending manga" },
       { status: 500 }
     );
   }
