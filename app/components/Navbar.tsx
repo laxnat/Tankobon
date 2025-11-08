@@ -31,7 +31,7 @@ export default function Navbar() {
         isScrolled ? "py-1" : "py-2"
       }`}
     >
-      <div className="max-w-5xl mx-auto px-4">
+      <div className="max-w-7xl mx-auto">
         <div className={`flex justify-between items-center transition-all duration-300 ${
           isScrolled ? "h-12" : "h-16"
         }`}>

@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Star, TrendingUp, TrendingDown, Calendar, Filter, Trash2 } from "lucide-react";
+import { Star, TrendingUp, Loader2, Filter, Trash2 } from "lucide-react";
 
 interface LibraryEntry {
   id: string;
@@ -150,8 +150,13 @@ export default function LibraryPage() {
     return false;
   };  
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center font-bold text-white-purple">Loading...</div>;
-
+  if (loading)
+    return (
+      <div className="min-h-screen flex items-center justify-center text-white">
+        <Loader2 className="animate-spin w-6 h-6 mr-2" /> Loading...
+      </div>
+    );
+  
   const statuses = [
     { value: "ALL", label: "All Manga", count: library.length },
     { value: "READING", label: "Reading" },

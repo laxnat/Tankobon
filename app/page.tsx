@@ -84,12 +84,12 @@ export default function Home() {
                 desc: "Keep track of chapters read, ratings, and reading status for each manga.",
               },
               {
-                title: "Personal Notes",
-                desc: "Add personal notes and organize your collection exactly how you want.",
+                title: "Track Physically",
+                desc: "Keep track of volumes owned for each manga.",
               },
               {
-                title: "Smart Recommendations",
-                desc: "Get manga suggestions based on your favorites and current trends.",
+                title: "Personal Notes",
+                desc: "Add personal notes and organize your collection exactly how you want.",
               },
               {
                 title: "Cloud Sync",
