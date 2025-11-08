@@ -4,14 +4,7 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Loader2, Plus, Star } from "lucide-react";
-
-interface TopManga {
-  malId: number;
-  title: string;
-  imageUrl: string;
-  score: number;
-}
+import { Loader2, Plus, Star, Search } from "lucide-react";
 
 interface Manga {
   malId: number;
@@ -33,26 +26,40 @@ export default function SearchPage() {
   const [results, setResults] = useState<Manga[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [topManga, setTopManga] = useState<TopManga[]>([]);
+  const [topManga, setTopManga] = useState<Manga[]>([]);
+  const [trendingManga, setTrendingManga] = useState<Manga[]>([]);
+  const [showAllTop, setShowAllTop] = useState(false);
+  const [showAllTrending, setShowAllTrending] = useState(false);
+  const [typeFilter, setTypeFilter] = useState("manga");
+  const [sortFilter, setSortFilter] = useState("score");
+  const [statusFilter, setStatusFilter] = useState("any");
+  const [showTypeMenu, setShowTypeMenu] = useState(false);
+  const [showSortMenu, setShowSortMenu] = useState(false);
+  const [showStatusMenu, setShowStatusMenu] = useState(false);
 
   useEffect(() => {
-    const fetchTopManga = async () => {
+    const fetchData = async () => {
       try {
-        const response = await fetch('/api/manga/top');
-        const data = await response.json();
-        
-        if (response.ok) {
-          setTopManga(data.results.slice(0, 20));
-        }
+        // Fetch top manga
+        const topResponse = await fetch('/api/manga/top');
+        const topData = await topResponse.json();
+  
+        // Fetch trending manga
+        const trendingResponse = await fetch('/api/manga/trending');
+        const trendingData = await trendingResponse.json();
+  
+        if (topResponse.ok) setTopManga(topData.results.slice(0, 20));
+        if (trendingResponse.ok) setTrendingManga(trendingData.results.slice(0, 15));
       } catch (error) {
-        console.error("Error fetching top manga:", error);
+        console.error("Error fetching manga:", error);
       } finally {
         setLoading(false);
       }
     };
-
-    fetchTopManga();
+  
+    fetchData();
   }, []);
+  
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -62,7 +69,9 @@ export default function SearchPage() {
     setError("");
 
     try {
-      const response = await fetch(`/api/manga/search?q=${encodeURIComponent(query)}`);
+      const response = await fetch(
+        `/api/manga/search?q=${encodeURIComponent(query)}&type=${typeFilter}&sort=${sortFilter}&status=${statusFilter}`
+      );
       const data = await response.json();
 
       if (!response.ok) {
@@ -76,6 +85,13 @@ export default function SearchPage() {
       setLoading(false);
     }
   };
+
+  // Clear search results
+  useEffect(() => {
+    if (query.trim() === "") {
+      setResults([]);
+    }
+  }, [query]);  
 
   const addToLibrary = async (manga: Manga) => {
     if (!session) {
@@ -145,85 +161,191 @@ export default function SearchPage() {
 
   return (
     <div className="min-h-screen p-8 pt-24">
-      <div className="max-w-7xl mx-auto">
-        <h1 className="text-4xl font-bold text-white mb-8">Search Manga</h1>
-
-        {/* Scrollable Top Manga Section */}
-        <section className="mb-20">
-          {/* Title aligned to the same container as the scroller */}
-          <div className="max-w-7xl mx-auto px-8">
-            <h2 className="text-3xl font-bold text-white mb-6">Top 20 Manga</h2>
-          </div>
-
-          {/* Scroller + fades inside the same bounding box */}
-          <div className="relative mx-auto">
-            {/* Fades that match the container edges */}
-            <div className="pointer-events-none absolute left-[-2rem] top-0 h-full w-40 bg-gradient-to-r from-[#11111a] to-transparent z-10" />
-            <div className="pointer-events-none absolute right-[-2rem] top-0 h-full w-40 bg-gradient-to-l from-[#11111a] to-transparent z-10" />
-
-            {/* Scroll container with snap + scroll padding */}
-            <div 
-              className="overflow-x-auto scrollbar-hide snap-x snap-mandatory scroll-smooth [scroll-padding-left:10.5rem] [scroll-padding-right:0]"
+      <div className="max-w-7xl mx-auto mb-16">
+        {/* ===================== SEARCH BAR + FILTERS ===================== */}
+        <section className="mb-16">
+          <div className="max-w-7xl mx-auto flex flex-col sm:flex-row flex-wrap justify-center sm:justify-between items-center gap-4">
+            {/* Search Bar */}
+            <form
+              onSubmit={handleSearch}
+              className="flex items-center gap-3 bg-light-navy border border-white/5 rounded-lg px-3 py-2 flex-1 min-w-[250px] sm:min-w-[300px] lg:min-w-[400px]flex-shrink-0"
             >
-              <div className="flex gap-8 pb-4">
-                {/* Spacer before first card */}
-                <div className="shrink-0 w-40" />
+              <Search className="w-5 h-5 text-white" />
+              <input
+                type="text"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search manga..."
+                className="w-full bg-transparent border-0 focus:outline-none text-white placeholder-white/40 text-md font-bold"
+              />
+            </form>
 
-                {topManga.map((manga) => (
-                  <div
-                    key={manga.malId}
-                    className="group relative flex-shrink-0 w-80 h-[500px] rounded-2xl border border-white/10 hover:border-white/30 transition-all cursor-pointer overflow-hidden snap-start"
+            {/* Filters */}
+            <div className="flex flex-wrap justify-center sm:justify-end gap-4 text-md text-white/70">
+              {/* Type Filter */}
+              <div className="relative">
+                <button
+                  onClick={() => {
+                    setShowTypeMenu(!showTypeMenu);
+                    setShowSortMenu(false);
+                    setShowStatusMenu(false);
+                  }}
+                  className="bg-light-navy border border-white/5 rounded-md px-3 py-2 text-white/80 font-semibold hover:border-blue-500/40 focus:border-blue-500/60 focus:ring-2 focus:ring-blue-500/30 outline-none transition-all cursor-pointer w-[200px] flex justify-between items-center"
+                >
+                  <span>
+                    Type:{" "}
+                    <span className="text-blue-400 capitalize">
+                      {typeFilter.replace("_", " ")}
+                    </span>
+                  </span>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-4 w-4 text-white/60"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
                   >
-                    <div className="relative w-full h-full rounded-2xl">
-                      <Image
-                        src={manga.imageUrl}
-                        alt={manga.title}
-                        fill
-                        className="object-cover rounded-2xl transition-all duration-500"
-                      />
-
-                      {/* Dark overlay */}
-                      <div className="absolute inset-0 rounded-2xl bg-gradient-to-t from-black/60 via-black/40 to-transparent transition-all duration-500 group-hover:from-black/80 group-hover:via-black/60" />
-
-                      <div className="absolute inset-0 p-6 flex flex-col justify-end">
-                        <div className="flex items-center justify-between">
-                          <h3 className="font-bold text-white text-lg truncate max-w-[75%] leading-tight">
-                            {manga.title}
-                          </h3>
-                          <div className="flex items-center gap-1 flex-shrink-0">
-                            <Star className="w-4 h-4 fill-blue-400 text-blue-400" />
-                            <span className="text-white font-bold text-sm">{manga.score}</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+                    <path
+                      fillRule="evenodd"
+                      d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.21 8.27a.75.75 0 01.02-1.06z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </button>
+                {showTypeMenu && (
+                  <div className="absolute mt-1 w-full bg-[#0E1118] border border-white/10 rounded-md shadow-lg z-20">
+                    {["manga", "novel", "one_shot"].map((option) => {
+                      const isSelected = typeFilter === option;
+                      return (
+                        <button
+                          key={option}
+                          onClick={() => {
+                            setTypeFilter(option);
+                            setShowTypeMenu(false);
+                          }}
+                          className={`block w-full text-left px-3 py-2 transition-colors duration-150 ${
+                            isSelected
+                              ? "text-blue-400 bg-blue-600/10"
+                              : "text-white/80 hover:bg-blue-600/20"
+                          } capitalize`}
+                        >
+                          {option.replace("_", " ")}
+                        </button>
+                      );
+                    })}
                   </div>
-                ))}
-                {/* Spacer after last card */}
-                <div className="shrink-0 w-16" />
+                )}
+              </div>
+
+              {/* Sort Filter */}
+              <div className="relative">
+                <button
+                  onClick={() => {
+                    setShowSortMenu(!showSortMenu);
+                    setShowTypeMenu(false);
+                    setShowStatusMenu(false);
+                  }}
+                  className="bg-light-navy border border-white/5 rounded-md px-3 py-2 text-white/80 font-semibold hover:border-purple-500/40 focus:border-purple-500/60 focus:ring-2 focus:ring-purple-500/30 outline-none transition-all cursor-pointer w-[200px] flex justify-between items-center"
+                >
+                  <span>
+                    Sort By:{" "}
+                    <span className="text-purple-400 capitalize">
+                      {sortFilter.replace("_", " ")}
+                    </span>
+                  </span>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-4 w-4 text-white/60"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.21 8.27a.75.75 0 01.02-1.06z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </button>
+                {showSortMenu && (
+                  <div className="absolute mt-1 w-full bg-[#0E1118] border border-white/10 rounded-md shadow-lg z-20">
+                    {["score", "popularity", "newest"].map((option) => {
+                      const isSelected = sortFilter === option;
+                      return (
+                        <button
+                          key={option}
+                          onClick={() => {
+                            setSortFilter(option);
+                            setShowSortMenu(false);
+                          }}
+                          className={`block w-full text-left px-3 py-2 transition-colors duration-150 ${
+                            isSelected
+                              ? "text-purple-400 bg-purple-600/10"
+                              : "text-white/80 hover:bg-purple-600/20"
+                          } capitalize`}
+                        >
+                          {option}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              {/* Status Filter */}
+              <div className="relative">
+                <button
+                  onClick={() => {
+                    setShowStatusMenu(!showStatusMenu);
+                    setShowTypeMenu(false);
+                    setShowSortMenu(false);
+                  }}
+                  className="bg-light-navy border border-white/5 rounded-md px-3 py-2 text-white/80 font-semibold hover:border-emerald-500/40 focus:border-emerald-500/60 focus:ring-2 focus:ring-emerald-500/30 outline-none transition-all cursor-pointer w-[200px] flex justify-between items-center"
+                >
+                  <span>
+                    Status:{" "}
+                    <span className="text-emerald-400 capitalize">
+                      {statusFilter.replace("_", " ")}
+                    </span>
+                  </span>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-4 w-4 text-white/60"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.21 8.27a.75.75 0 01.02-1.06z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </button>
+                {showStatusMenu && (
+                  <div className="absolute mt-1 w-full bg-[#0E1118] border border-white/10 rounded-md shadow-lg z-20">
+                    {["any", "publishing", "finished"].map((option) => {
+                      const isSelected = statusFilter === option;
+                      return (
+                        <button
+                          key={option}
+                          onClick={() => {
+                            setStatusFilter(option);
+                            setShowStatusMenu(false);
+                          }}
+                          className={`block w-full text-left px-3 py-2 transition-colors duration-150 ${
+                            isSelected
+                              ? "text-emerald-400 bg-emerald-600/10"
+                              : "text-white/80 hover:bg-emerald-600/20"
+                          } capitalize`}
+                        >
+                          {option}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             </div>
           </div>
         </section>
-
-        <form onSubmit={handleSearch} className="mb-8">
-          <div className="flex gap-4">
-            <input
-              type="text"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search for manga..."
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <button
-              type="submit"
-              disabled={loading}
-              className="px-6 py-2 bg-blue-700 text-white font-bold rounded-lg hover:bg-blue-900 disabled:opacity-50"
-            >
-              Search
-            </button>
-          </div>
-        </form>
 
         {error && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
@@ -238,21 +360,20 @@ export default function SearchPage() {
           </div>
         )}
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6">
           {results.map((manga, index) => {
             const popupPosition = getPopupPosition(index);
 
             return (
               <div key={manga.malId} className="group relative">
-                <div className="rounded-lg overflow-hidden transition-transform">
-                  <div className="relative w-full aspect-[2/3] bg-gray-100">
+                <div className="rounded-lg overflow-hidden transition-transform duration-300">
+                  <div className="relative w-full aspect-[2/3] bg-[#0d0f16] transition-all rounded-lg overflow-hidden">
                     <Image
                       src={manga.imageUrl}
                       alt={manga.title}
                       fill
-                      className="object-cover"
+                      className="object-cover rounded-lg"
                     />
-
                     <button
                       onClick={() => addToLibrary(manga)}
                       className="absolute bottom-2 right-2 w-10 h-10 flex items-center justify-center bg-blue-600 font-bold text-white rounded-full hover:bg-blue-700 transition opacity-0 group-hover:opacity-100 shadow-lg z-10"
@@ -261,7 +382,7 @@ export default function SearchPage() {
                     </button>
                   </div>
                   <div className="pt-2">
-                    <h3 className="font-bold text-white text-sm line-clamp-2">{manga.title}</h3>
+                    <h3 className="font-bold text-white text-sm line-clamp-2 text-left">{manga.title}</h3>
                   </div>
                 </div>
 
@@ -323,6 +444,203 @@ export default function SearchPage() {
 
         {results.length === 0 && !loading && query && (
           <div className="text-center text-gray-500 mt-8">No results found</div>
+        )}
+
+        {!query.trim() && (
+          <>
+            {/* ===================== TOP MANGA ===================== */}
+            <section className="max-w-7xl mx-auto mb-16">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-lg font-bold text-white tracking-wide">TOP MANGA</h2>
+                <button
+                  onClick={() => setShowAllTop((prev) => !prev)}
+                  className="text-blue-400 text-sm font-medium hover:underline hover:text-blue-300 transition"
+                >
+                  {showAllTop ? "Show Less ↑" : "View All →"}
+                </button>
+              </div>
+
+              <div
+                className={`grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6 transition-all duration-500 ${
+                  showAllTop ? "max-h-[9999px]" : "max-h-[800px] overflow-hidden"
+                }`}
+              >
+                {(showAllTop ? topManga : topManga.slice(0, 6)).map((manga, index) => {
+                  const popupPosition = getPopupPosition(index);
+                  return (
+                    <div key={manga.malId} className="group relative">
+                      {/* Manga Card */}
+                      <div className="rounded-lg overflow-hidden transition-transform duration-300 ">
+                        <div className="relative w-full aspect-[2/3] bg-[#0d0f16] transition-all rounded-lg overflow-hidden">
+                          <Image
+                            src={manga.imageUrl}
+                            alt={manga.title}
+                            fill
+                            className="object-cover rounded-lg"
+                          />
+                          <button
+                            onClick={() => addToLibrary(manga)}
+                            className="absolute bottom-2 right-2 w-10 h-10 flex items-center justify-center bg-blue-600 font-bold text-white rounded-full hover:bg-blue-700 transition opacity-0 group-hover:opacity-100 shadow-lg z-10"
+                          >
+                            <Plus className="w-5 h-5" />
+                          </button>
+                        </div>
+                        <div className="pt-2">
+                          <h3 className="font-bold text-white text-sm line-clamp-2 text-left group-hover:text-blue-400">{manga.title}</h3>
+                        </div>
+                      </div>
+
+                      {/* Hover Popup */}
+                      <div
+                        className={`
+                          absolute top-0 w-64 bg-light-navy rounded-lg border border-white/5
+                          shadow-2xl p-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible
+                          transition-all duration-200 z-10 pointer-events-none
+                          ${popupPosition}
+                        `}
+                      >
+                        <div className="flex gap-3 mb-3">
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-bold text-white text-sm mb-1 line-clamp-2">{manga.title}</h3>
+                            {manga.titleEnglish && (
+                              <p className="text-xs text-white-purple mb-2 line-clamp-2">{manga.titleEnglish}</p>
+                            )}
+                            {manga.authors && manga.authors.length > 0 && (
+                              <p className="text-xs text-white-purple mb-2">
+                                {manga.authors.length === 1 ? "Author" : "Authors"}:{" "}
+                                {manga.authors.map((a) => a.name).join(", ")}
+                              </p>
+                            )}
+                            <div className="flex items-center gap-2 mb-2 text-xs">
+                              <Star className="w-3 h-3 fill-blue-400 text-blue-400" />
+                              <span className="font-bold text-white-purple">{manga.score}</span>
+                              <span className="text-white-purple">
+                                {manga.chapters ? `${manga.chapters} ch` : "? ch"}
+                              </span>
+                              <span className="text-white-purple">
+                                {manga.volumes ? `${manga.volumes} vol` : "? vol"}
+                              </span>
+                            </div>
+                            {manga.status && (
+                              <p className="text-xs text-white-purple mb-2">Status: {manga.status}</p>
+                            )}
+                          </div>
+                        </div>
+                        {manga.genres && manga.genres.length > 0 && (
+                          <div className="flex flex-wrap gap-1">
+                            {manga.genres.slice(0, 4).map((genre) => (
+                              <span
+                                key={genre}
+                                className="text-xs bg-blue-600 text-white px-2 py-0.5 rounded"
+                              >
+                                {genre}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+
+            {/* ===================== TRENDING NOW ===================== */}
+            <section className="max-w-7xl mx-auto mb-16">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-lg font-bold text-white tracking-wide">TRENDING NOW</h2>
+                <button
+                  onClick={() => setShowAllTrending((prev) => !prev)}
+                  className="text-blue-400 text-sm font-medium hover:underline hover:text-blue-300 transition"
+                >
+                  {showAllTrending ? "Show Less ↑" : "View All →"}
+                </button>
+              </div>
+
+              <div
+                className={`grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6 transition-all duration-500 ${
+                  showAllTrending ? "max-h-[9999px]" : "max-h-[800px] overflow-hidden"
+                }`}
+              >
+                {(showAllTrending ? trendingManga : trendingManga.slice(0, 6)).map((manga, index) => {
+                  const popupPosition = getPopupPosition(index);
+                  return (
+                    <div key={manga.malId} className="group relative">
+                      <div className="rounded-lg overflow-hidden transition-transform duration-300">
+                        <div className="relative w-full aspect-[2/3] bg-[#0d0f16] transition-all rounded-lg overflow-hidden">
+                          <Image
+                            src={manga.imageUrl}
+                            alt={manga.title}
+                            fill
+                            className="object-cover rounded-lg"
+                          />
+                          <button
+                            onClick={() => addToLibrary(manga)}
+                            className="absolute bottom-2 right-2 w-10 h-10 flex items-center justify-center bg-blue-600 font-bold text-white rounded-full hover:bg-blue-700 transition opacity-0 group-hover:opacity-100 shadow-lg z-10"
+                          >
+                            <Plus className="w-5 h-5" />
+                          </button>
+                        </div>
+                        <div className="pt-2">
+                          <h3 className="font-bold text-white text-sm line-clamp-2 text-left">{manga.title}</h3>
+                        </div>
+                      </div>
+
+                      {/* Hover Popup */}
+                      <div
+                        className={`
+                          absolute top-0 w-64 bg-light-navy rounded-lg border border-white/5
+                          shadow-2xl p-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible
+                          transition-all duration-200 z-10 pointer-events-none
+                          ${popupPosition}
+                        `}
+                      >
+                        <div className="flex gap-3 mb-3">
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-bold text-white text-sm mb-1 line-clamp-2">{manga.title}</h3>
+                            {manga.titleEnglish && (
+                              <p className="text-xs text-white-purple mb-2 line-clamp-2">{manga.titleEnglish}</p>
+                            )}
+                            {manga.authors && manga.authors.length > 0 && (
+                              <p className="text-xs text-white-purple mb-2">
+                                {manga.authors.length === 1 ? "Author" : "Authors"}:{" "}
+                                {manga.authors.map((a) => a.name).join(", ")}
+                              </p>
+                            )}
+                            <div className="flex items-center gap-2 mb-2 text-xs">
+                              <Star className="w-3 h-3 fill-blue-400 text-blue-400" />
+                              <span className="font-bold text-white-purple">{manga.score}</span>
+                              <span className="text-white-purple">
+                                {manga.chapters ? `${manga.chapters} ch` : "? ch"}
+                              </span>
+                              <span className="text-white-purple">
+                                {manga.volumes ? `${manga.volumes} vol` : "? vol"}
+                              </span>
+                            </div>
+                            {manga.status && (
+                              <p className="text-xs text-white-purple mb-2">Status: {manga.status}</p>
+                            )}
+                          </div>
+                        </div>
+                        {manga.genres && manga.genres.length > 0 && (
+                          <div className="flex flex-wrap gap-1">
+                            {manga.genres.slice(0, 4).map((genre) => (
+                              <span
+                                key={genre}
+                                className="text-xs bg-blue-600 text-white px-2 py-0.5 rounded"
+                              >
+                                {genre}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+          </>
         )}
       </div>
     </div>
