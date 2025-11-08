@@ -3,6 +3,7 @@ import { Overpass } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
 
 const overpass = Overpass({ 
   subsets: ["latin"],
@@ -25,6 +26,7 @@ export default function RootLayout({
         <Providers>
           <Navbar />
           {children}
+          <Footer />
         </Providers>
       </body>
     </html>
