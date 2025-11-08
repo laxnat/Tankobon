@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSession } from "next-auth/react";
-import { Loader2, BookOpen, Star, BarChart3 } from "lucide-react";
+import { useSession, signOut } from "next-auth/react";
+import { Loader2, BookOpen, Star, BarChart3, Upload, LogOut } from "lucide-react";
 
 interface Stats {
   total: number;
@@ -15,13 +15,18 @@ interface Stats {
 }
 
 export default function ProfilePage() {
-  const { data: session, status } = useSession();
+  const { data: session, status, update } = useSession();
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [uploading, setUploading] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   useEffect(() => {
-    if (status === "authenticated") fetchStats();
-  }, [status]);
+    if (status === "authenticated") {
+      fetchStats();
+      setPreviewUrl(session?.user?.image || null);
+    }
+  }, [status, session]);
 
   const fetchStats = async () => {
     try {
@@ -34,6 +39,40 @@ export default function ProfilePage() {
       setLoading(false);
     }
   };
+
+  // Simulated upload handler — you can replace this later with Firebase Storage, S3, or another upload API.
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+  
+    setUploading(true);
+  
+    try {
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const base64 = reader.result as string;
+        setPreviewUrl(base64);
+  
+        // Upload the image to the server
+        const res = await fetch("/api/profile/update-pfp", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ image: base64 }),
+        });
+  
+        if (!res.ok) throw new Error("Failed to update profile image");
+  
+        // Refresh the NextAuth session to show new image immediately
+        await update();
+      };
+  
+      reader.readAsDataURL(file);
+    } catch (err) {
+      console.error("Failed to upload image:", err);
+    } finally {
+      setUploading(false);
+    }
+  };  
 
   if (loading)
     return (
@@ -52,10 +91,60 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen pt-24 px-8">
       <div className="max-w-5xl mx-auto">
-        <h1 className="text-5xl font-bold text-white mb-6">
-          {session.user?.name || "User"}'s Profile
-        </h1>
+        {/* Header */}
+        <div className="flex flex-col md:flex-row items-center justify-between mb-10 gap-6">
+          {/* Profile info */}
+          <div className="flex items-center gap-6">
+            {/* Profile Image */}
+            <div className="relative">
+              <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-blue-500/40 shadow-lg">
+                <img
+                  src={previewUrl || "public/images/blankpfp.png"}
+                  alt="Profile"
+                  className="object-cover w-full h-full"
+                />
+              </div>
 
+              {/* Upload Button */}
+              <label
+                htmlFor="profile-upload"
+                className="absolute bottom-0 right-0 bg-blue-600 hover:bg-blue-700 p-2 rounded-full cursor-pointer shadow-lg transition"
+                title="Change Profile Picture"
+              >
+                {uploading ? (
+                  <Loader2 className="w-5 h-5 text-white animate-spin" />
+                ) : (
+                  <Upload className="w-5 h-5 text-white" />
+                )}
+                <input
+                  id="profile-upload"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="hidden"
+                />
+              </label>
+            </div>
+
+            <div>
+              <h1 className="text-4xl md:text-5xl font-bold text-white mb-2">
+                {session.user?.name || "User"}
+              </h1>
+              <p className="text-white-purple">{session.user?.email}</p>
+            </div>
+          </div>
+
+          {/* Sign out button */}
+          <button
+            onClick={() => signOut({ callbackUrl: "/" })}
+            className="flex items-center gap-2 px-5 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-xl shadow-md shadow-red-600/30 transition"
+          >
+            <LogOut className="w-5 h-5" />
+            Sign Out
+          </button>
+        </div>
+
+        {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Total */}
           <div className="bg-light-navy/40 rounded-2xl p-6 border border-white/10 shadow-lg text-center">
@@ -98,7 +187,15 @@ export default function ProfilePage() {
   );
 }
 
-function StatItem({ label, value, color }: { label: string; value: number; color: string }) {
+function StatItem({
+  label,
+  value,
+  color,
+}: {
+  label: string;
+  value: number;
+  color: string;
+}) {
   return (
     <div className="bg-white/5 rounded-xl p-4 text-center">
       <h3 className={`text-3xl font-bold ${color}`}>{value}</h3>

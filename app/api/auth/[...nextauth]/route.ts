@@ -49,14 +49,29 @@ export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
     async jwt({ token, user }) {
+      // When user first signs in, attach their ID
       if (user) token.id = user.id;
       return token;
     },
     async session({ session, token }) {
-      if (session.user) session.user.id = token.id as string;
+      if (session.user && token.id) {
+        // Re-fetch the latest user data from DB
+        const dbUser = await prisma.user.findUnique({
+          where: { id: token.id as string },
+          select: { id: true, name: true, email: true, image: true },
+        });
+  
+        if (dbUser) {
+          session.user.id = dbUser.id;
+          session.user.name = dbUser.name;
+          session.user.email = dbUser.email;
+          session.user.image = dbUser.image;
+        }
+      }
+  
       return session;
     },
-  },
+  },  
 };
 
 const handler = NextAuth(authOptions);
