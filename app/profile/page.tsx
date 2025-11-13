@@ -189,12 +189,14 @@ export default function ProfilePage() {
           </div>
         </div>
       </div>
-        {/* Success Popup */}
-        {showPopup && (
-        <div className="fixed bottom-8 right-8 bg-gradient-to-r from-blue-400 to-purple-600 text-white font-bold px-6 py-3 rounded-xl shadow-lg shadow-blue-500/30 animate-fadeIn z-50">
+      {/* Success Popup */}
+      {showPopup && (
+        <div className="fixed top-8 left-1/2 transform -translate-x-1/2 z-50">
+          <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white font-bold px-6 py-3 rounded-xl shadow-lg shadow-blue-500/30 animate-fadeIn">
             Profile picture updated!
+          </div>
         </div>
-        )}
+      )}
     </div>
   );
 }
