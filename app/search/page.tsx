@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Loader2, Plus, Star, Search } from "lucide-react";
 
@@ -365,26 +366,30 @@ export default function SearchPage() {
             const popupPosition = getPopupPosition(index);
 
             return (
-              <div key={manga.malId} className="group relative">
-                <div className="rounded-lg overflow-hidden transition-transform duration-300">
-                  <div className="relative w-full aspect-[2/3] bg-[#0d0f16] transition-all rounded-lg overflow-hidden">
-                    <Image
-                      src={manga.imageUrl}
-                      alt={manga.title}
-                      fill
-                      className="object-cover rounded-lg"
-                    />
-                    <button
-                      onClick={() => addToLibrary(manga)}
-                      className="absolute bottom-2 right-2 w-10 h-10 flex items-center justify-center bg-blue-600 font-bold text-white rounded-full hover:bg-blue-700 transition opacity-0 group-hover:opacity-100 shadow-lg z-10"
-                    >
-                      <Plus className="w-5 h-5" />
-                    </button>
+              <div className="group relative">
+                <Link href={`/manga/${manga.malId}`} className="block">
+                  <div className="rounded-lg overflow-hidden transition-transform duration-300">
+                    <div className="relative w-full aspect-[2/3] bg-[#0d0f16] transition-all rounded-lg overflow-hidden">
+                      <Image
+                        src={manga.imageUrl}
+                        alt={manga.title}
+                        fill
+                        className="object-cover rounded-lg"
+                      />
+                    
+                    </div>
+                    <div className="pt-2">
+                      <h3 className="font-bold text-white text-sm line-clamp-2 text-left">{manga.title}</h3>
+                    </div>
                   </div>
-                  <div className="pt-2">
-                    <h3 className="font-bold text-white text-sm line-clamp-2 text-left">{manga.title}</h3>
-                  </div>
-                </div>
+                </Link>
+
+                <button
+                  onClick={() => addToLibrary(manga)}
+                  className="absolute bottom-14 right-2 w-10 h-10 flex items-center justify-center bg-blue-600 font-bold text-white rounded-full hover:bg-blue-700 transition opacity-0 group-hover:opacity-100 shadow-lg z-10"
+                >
+                  <Plus className="w-5 h-5" />
+                </button>
 
                 {/* Hover Card with dynamic positioning */}
                 <div
@@ -468,27 +473,30 @@ export default function SearchPage() {
                 {(showAllTop ? topManga : topManga.slice(0, 6)).map((manga, index) => {
                   const popupPosition = getPopupPosition(index);
                   return (
-                    <div key={manga.malId} className="group relative">
-                      {/* Manga Card */}
-                      <div className="rounded-lg overflow-hidden transition-transform duration-300 ">
-                        <div className="relative w-full aspect-[2/3] bg-[#0d0f16] transition-all rounded-lg overflow-hidden">
-                          <Image
-                            src={manga.imageUrl}
-                            alt={manga.title}
-                            fill
-                            className="object-cover rounded-lg"
-                          />
-                          <button
-                            onClick={() => addToLibrary(manga)}
-                            className="absolute bottom-2 right-2 w-10 h-10 flex items-center justify-center bg-blue-600 font-bold text-white rounded-full hover:bg-blue-700 transition opacity-0 group-hover:opacity-100 shadow-lg z-10"
-                          >
-                            <Plus className="w-5 h-5" />
-                          </button>
+                    <div className="group relative">
+                      <Link href={`/manga/${manga.malId}`} className="block">
+                        {/* Manga Card */}
+                        <div className="rounded-lg overflow-hidden transition-transform duration-300 ">
+                          <div className="relative w-full aspect-[2/3] bg-[#0d0f16] transition-all rounded-lg overflow-hidden">
+                            <Image
+                              src={manga.imageUrl}
+                              alt={manga.title}
+                              fill
+                              className="object-cover rounded-lg"
+                            />
+                          </div>
+                          <div className="pt-2">
+                            <h3 className="font-bold text-white text-sm line-clamp-2 text-left group-hover:text-blue-400">{manga.title}</h3>
+                          </div>
                         </div>
-                        <div className="pt-2">
-                          <h3 className="font-bold text-white text-sm line-clamp-2 text-left group-hover:text-blue-400">{manga.title}</h3>
-                        </div>
-                      </div>
+                      </Link>
+
+                      <button
+                        onClick={() => addToLibrary(manga)}
+                        className="absolute bottom-14 right-2 w-10 h-10 flex items-center justify-center bg-blue-600 font-bold text-white rounded-full hover:bg-blue-700 transition opacity-0 group-hover:opacity-100 shadow-lg z-10"
+                      >
+                        <Plus className="w-5 h-5" />
+                      </button>
 
                       {/* Hover Popup */}
                       <div
@@ -565,26 +573,29 @@ export default function SearchPage() {
                 {(showAllTrending ? trendingManga : trendingManga.slice(0, 6)).map((manga, index) => {
                   const popupPosition = getPopupPosition(index);
                   return (
-                    <div key={manga.malId} className="group relative">
-                      <div className="rounded-lg overflow-hidden transition-transform duration-300">
-                        <div className="relative w-full aspect-[2/3] bg-[#0d0f16] transition-all rounded-lg overflow-hidden">
-                          <Image
-                            src={manga.imageUrl}
-                            alt={manga.title}
-                            fill
-                            className="object-cover rounded-lg"
-                          />
-                          <button
-                            onClick={() => addToLibrary(manga)}
-                            className="absolute bottom-2 right-2 w-10 h-10 flex items-center justify-center bg-blue-600 font-bold text-white rounded-full hover:bg-blue-700 transition opacity-0 group-hover:opacity-100 shadow-lg z-10"
-                          >
-                            <Plus className="w-5 h-5" />
-                          </button>
+                    <div className="group relative">
+                      <Link href={`/manga/${manga.malId}`} className="block">
+                        <div className="rounded-lg overflow-hidden transition-transform duration-300">
+                          <div className="relative w-full aspect-[2/3] bg-[#0d0f16] transition-all rounded-lg overflow-hidden">
+                            <Image
+                              src={manga.imageUrl}
+                              alt={manga.title}
+                              fill
+                              className="object-cover rounded-lg"
+                            />
+                          </div>
+                          <div className="pt-2">
+                            <h3 className="font-bold text-white text-sm line-clamp-2 text-left">{manga.title}</h3>
+                          </div>
                         </div>
-                        <div className="pt-2">
-                          <h3 className="font-bold text-white text-sm line-clamp-2 text-left">{manga.title}</h3>
-                        </div>
-                      </div>
+                      </Link>
+
+                      <button
+                        onClick={() => addToLibrary(manga)}
+                        className="absolute bottom-14 right-2 w-10 h-10 flex items-center justify-center bg-blue-600 font-bold text-white rounded-full hover:bg-blue-700 transition opacity-0 group-hover:opacity-100 shadow-lg z-10"
+                      >
+                        <Plus className="w-5 h-5" />
+                      </button>
 
                       {/* Hover Popup */}
                       <div
