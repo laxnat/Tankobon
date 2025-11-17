@@ -6,7 +6,7 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-// GET - Fetch user's library
+// GET - Fetch user's library OR one entry by malId
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession();
@@ -25,7 +25,23 @@ export async function GET(request: NextRequest) {
 
     const searchParams = request.nextUrl.searchParams;
     const status = searchParams.get("status");
+    const malId = searchParams.get("malId");
 
+    // ----- If querying a specific manga entry -----
+    if (malId) {
+      const entry = await prisma.mangaLibrary.findUnique({
+        where: {
+          userId_malId: {
+            userId: user.id,
+            malId: parseInt(malId),
+          }
+        }
+      });
+
+      return NextResponse.json({ entry });
+    }
+
+    // ----- Otherwise fetch all or by status -----
     const library = await prisma.mangaLibrary.findMany({
       where: {
         userId: user.id,
@@ -35,6 +51,7 @@ export async function GET(request: NextRequest) {
     });
 
     return NextResponse.json({ library });
+
   } catch (error) {
     console.error("Error fetching library:", error);
     return NextResponse.json(
@@ -43,6 +60,7 @@ export async function GET(request: NextRequest) {
     );
   }
 }
+
 
 // POST - Add manga to library
 export async function POST(request: NextRequest) {

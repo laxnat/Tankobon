@@ -62,28 +62,39 @@ export default function MangaDetailsPage() {
     fetchDetails();
   }, [id]);
 
-  /* Fetch user's manga notes*/
+  /* Fetch user's library entry + preload notes */
   useEffect(() => {
     if (!session || !manga) return;
-
+  
     const fetchLibraryEntry = async () => {
       try {
         const res = await fetch(`/api/library?malId=${manga.malId}`);
         const data = await res.json();
-
-        if (res.ok && data.library?.length) {
-          const entry = data.library[0];
+  
+        if (res.ok && data.entry) {
+          const entry = data.entry;
+  
           setEntryId(entry.id);
-          setNotes(entry.notes || ""); // ✅ prefill saved notes
           setAdded(true);
+  
+          // Use notes from the database directly
+          setNotes(entry.notes?.trim() ? entry.notes : "");
+        } else {
+          // Not in library
+          setEntryId(null);
+          setAdded(false);
+          setNotes("");   // clear notes
         }
       } catch (err) {
         console.error("Failed to load library entry:", err);
+        setEntryId(null);
+        setAdded(false);
+        setNotes("");
       }
     };
-
+  
     fetchLibraryEntry();
-  }, [session, manga]);
+  }, [session, manga]);  
 
   /* Add to Library Handler */
   const addToLibrary = async () => {
