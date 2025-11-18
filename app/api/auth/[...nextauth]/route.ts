@@ -36,7 +36,12 @@ export const authOptions: NextAuthOptions = {
           throw new Error("Invalid credentials");
         }
 
-        return user;
+        return {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          image: user.image,
+        };
       },
     }),
   ],
@@ -54,21 +59,21 @@ export const authOptions: NextAuthOptions = {
       return token;
     },
     async session({ session, token }) {
-      if (session.user && token.id) {
-        // Re-fetch the latest user data from DB
+      // Only use the DB user OR fallback to token data
+      if (token?.id) {
         const dbUser = await prisma.user.findUnique({
           where: { id: token.id as string },
           select: { id: true, name: true, email: true, image: true },
         });
-  
-        if (dbUser) {
-          session.user.id = dbUser.id;
-          session.user.name = dbUser.name;
-          session.user.email = dbUser.email;
-          session.user.image = dbUser.image;
-        }
+    
+        session.user = {
+          id: dbUser?.id || token.id,
+          name: dbUser?.name || session.user?.name || null,
+          email: dbUser?.email || session.user?.email || null,
+          image: dbUser?.image || session.user?.image,
+        };
       }
-  
+    
       return session;
     },
   },  
