@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useCallback, memo } from "react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
@@ -30,6 +30,116 @@ interface EditForm {
   ownedVolumes: number[];
   notes: string;
 }
+
+// Memoized library item component
+const LibraryItem = memo(({ 
+  entry, 
+  onEdit, 
+  getStatusColor 
+}: { 
+  entry: LibraryEntry; 
+  onEdit: (entry: LibraryEntry) => void;
+  getStatusColor: (status: string) => string;
+}) => {
+  return (
+    <div className="group relative bg-light-navy/30 hover:bg-light-navy/50 border border-white/5 hover:border-white/10 rounded-2xl transition-all duration-300">
+      <div className="flex items-center gap-6 p-4">
+        {/* Cover Image */}
+        <div className="relative flex-shrink-0">
+          {entry.imageUrl && (
+            <>
+              <div className="w-14 h-20 rounded-lg overflow-hidden">
+                <Image
+                  src={entry.imageUrl}
+                  alt={entry.title}
+                  width={56}
+                  height={80}
+                  className="object-cover"
+                  loading="lazy"
+                />
+              </div>
+
+              <button
+                onClick={() => onEdit(entry)}
+                className="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg z-10"
+              >
+                <span className="text-white text-2xl">⋯</span>
+              </button>
+
+              {/* Hover Preview */}
+              <div className="absolute left-[-140px] top-1/2 -translate-y-1/2 w-28 h-40 rounded-lg overflow-hidden opacity-0 group-hover:opacity-100 transition-opacity shadow-2xl z-20 border-2 border-white/20 pointer-events-none">
+                <Image
+                  src={entry.imageUrl}
+                  alt={entry.title}
+                  width={112}
+                  height={160}
+                  className="object-cover"
+                  loading="lazy"
+                />
+              </div>
+            </>
+          )}
+        </div>
+
+        <div className="w-[500px]">
+          <Link href={`/manga/${entry.malId}`}>
+            <h3 className="text-white font-bold text-lg truncate group-hover:text-blue-400 transition-colors">
+              {entry.title}
+            </h3>
+          </Link>
+          <div className={`text-sm font-medium truncate ${getStatusColor(entry.status)}`}>
+            {entry.status.replace(/_/g, " ")}
+          </div>
+        </div>
+
+        <div className="w-24 flex items-center justify-center gap-2 flex-shrink-0">
+          {entry.rating ? (
+            <>
+              <Star className="w-4 h-4 fill-blue-400 text-blue-400" />
+              <span className="text-white font-bold">{entry.rating}</span>
+            </>
+          ) : (
+            <span className="text-white-purple">-</span>
+          )}
+        </div>
+
+        <div className="w-28 text-center flex-shrink-0">
+          <div className="text-white font-medium">
+            {entry.chaptersRead || 0}
+            / 
+            {entry.totalChapters 
+              ? <span className="text-white-purple">{entry.totalChapters}</span>
+              : "-"}
+          </div>
+        </div>
+
+        <div className="w-24 text-center flex-shrink-0">
+          <span className="text-white-purple">
+            {entry.volumesRead || 0}
+            / 
+            {entry.totalVolumes 
+              ? <span className="text-white-purple">{entry.totalVolumes}</span>
+              : "-"}
+          </span>
+        </div>
+
+        <div className="w-28 text-center flex-shrink-0">
+          {entry.totalVolumes ? (
+            <span className="font-medium bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
+              {Math.round((entry.ownedVolumes?.length / entry.totalVolumes) * 100)}%
+            </span>
+          ) : (
+            <span className="font-medium bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
+              {entry.ownedVolumes?.length || 0}/-
+            </span>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+});
+
+LibraryItem.displayName = "LibraryItem";
 
 export default function LibraryPage() {
   const { data: session, status } = useSession();
@@ -79,23 +189,26 @@ export default function LibraryPage() {
     if (status === "authenticated") fetchLibrary();
   }, [filter]);
 
-  // Sort library
-  const sortedLibrary = [...library].sort((a, b) => {
-    switch (sortBy) {
-      case "score-high":
-        return (b.rating || 0) - (a.rating || 0);
-      case "score-low":
-        return (a.rating || 0) - (b.rating || 0);
-      case "title":
-        return a.title.localeCompare(b.title);
-      case "recent":
-        return 0;
-      default:
-        return 0;
-    }
-  });
+  // Memoized sorted library (only recalculates when library or sortBy changes)
+  const sortedLibrary = useMemo(() => {
+    return [...library].sort((a, b) => {
+      switch (sortBy) {
+        case "score-high":
+          return (b.rating || 0) - (a.rating || 0);
+        case "score-low":
+          return (a.rating || 0) - (b.rating || 0);
+        case "title":
+          return a.title.localeCompare(b.title);
+        case "recent":
+          return 0;
+        default:
+          return 0;
+      }
+    });
+  }, [library, sortBy]);
 
-  const openModal = (entry: LibraryEntry) => {
+  // Memoized callback functions
+  const openModal = useCallback((entry: LibraryEntry) => {
     setCurrentEntry(entry);
     setEditForm({
       status: entry.status,
@@ -109,13 +222,12 @@ export default function LibraryPage() {
       Array.isArray(entry.ownedVolumes) ? entry.ownedVolumes.join(",") : ""
     );
     setModalOpen(true);
-  };
-  
+  }, []);
 
-  const closeModal = () => {
+  const closeModal = useCallback(() => {
     setModalOpen(false);
     setCurrentEntry(null);
-  };
+  }, []);
 
   const saveEdit = async () => {
     if (!currentEntry) return;
@@ -149,7 +261,19 @@ export default function LibraryPage() {
       console.error("Error deleting entry:", error);
     }
     return false;
-  };  
+  };
+
+  // Memoized status color function
+  const getStatusColor = useCallback((status: string) => {
+    switch (status) {
+      case "READING": return "text-green-400";
+      case "COMPLETED": return "text-blue-400";
+      case "PLAN_TO_READ": return "text-gray-400";
+      case "ON_HOLD": return "text-yellow-400";
+      case "DROPPED": return "text-red-400";
+      default: return "text-white-purple";
+    }
+  }, []);
 
   if (loading)
     return (
@@ -167,21 +291,9 @@ export default function LibraryPage() {
     { value: "DROPPED", label: "Dropped" },
   ];
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "READING": return "text-green-400";
-      case "COMPLETED": return "text-blue-400";
-      case "PLAN_TO_READ": return "text-gray-400";
-      case "ON_HOLD": return "text-yellow-400";
-      case "DROPPED": return "text-red-400";
-      default: return "text-white-purple";
-    }
-  };
-
   return (
     <div className="min-h-screen pt-24 px-4 md:px-8">
       <div className="max-w-[1800px] mx-auto">
-        {/* Header */}
         <div className="mb-8 flex items-center justify-between">
           <div>
             {session ? (
@@ -194,10 +306,9 @@ export default function LibraryPage() {
         </div>
 
         <div className="flex gap-8">
-          {/* Sleek Sidebar */}
+          {/* Sidebar */}
           <aside className="w-72 flex-shrink-0 hidden lg:block">
-            <div className="bg-light-navy/30 backdrop-blur-sm rounded-2xl p-6 border border-white/5 sticky top-24">
-              {/* Status Filter */}
+            <div className="bg-light-navy/30 rounded-2xl p-6 border border-white/5 sticky top-24">
               <div className="mb-8">
                 <div className="flex items-center gap-2 mb-4">
                   <Filter className="w-4 h-4 text-white-purple" />
@@ -225,7 +336,6 @@ export default function LibraryPage() {
                 </div>
               </div>
 
-              {/* Sort By */}
               <div>
                 <div className="flex items-center gap-2 mb-4">
                   <TrendingUp className="w-4 h-4 text-white-purple" />
@@ -277,7 +387,6 @@ export default function LibraryPage() {
             </div>
           </aside>
 
-          {/* Main Content */}
           <main className="flex-1 min-w-0">
             {sortedLibrary.length === 0 ? (
               <div className="text-center py-20">
@@ -286,9 +395,8 @@ export default function LibraryPage() {
               </div>
             ) : (
               <div>
-                {/* Column Headers */}
                 <div className="hidden lg:flex items-center gap-6 px-4 pb-3 mb-2 border-b border-white/10">
-                  <div className="w-14"></div> {/* Image space */}
+                  <div className="w-14"></div>
                   <div className="w-[500px]">
                     <span className="text-white text-sm font-semibold uppercase tracking-wider">Title</span>
                   </div>
@@ -304,112 +412,16 @@ export default function LibraryPage() {
                   <div className="w-28 text-center">
                     <span className="text-white text-sm font-semibold uppercase tracking-wider">Collected</span>
                   </div>
-                  <div className="w-32 hidden xl:block"></div> {/* Progress bar space */}
                 </div>
 
-                {/* List Items */}
                 <div className="space-y-2">
                   {sortedLibrary.map((entry) => (
-                    <div
+                    <LibraryItem
                       key={entry.id}
-                      className="group relative bg-light-navy/30 backdrop-blur-sm hover:bg-light-navy/50 border border-white/5 hover:border-white/10 rounded-2xl transition-all duration-300"
-                    >
-                      <div className="flex items-center gap-6 p-4">
-                        {/* Cover Image */}
-                        <div className="relative flex-shrink-0">
-                          {entry.imageUrl && (
-                            <>
-                              {/* Small preview */}
-                              <div className="w-14 h-20 rounded-lg overflow-hidden">
-                                <Image
-                                  src={entry.imageUrl}
-                                  alt={entry.title}
-                                  fill
-                                  className="object-cover"
-                                />
-                              </div>
-
-                              {/* Edit button on hover - only shows when hovering the small image */}
-                              <button
-                                onClick={() => openModal(entry)}
-                                className="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg z-10"
-                              >
-                                <span className="text-white text-2xl">⋯</span>
-                              </button>
-
-                              {/* Large hover preview */}
-                              <div className="absolute left-[-140px] top-1/2 -translate-y-1/2 w-28 h-40 rounded-lg overflow-hidden opacity-0 group-hover:opacity-100 transition-opacity shadow-2xl z-20 border-2 border-white/20 pointer-events-none">
-                                <Image
-                                  src={entry.imageUrl}
-                                  alt={entry.title}
-                                  fill
-                                  className="object-cover"
-                                />
-                              </div>
-                            </>
-                          )}
-                        </div>
-
-                        {/* Title - Fixed width */}
-                        <div className="w-[500px]">
-                          <Link href={`/manga/${entry.malId}`}>
-                            <h3 className="text-white font-bold text-lg truncate group-hover:text-blue-400 transition-colors">
-                              {entry.title}
-                            </h3>
-                          </Link>
-                          <div className={`text-sm font-medium truncate ${getStatusColor(entry.status)}`}>
-                            {entry.status.replace(/_/g, " ")}
-                          </div>
-                        </div>
-
-                        {/* Score - Fixed width */}
-                        <div className="w-24 flex items-center justify-center gap-2 flex-shrink-0">
-                          {entry.rating ? (
-                            <>
-                              <Star className="w-4 h-4 fill-blue-400 text-blue-400" />
-                              <span className="text-white font-bold">{entry.rating}</span>
-                            </>
-                          ) : (
-                            <span className="text-white-purple">-</span>
-                          )}
-                        </div>
-
-                        {/* Chapters - Fixed width */}
-                        <div className="w-28 text-center flex-shrink-0">
-                          <div className="text-white font-medium">
-                            {entry.chaptersRead || 0}
-                            / 
-                            {entry.totalChapters 
-                              ? <span className="text-white-purple">{entry.totalChapters}</span>
-                              : "-"}
-                          </div>
-                        </div>
-
-                        {/* Volumes - Fixed width */}
-                        <div className="w-24 text-center flex-shrink-0">
-                          <span className="text-white-purple">
-                            {entry.volumesRead || 0}
-                            / 
-                            {entry.totalVolumes 
-                              ? <span className="text-white-purple">{entry.totalVolumes}</span>
-                              : "-"}
-                          </span>
-                        </div>
-
-                        {/* Collected - Fixed width */}
-                        <div className="w-28 text-center flex-shrink-0">
-                          {entry.totalVolumes ? (
-                            <span className="font-medium bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
-                              {Math.round((entry.ownedVolumes?.length / entry.totalVolumes) * 100)}%
-                            </span>
-                          ) : (
-                            <span className="font-medium bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
-                              {entry.ownedVolumes?.length || 0}/-
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
+                      entry={entry}
+                      onEdit={openModal}
+                      getStatusColor={getStatusColor}
+                    />
                   ))}
                 </div>
               </div>
@@ -420,14 +432,12 @@ export default function LibraryPage() {
 
       {/* Edit Modal */}
       {modalOpen && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
           <div className="bg-light-navy border border-white/5 rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] flex flex-col">
-            {/* Fixed Edit Modal Header */}
             <div className="p-6 border-b border-white/10 flex-shrink-0">
               <h2 className="text-2xl font-bold text-white">Edit Entry</h2>
             </div>
 
-            {/* Scrollable Content */}
             <div className="p-6 space-y-4 overflow-y-auto flex-1">
               <div>
                 <label className="block text-white-purple text-sm mb-2">Status</label>
@@ -511,7 +521,6 @@ export default function LibraryPage() {
                   )}
                 </div>
 
-                {/* Text input for adding owned volumes when totalVolumes unknown */}
                 {!currentEntry?.totalVolumes && (
                   <input
                     type="text"
@@ -546,7 +555,6 @@ export default function LibraryPage() {
               </div>
             </div>
 
-            {/* Fixed Edit Modal Footer */}
             <div className="p-6 border-t border-white/10 flex justify-end gap-3 flex-shrink-0">
               <button
                 onClick={async () => {
