@@ -12,10 +12,6 @@ export default function Footer() {
             Your personal manga library tracker — built for fans, by fans.
             </p>
     
-            {/* Copyright */}
-            <p className="text-xs text-white/40">
-            © {new Date().getFullYear()} Tankōbon. All rights reserved.
-            </p>
         </div>
     </footer>
     )
