@@ -105,7 +105,7 @@ export default function ProfilePage() {
             <div className="relative">
               <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-blue-500/40 shadow-lg">
                 <img
-                  src={previewUrl || "public/images/blankpfp.png"}
+                  src={previewUrl || "/images/blankpfp.png"}
                   alt="Profile"
                   className="object-cover w-full h-full"
                 />

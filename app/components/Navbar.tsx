@@ -57,7 +57,7 @@ export default function Navbar() {
                   >
                     <Image
                       src={
-                        session.user?.image || "/default-avatar.png"
+                        session.user?.image || "/images/blankpfp.png"
                       }
                       alt="Profile"
                       fill
