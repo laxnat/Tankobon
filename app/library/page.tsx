@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Star, TrendingUp, Loader2, Filter, Trash2 } from "lucide-react";
 
@@ -351,9 +352,11 @@ export default function LibraryPage() {
 
                         {/* Title - Fixed width */}
                         <div className="w-[500px]">
-                          <h3 className="text-white font-bold text-lg truncate group-hover:text-blue-400 transition-colors">
-                            {entry.title}
-                          </h3>
+                          <Link href={`/manga/${entry.malId}`}>
+                            <h3 className="text-white font-bold text-lg truncate group-hover:text-blue-400 transition-colors">
+                              {entry.title}
+                            </h3>
+                          </Link>
                           <div className={`text-sm font-medium truncate ${getStatusColor(entry.status)}`}>
                             {entry.status.replace(/_/g, " ")}
                           </div>
