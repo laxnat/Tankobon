@@ -37,6 +37,8 @@ export default function SearchPage() {
   const [showTypeMenu, setShowTypeMenu] = useState(false);
   const [showSortMenu, setShowSortMenu] = useState(false);
   const [showStatusMenu, setShowStatusMenu] = useState(false);
+  const [showPopup, setShowPopup] = useState(false);
+  const [popupMessage, setPopupMessage] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -94,9 +96,19 @@ export default function SearchPage() {
     }
   }, [query]);  
 
+  const triggerTopPopup = (message: string) => {
+    setPopupMessage(message);
+    setShowPopup(true);
+  
+    setTimeout(() => {
+      setShowPopup(false);
+      setPopupMessage("");
+    }, 2500);
+  };  
+
   const addToLibrary = async (manga: Manga) => {
     if (!session) {
-      alert("Please sign in to add manga to your library");
+      triggerTopPopup("Please sign in to add manga to your library.")
       return;
     }
 
@@ -118,12 +130,17 @@ export default function SearchPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Failed to add to library");
+        if (response.status === 409) {
+          triggerTopPopup("Already in your library!");
+        } else {
+          triggerTopPopup(data.error || "Failed to add manga.");
+        }
+        return;
       }
 
-      alert("Added to library!");
+      triggerTopPopup("Added to Library!");
     } catch (err) {
-      alert(err instanceof Error ? err.message : "An error occurred");
+      triggerTopPopup(err instanceof Error ? err.message : "An error occurred.")
     }
   };
 
@@ -654,6 +671,14 @@ export default function SearchPage() {
           </>
         )}
       </div>
+      {/* Success Popup */}
+      {showPopup && (
+        <div className="fixed top-8 left-1/2 transform -translate-x-1/2 z-50">
+          <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white font-bold px-6 py-3 rounded-xl shadow-lg shadow-blue-500/30 animate-fadeIn">
+            {popupMessage}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

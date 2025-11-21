@@ -180,6 +180,7 @@ export default function LibraryPage() {
       if (response.ok) setLibrary(data.library);
     } catch (error) {
       console.error("Error fetching library:", error);
+      triggerTopPopup("Error fetching library.")
     } finally {
       setLoading(false);
     }
@@ -229,6 +230,19 @@ export default function LibraryPage() {
     setCurrentEntry(null);
   }, []);
 
+  const [showPopup, setShowPopup] = useState(false);
+  const [popupMessage, setPopupMessage] = useState("");
+
+  const triggerTopPopup = (message: string) => {
+    setPopupMessage(message);
+    setShowPopup(true);
+  
+    setTimeout(() => {
+      setShowPopup(false);
+      setPopupMessage("");
+    }, 2500);
+  };  
+
   const saveEdit = async () => {
     if (!currentEntry) return;
     try {
@@ -244,21 +258,28 @@ export default function LibraryPage() {
       if (response.ok) {
         setModalOpen(false);
         fetchLibrary();
+        triggerTopPopup("Edit saved!")
       }
     } catch (error) {
       console.error("Error updating entry:", error);
+      triggerTopPopup("Error updating entry.")
     }
   };
+
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
 
   const deleteEntry = async (id: string) => {
     try {
       const response = await fetch(`/api/library?id=${id}`, { method: "DELETE" });
       if (response.ok) {
         await fetchLibrary();
+        triggerTopPopup("Manga deleted from library!")
         return true;
       }
     } catch (error) {
       console.error("Error deleting entry:", error);
+      triggerTopPopup("Error deleting entry.")
     }
     return false;
   };
@@ -557,13 +578,10 @@ export default function LibraryPage() {
 
             <div className="p-6 border-t border-white/10 flex justify-end gap-3 flex-shrink-0">
               <button
-                onClick={async () => {
+                onClick={() => {
                   if (!currentEntry) return;
-                  const confirmed = confirm("Remove this manga from your library?");
-                  if (!confirmed) return;
-            
-                  const success = await deleteEntry(currentEntry.id);
-                  if (success) closeModal();
+                  setPendingDeleteId(currentEntry.id);
+                  setConfirmDelete(true);
                 }}
                 className="flex items-center gap-2 px-5 py-2.5 bg-red-600/80 hover:bg-red-700 text-white rounded-xl font-medium shadow-lg shadow-red-600/20 transition"
               >
@@ -583,6 +601,52 @@ export default function LibraryPage() {
                 Save Changes
               </button>
             </div>
+          </div>
+        </div>
+      )}
+      {confirmDelete && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-[60]">
+          <div className="bg-[#131621] p-6 rounded-xl border border-white/10 shadow-xl max-w-sm w-full text-center">
+            <h3 className="text-xl font-bold text-white mb-4">Confirm Deletion</h3>
+            <p className="text-white-purple mb-6">
+              Are you sure you want to remove this manga from your library?
+            </p>
+
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={() => {
+                  setConfirmDelete(false);
+                  setPendingDeleteId(null);
+                }}
+                className="px-4 py-2 rounded-lg bg-white/10 text-white hover:bg-white/20 transition"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={async () => {
+                  if (!pendingDeleteId) return;
+
+                  const success = await deleteEntry(pendingDeleteId);
+                  if (success) {
+                    setConfirmDelete(false);
+                    setPendingDeleteId(null);
+                    closeModal();
+                  }
+                }}
+                className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white transition"
+              >
+                Yes, Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Success Popup */}
+      {showPopup && (
+        <div className="fixed top-8 left-1/2 transform -translate-x-1/2 z-50">
+          <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white font-bold px-6 py-3 rounded-xl shadow-lg shadow-blue-500/30 animate-fadeIn">
+            {popupMessage}
           </div>
         </div>
       )}

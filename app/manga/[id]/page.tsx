@@ -45,6 +45,9 @@ export default function MangaDetailsPage() {
   const [adding, setAdding] = useState(false);
   const [added, setAdded] = useState(false);
 
+  const [showPopup, setShowPopup] = useState(false);
+  const [popupMessage, setPopupMessage] = useState("");
+
   // Fetch manga details
   useEffect(() => {
     if (!id) return;
@@ -96,10 +99,20 @@ export default function MangaDetailsPage() {
     fetchLibraryEntry();
   }, [session, manga]);  
 
+  const triggerTopPopup = (message: string) => {
+    setPopupMessage(message);
+    setShowPopup(true);
+  
+    setTimeout(() => {
+      setShowPopup(false);
+      setPopupMessage("");
+    }, 2500);
+  };  
+
   /* Add to Library Handler */
   const addToLibrary = async () => {
     if (!session) {
-      alert("Please sign in to add manga to your library.");
+      triggerTopPopup("Please sign in to add manga to your library.");
       return;
     }
     if (!manga) return;
@@ -119,17 +132,24 @@ export default function MangaDetailsPage() {
         }),
       });
 
+      const data = await res.json();
+
       if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || "Failed to add to library");
+        if (res.status === 409) {
+          triggerTopPopup("Already in your library!");
+        } else {
+          triggerTopPopup(data.error || "Failed to add manga.");
+        }
+        return;
       }
 
       const { entry } = await res.json();
       setEntryId(entry.id);
       setAdded(true);
+      triggerTopPopup("Added to Library!");
     } catch (err) {
       console.error(err);
-      alert(err instanceof Error ? err.message : "Error adding manga");
+      triggerTopPopup(err instanceof Error ? err.message : "Error adding manga");
     } finally {
       setAdding(false);
     }
@@ -138,7 +158,7 @@ export default function MangaDetailsPage() {
   /* Save Notes Handler */
   const saveNotes = async () => {
     if (!session) {
-      alert("Please sign in to save notes.");
+      triggerTopPopup("Please sign in to save notes.");
       return;
     }
     if (!manga) return;
@@ -151,7 +171,7 @@ export default function MangaDetailsPage() {
         const res = await fetch(`/api/library?malId=${manga.malId}`);
         const data = await res.json();
         if (!res.ok || !data.library?.length)
-          throw new Error("Manga not found in your library.");
+          triggerTopPopup(data.error || "Manga not found in your library.");
         idToUse = data.library[0].id;
         setEntryId(idToUse);
       }
@@ -165,14 +185,15 @@ export default function MangaDetailsPage() {
 
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error || "Failed to save notes");
+        triggerTopPopup(data.error || "Failed to save notes.");
       }
 
       setNotesSaved(true);
       setTimeout(() => setNotesSaved(false), 2000);
+      triggerTopPopup("Notes updated!");
     } catch (err) {
       console.error(err);
-      alert(err instanceof Error ? err.message : "Error saving notes");
+      triggerTopPopup(err instanceof Error ? err.message : "Error saving notes");
     } finally {
       setSavingNotes(false);
     }
@@ -330,6 +351,14 @@ export default function MangaDetailsPage() {
           </div>
         </div>
       </div>
+      {/* Success Popup */}
+      {showPopup && (
+        <div className="fixed top-8 left-1/2 transform -translate-x-1/2 z-50">
+          <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white font-bold px-6 py-3 rounded-xl shadow-lg shadow-blue-500/30 animate-fadeIn">
+            {popupMessage}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
