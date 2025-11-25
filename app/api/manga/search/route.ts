@@ -9,6 +9,7 @@ export async function GET(request: NextRequest) {
   const type = searchParams.get("type") || "manga";     // e.g., manga | novel | oneshot | doujin | manhwa | manhua
   const sort = searchParams.get("sort") || "score";     // e.g., score | popularity | newest
   const status = searchParams.get("status") || "any";   // e.g., any | publishing | complete | hiatus | discontinued
+  const adult = searchParams.get("adult") || "sfw";     // e.g. sfw | nsfw
 
   if (!query) {
     return NextResponse.json({ error: "Query parameter required" }, { status: 400 });
@@ -27,6 +28,12 @@ export async function GET(request: NextRequest) {
     if (status !== "any") {
       jikanUrl += `&status=${status}`;
     }
+
+    let sfwParam = "&sfw=true";  // default
+    if (adult === "all") {
+      sfwParam = "&sfw=false";  // allow 18+
+    }
+    jikanUrl += sfwParam;
 
     const response = await fetch(jikanUrl, {
       headers: { "Content-Type": "application/json" },

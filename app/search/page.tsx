@@ -27,16 +27,21 @@ export default function SearchPage() {
   const [results, setResults] = useState<Manga[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
   const [topManga, setTopManga] = useState<Manga[]>([]);
   const [trendingManga, setTrendingManga] = useState<Manga[]>([]);
   const [showAllTop, setShowAllTop] = useState(false);
   const [showAllTrending, setShowAllTrending] = useState(false);
+
   const [typeFilter, setTypeFilter] = useState("manga");
   const [sortFilter, setSortFilter] = useState("score");
   const [statusFilter, setStatusFilter] = useState("any");
+  const [adultFilter, setAdultFilter] = useState("sfw");
   const [showTypeMenu, setShowTypeMenu] = useState(false);
   const [showSortMenu, setShowSortMenu] = useState(false);
   const [showStatusMenu, setShowStatusMenu] = useState(false);
+  const [show18Menu, setShow18Menu] = useState(false);
+
   const [showPopup, setShowPopup] = useState(false);
   const [popupMessage, setPopupMessage] = useState("");
 
@@ -73,8 +78,8 @@ export default function SearchPage() {
 
     try {
       const response = await fetch(
-        `/api/manga/search?q=${encodeURIComponent(query)}&type=${typeFilter}&sort=${sortFilter}&status=${statusFilter}`
-      );
+        `/api/manga/search?q=${encodeURIComponent(query)}&type=${typeFilter}&sort=${sortFilter}&status=${statusFilter}&adult=${adultFilter}`
+      );      
       const data = await response.json();
 
       if (!response.ok) {
@@ -207,6 +212,7 @@ export default function SearchPage() {
                     setShowTypeMenu(!showTypeMenu);
                     setShowSortMenu(false);
                     setShowStatusMenu(false);
+                    setShow18Menu(false);
                   }}
                   className="bg-light-navy border border-white/5 rounded-md px-3 py-2 text-white/80 font-semibold hover:border-blue-500/40 focus:border-blue-500/60 focus:ring-2 focus:ring-blue-500/30 outline-none transition-all cursor-pointer w-[200px] flex justify-between items-center"
                 >
@@ -261,6 +267,7 @@ export default function SearchPage() {
                     setShowSortMenu(!showSortMenu);
                     setShowTypeMenu(false);
                     setShowStatusMenu(false);
+                    setShow18Menu(false);
                   }}
                   className="bg-light-navy border border-white/5 rounded-md px-3 py-2 text-white/80 font-semibold hover:border-purple-500/40 focus:border-purple-500/60 focus:ring-2 focus:ring-purple-500/30 outline-none transition-all cursor-pointer w-[200px] flex justify-between items-center"
                 >
@@ -315,6 +322,7 @@ export default function SearchPage() {
                     setShowStatusMenu(!showStatusMenu);
                     setShowTypeMenu(false);
                     setShowSortMenu(false);
+                    setShow18Menu(false);
                   }}
                   className="bg-light-navy border border-white/5 rounded-md px-3 py-2 text-white/80 font-semibold hover:border-emerald-500/40 focus:border-emerald-500/60 focus:ring-2 focus:ring-emerald-500/30 outline-none transition-all cursor-pointer w-[200px] flex justify-between items-center"
                 >
@@ -358,6 +366,71 @@ export default function SearchPage() {
                         </button>
                       );
                     })}
+                  </div>
+                )}
+              </div>
+
+              {/* SFW / 18+ Filter */}
+              <div className="relative">
+                <button
+                  onClick={() => {
+                    setShow18Menu(!show18Menu);
+                    setShowTypeMenu(false);
+                    setShowSortMenu(false);
+                    setShowStatusMenu(false);
+                  }}
+                  className="bg-light-navy border border-white/5 rounded-md px-3 py-2 text-white/80 font-semibold w-[200px] flex justify-between items-center"
+                >
+                  <span>
+                    18+ Filter:{" "}
+                    <span className="text-red-400 font-bold">
+                      {adultFilter === "all" ? "Show" : "Hide"}
+                    </span>
+                  </span>
+
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-4 w-4 text-white/60"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.21 8.27a.75.75 0 01.02-1.06z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </button>
+
+                {show18Menu && (
+                  <div className="absolute mt-1 w-full bg-[#0E1118] border border-white/10 rounded-md shadow-lg z-20">
+                    <button
+                      onClick={() => {
+                        setAdultFilter("sfw");
+                        setShow18Menu(false);
+                      }}
+                      className={`block w-full px-3 py-2 text-left ${
+                        adultFilter === "sfw"
+                          ? "text-red-400 bg-red-600/10"
+                          : "text-white/80 hover:bg-white/10"
+                      }`}
+                    >
+                      Hide 18+
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setAdultFilter("all");
+                        setShow18Menu(false);
+                      }}
+                      className={`block w-full px-3 py-2 text-left ${
+                        adultFilter === "all"
+                          ? "text-red-400 bg-red-600/10"
+                          : "text-white/80 hover:bg-white/10"
+                      }`}
+                    >
+                      Show 18+
+                    </button>
                   </div>
                 )}
               </div>
@@ -430,7 +503,9 @@ export default function SearchPage() {
                       )}
                       <div className="flex items-center gap-2 mb-2 text-xs">
                         <Star className="w-3 h-3 fill-blue-400 text-blue-400" />
-                        <span className="font-bold text-white-purple">{manga.score}</span>
+                        <span className="font-bold text-white-purple">
+                          {manga.score ? `${manga.score} ch` : "TBD"}
+                        </span>
                         <span className="text-white-purple">
                           {manga.chapters ? `${manga.chapters} ch` : "? ch"}
                         </span>
