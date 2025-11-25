@@ -6,9 +6,9 @@ export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const query = searchParams.get("q");
   const page = searchParams.get("page") || "1";
-  const type = searchParams.get("type") || "manga";     // e.g., manga | novel
+  const type = searchParams.get("type") || "manga";     // e.g., manga | novel | oneshot | doujin | manhwa | manhua
   const sort = searchParams.get("sort") || "score";     // e.g., score | popularity | newest
-  const status = searchParams.get("status") || "any";   // e.g., publishing | finished | any
+  const status = searchParams.get("status") || "any";   // e.g., any | publishing | complete | hiatus | discontinued
 
   if (!query) {
     return NextResponse.json({ error: "Query parameter required" }, { status: 400 });

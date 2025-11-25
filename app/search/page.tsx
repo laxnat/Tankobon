@@ -231,7 +231,7 @@ export default function SearchPage() {
                 </button>
                 {showTypeMenu && (
                   <div className="absolute mt-1 w-full bg-[#0E1118] border border-white/10 rounded-md shadow-lg z-20">
-                    {["manga", "novel", "one_shot"].map((option) => {
+                    {["manga", "novel", "oneshot", "doujin", "manhwa", "manhua", ].map((option) => {
                       const isSelected = typeFilter === option;
                       return (
                         <button
@@ -339,7 +339,7 @@ export default function SearchPage() {
                 </button>
                 {showStatusMenu && (
                   <div className="absolute mt-1 w-full bg-[#0E1118] border border-white/10 rounded-md shadow-lg z-20">
-                    {["any", "publishing", "finished"].map((option) => {
+                    {["any", "publishing", "complete", "hiatus", "discontinued"].map((option) => {
                       const isSelected = statusFilter === option;
                       return (
                         <button
