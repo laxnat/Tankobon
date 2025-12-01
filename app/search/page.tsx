@@ -199,7 +199,7 @@ export default function SearchPage() {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search manga..."
-                className="w-full bg-transparent border-0 focus:outline-none text-white placeholder-white/40 text-md font-bold"
+                className="w-full bg-transparent border-0 focus:outline-none text-white placeholder-white/60 text-md font-bold"
               />
             </form>
 
@@ -370,7 +370,7 @@ export default function SearchPage() {
                 )}
               </div>
 
-              {/* SFW / 18+ Filter */}
+              {/* 18+ Filter */}
               <div className="relative">
                 <button
                   onClick={() => {
@@ -451,6 +451,7 @@ export default function SearchPage() {
           </div>
         )}
 
+        {/* Searched Manga */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6">
           {results.map((manga, index) => {
             const popupPosition = getPopupPosition(index);
@@ -497,14 +498,14 @@ export default function SearchPage() {
                         <p className="text-xs text-white-purple mb-2 line-clamp-2">{manga.titleEnglish}</p>
                       )}
                       {manga.authors && manga.authors.length > 0 && (
-                        <p className="text-xs text-white-purple mb-2">
+                        <p className="text-xs text-white-purple mb-2 truncate">
                           {manga.authors.length === 1 ? "Author" : "Authors"}: {manga.authors.map(a => a.name).join(", ")}
                         </p>
                       )}
                       <div className="flex items-center gap-2 mb-2 text-xs">
-                        <Star className="w-3 h-3 fill-blue-400 text-blue-400" />
+                        <Star className="w-3 h-3 mb-0.5 fill-blue-400 text-blue-400" />
                         <span className="font-bold text-white-purple">
-                          {manga.score ? `${manga.score} ch` : "TBD"}
+                          {manga.score ? `${manga.score}` : "TBD"}
                         </span>
                         <span className="text-white-purple">
                           {manga.chapters ? `${manga.chapters} ch` : "? ch"}
@@ -514,18 +515,18 @@ export default function SearchPage() {
                         </span>
                       </div>
                       {manga.status && (
-                        <p className="text-xs text-white-purple mb-2">Status: {manga.status}</p>
+                        <p className="text-xs text-white-purple">Status: {manga.status}</p>
                       )}
                     </div>
                   </div>
 
                   {manga.genres && manga.genres.length > 0 && (
-                    <div className="mb-3">
+                    <div className="">
                       <div className="flex flex-wrap gap-1">
                         {manga.genres.slice(0, 4).map((genre) => (
                           <span
                             key={genre}
-                            className="text-xs bg-blue-600 text-white px-2 py-0.5 rounded"
+                            className="text-xs bg-blue-600 text-white px-2 py-1 rounded-lg"
                           >
                             {genre}
                           </span>
@@ -606,14 +607,15 @@ export default function SearchPage() {
                               <p className="text-xs text-white-purple mb-2 line-clamp-2">{manga.titleEnglish}</p>
                             )}
                             {manga.authors && manga.authors.length > 0 && (
-                              <p className="text-xs text-white-purple mb-2">
-                                {manga.authors.length === 1 ? "Author" : "Authors"}:{" "}
-                                {manga.authors.map((a) => a.name).join(", ")}
+                              <p className="text-xs text-white-purple mb-2 truncate">
+                                {manga.authors.length === 1 ? "Author" : "Authors"}: {manga.authors.map(a => a.name).join(", ")}
                               </p>
                             )}
                             <div className="flex items-center gap-2 mb-2 text-xs">
-                              <Star className="w-3 h-3 fill-blue-400 text-blue-400" />
-                              <span className="font-bold text-white-purple">{manga.score}</span>
+                              <Star className="w-3 h-3 mb-0.5 fill-blue-400 text-blue-400" />
+                              <span className="font-bold text-white-purple">
+                                {manga.score ? `${manga.score}` : "TBD"}
+                              </span>
                               <span className="text-white-purple">
                                 {manga.chapters ? `${manga.chapters} ch` : "? ch"}
                               </span>
@@ -622,20 +624,23 @@ export default function SearchPage() {
                               </span>
                             </div>
                             {manga.status && (
-                              <p className="text-xs text-white-purple mb-2">Status: {manga.status}</p>
+                              <p className="text-xs text-white-purple">Status: {manga.status}</p>
                             )}
                           </div>
                         </div>
+
                         {manga.genres && manga.genres.length > 0 && (
-                          <div className="flex flex-wrap gap-1">
-                            {manga.genres.slice(0, 4).map((genre) => (
-                              <span
-                                key={genre}
-                                className="text-xs bg-blue-600 text-white px-2 py-0.5 rounded"
-                              >
-                                {genre}
-                              </span>
-                            ))}
+                          <div className="">
+                            <div className="flex flex-wrap gap-1">
+                              {manga.genres.slice(0, 4).map((genre) => (
+                                <span
+                                  key={genre}
+                                  className="text-xs bg-blue-600 text-white px-2 py-1 rounded-lg"
+                                >
+                                  {genre}
+                                </span>
+                              ))}
+                            </div>
                           </div>
                         )}
                       </div>
@@ -705,14 +710,15 @@ export default function SearchPage() {
                               <p className="text-xs text-white-purple mb-2 line-clamp-2">{manga.titleEnglish}</p>
                             )}
                             {manga.authors && manga.authors.length > 0 && (
-                              <p className="text-xs text-white-purple mb-2">
-                                {manga.authors.length === 1 ? "Author" : "Authors"}:{" "}
-                                {manga.authors.map((a) => a.name).join(", ")}
+                              <p className="text-xs text-white-purple mb-2 truncate">
+                                {manga.authors.length === 1 ? "Author" : "Authors"}: {manga.authors.map(a => a.name).join(", ")}
                               </p>
                             )}
                             <div className="flex items-center gap-2 mb-2 text-xs">
-                              <Star className="w-3 h-3 fill-blue-400 text-blue-400" />
-                              <span className="font-bold text-white-purple">{manga.score}</span>
+                              <Star className="w-3 h-3 mb-0.5 fill-blue-400 text-blue-400" />
+                              <span className="font-bold text-white-purple">
+                                {manga.score ? `${manga.score}` : "TBD"}
+                              </span>
                               <span className="text-white-purple">
                                 {manga.chapters ? `${manga.chapters} ch` : "? ch"}
                               </span>
@@ -721,20 +727,23 @@ export default function SearchPage() {
                               </span>
                             </div>
                             {manga.status && (
-                              <p className="text-xs text-white-purple mb-2">Status: {manga.status}</p>
+                              <p className="text-xs text-white-purple">Status: {manga.status}</p>
                             )}
                           </div>
                         </div>
+
                         {manga.genres && manga.genres.length > 0 && (
-                          <div className="flex flex-wrap gap-1">
-                            {manga.genres.slice(0, 4).map((genre) => (
-                              <span
-                                key={genre}
-                                className="text-xs bg-blue-600 text-white px-2 py-0.5 rounded"
-                              >
-                                {genre}
-                              </span>
-                            ))}
+                          <div className="">
+                            <div className="flex flex-wrap gap-1">
+                              {manga.genres.slice(0, 4).map((genre) => (
+                                <span
+                                  key={genre}
+                                  className="text-xs bg-blue-600 text-white px-2 py-1 rounded-lg"
+                                >
+                                  {genre}
+                                </span>
+                              ))}
+                            </div>
                           </div>
                         )}
                       </div>
