@@ -460,12 +460,11 @@ export default function LibraryPage() {
             </div>
 
             <div className="p-6 space-y-4 overflow-y-auto flex-1">
-              <div>
-                <label className="block text-white-purple text-sm mb-2">Status</label>
+              <div className="relative">
                 <select
                   value={editForm.status}
                   onChange={(e) => setEditForm({ ...editForm, status: e.target.value })}
-                  className="w-full p-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-blue-500 transition"
+                  className="w-full p-3 pr-12 bg-white/5 border border-white/10 rounded-xl text-white appearance-none focus:outline-none focus:border-blue-500 transition"
                 >
                   <option value="READING">Reading</option>
                   <option value="COMPLETED">Completed</option>
@@ -473,7 +472,13 @@ export default function LibraryPage() {
                   <option value="ON_HOLD">On Hold</option>
                   <option value="DROPPED">Dropped</option>
                 </select>
+
+                {/* Custom Arrow */}
+                <div className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 pb-2 text-white/60">
+                  ⌄
+                </div>
               </div>
+
 
               <div>
                 <label className="block text-white-purple text-sm mb-2">Rating (1-10)</label>
