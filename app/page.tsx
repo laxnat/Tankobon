@@ -1,13 +1,8 @@
 "use client";
 
-import { useSession } from "next-auth/react";
 import Link from "next/link";
-import { useState, useEffect } from "react";
 
 export default function Home() {
-  const { data: session } = useSession();
-  const [loading, setLoading] = useState(true);
-
   // Smooth scroll for "Learn More"
   const scrollToFeatures = () => {
     const section = document.getElementById("features-section");
@@ -64,8 +59,9 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="relative w-screen left-[50%] right-[50%] -translate-x-[50%] bg-light-navy pt-40 pb-56">
-        <div id="features-section" className="scroll-mt-32 px-6 sm:px-8 mx-auto text-center">
+      {/* Features */}
+      <section className="relative w-screen left-[50%] right-[50%] -translate-x-[50%]">
+        <div id="features-section" className="max-w-5xl scroll-mt-32 px-6 sm:px-8 mx-auto text-center">
           <h2 className="text-5xl font-extrabold text-white mb-4 tracking-tight">
             Features
           </h2>
@@ -73,7 +69,7 @@ export default function Home() {
             Everything you need to organize, track, and enjoy your manga collection — all in one place.
           </p>
 
-          <div className="grid gap-10 sm:gap-12 md:grid-cols-3">
+          <div className="grid gap-10 sm:gap-12 md:grid-cols-2">
             {[
               {
                 title: "Search Manga",
@@ -125,58 +121,6 @@ export default function Home() {
                 </p>
               </div>
             ))}
-          </div>
-        </div>
-      </section>
-
-
-      <section
-        id="roadmap"
-        className="relative w-screen left-[50%] right-[50%] -translate-x-[50%] py-32 mt-40 px-8 pb-56"
-      >
-        <div className="max-w-6xl mx-auto text-center">
-          <h2 className="text-5xl font-extrabold text-white mb-6 tracking-tight">
-            Roadmap
-          </h2>
-          <p className="text-white/60 text-lg mb-20 max-w-2xl mx-auto">
-            See what’s next for <span className="text-white font-semibold">Tankōbon</span> — 
-            we’re just getting started.
-          </p>
-
-          {/* Roadmap Timeline */}
-          <div className="relative md:grid md:grid-cols-3 md:gap-16 text-left border-l border-white/10 md:border-0">
-            {/* v1 */}
-            <div className="relative mb-24 md:mb-0 md:border-l md:border-white/10 md:pl-10">
-              <div className="absolute -left-[1rem] md:-left-5 top-1 w-8 h-8 rounded-full bg-blue-600 shadow-[0_0_30px_rgba(59,130,246,0.6)]"></div>
-              <h3 className="text-3xl font-bold text-white mb-3">v1 — Launch</h3>
-              <p className="text-white/70 text-base leading-relaxed mb-4">
-                Core functionality for Tankōbon. Users can search manga via MyAnimeList,
-                add titles to their personal library, track progress, and leave notes.
-              </p>
-              <p className="text-blue-400 text-sm font-semibold">✅ Released</p>
-            </div>
-
-            {/* v2 */}
-            <div className="relative mb-24 md:mb-0 md:border-l md:border-white/10 md:pl-10">
-              <div className="absolute -left-[1rem] md:-left-5 top-1 w-8 h-8 rounded-full bg-purple-500 shadow-[0_0_30px_rgba(168,85,247,0.6)]"></div>
-              <h3 className="text-3xl font-bold text-white mb-3">v2 — Community Update</h3>
-              <p className="text-white/70 text-base leading-relaxed mb-4">
-                Introduces user profiles, social lists, and friend tracking. Compare manga progress,
-                share recommendations, and discover trending titles.
-              </p>
-              <p className="text-purple-400 text-sm font-semibold">🛠️ In Development</p>
-            </div>
-
-            {/* v3 */}
-            <div className="relative md:border-l md:border-white/10 md:pl-10">
-              <div className="absolute -left-[1rem] md:-left-5 top-1 w-8 h-8 rounded-full bg-emerald-500 shadow-[0_0_30px_rgba(16,185,129,0.5)]"></div>
-              <h3 className="text-3xl font-bold text-white mb-3">v3 — Expansion</h3>
-              <p className="text-white/70 text-base leading-relaxed mb-4">
-                Adds personalized recommendations, achievements, and optional mobile app support.
-                Smarter discovery powered by your reading habits and AI-assisted lists.
-              </p>
-              <p className="text-emerald-400 text-sm font-semibold">🚧 Planned</p>
-            </div>
           </div>
         </div>
       </section>
