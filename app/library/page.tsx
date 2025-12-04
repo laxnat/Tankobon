@@ -81,6 +81,7 @@ const LibraryItem = memo(({
           )}
         </div>
 
+        {/* Manga User Input Details */}
         <div className="w-[500px]">
           <Link href={`/manga/${entry.malId}`}>
             <h3 className="text-white font-bold text-lg truncate group-hover:text-blue-400 transition-colors">
@@ -315,6 +316,7 @@ export default function LibraryPage() {
   return (
     <div className="min-h-screen pt-24 px-4 md:px-8">
       <div className="max-w-[1800px] mx-auto">
+        {/* Header */}
         <div className="mb-8 flex items-center justify-between">
           <div>
             {session ? (
@@ -327,7 +329,7 @@ export default function LibraryPage() {
         </div>
 
         <div className="flex gap-8">
-          {/* Sidebar */}
+          {/* Sidebar Filters */}
           <aside className="w-72 flex-shrink-0 hidden lg:block">
             <div className="bg-light-navy/30 rounded-2xl p-6 border border-white/5 sticky top-24">
               <div className="mb-8">
@@ -408,6 +410,7 @@ export default function LibraryPage() {
             </div>
           </aside>
 
+          {/* Manga List */}
           <main className="flex-1 min-w-0">
             {sortedLibrary.length === 0 ? (
               <div className="text-center py-20">
@@ -460,6 +463,7 @@ export default function LibraryPage() {
             </div>
 
             <div className="p-6 space-y-4 overflow-y-auto flex-1">
+              {/* Status */}
               <div className="relative">
                 <select
                   value={editForm.status}
@@ -479,7 +483,7 @@ export default function LibraryPage() {
                 </div>
               </div>
 
-
+              {/* Rating */}
               <div>
                 <label className="block text-white-purple text-sm mb-2">Rating (1-10)</label>
                 <input
@@ -492,6 +496,7 @@ export default function LibraryPage() {
                 />
               </div>
 
+              {/* Chapters Read */}
               <div>
                 <label className="block text-white-purple text-sm mb-2">Chapters Read</label>
                 <input
@@ -503,6 +508,7 @@ export default function LibraryPage() {
                 />
               </div>
 
+              {/* Volumes Read */}
               <div>
                 <label className="block text-white-purple text-sm mb-2">Volumes Read</label>
                 <input
@@ -514,6 +520,7 @@ export default function LibraryPage() {
                 />
               </div>
 
+              {/* Volumes Owned */}
               <div>
                 <label className="block text-white-purple text-sm mb-2">Volumes Owned</label>
                 <div className="flex flex-wrap gap-2">
@@ -547,6 +554,7 @@ export default function LibraryPage() {
                   )}
                 </div>
 
+                {/* Manual Volume Entry */}
                 {!currentEntry?.totalVolumes && (
                   <input
                     type="text"
@@ -581,6 +589,7 @@ export default function LibraryPage() {
               </div>
             </div>
 
+            {/* Save/Cancel/Delete Buttons */}
             <div className="p-6 border-t border-white/10 flex justify-end gap-3 flex-shrink-0">
               <button
                 onClick={() => {
@@ -609,6 +618,7 @@ export default function LibraryPage() {
           </div>
         </div>
       )}
+      {/* Delete Confirmation */}
       {confirmDelete && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-[60]">
           <div className="bg-[#131621] p-6 rounded-xl border border-white/10 shadow-xl max-w-sm w-full text-center">

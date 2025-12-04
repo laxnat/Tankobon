@@ -2,6 +2,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 
+{/* Retrieve manga based on filters*/}
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const query = searchParams.get("q");

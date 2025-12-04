@@ -46,7 +46,6 @@ export default function ProfilePage() {
     setTimeout(() => setShowPopup(false), 2500); // auto-hide after 2.5s
   };
 
-  // Simulated upload handler — you can replace this later with Firebase Storage, S3, or another upload API.
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -131,7 +130,7 @@ export default function ProfilePage() {
                 />
               </label>
             </div>
-
+            {/* Name and Email */}
             <div>
               <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
                 {session.user?.name || "User"}

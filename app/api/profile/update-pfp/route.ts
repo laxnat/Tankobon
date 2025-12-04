@@ -6,6 +6,7 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
+{/* Updated profile picture in database */}
 export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions);

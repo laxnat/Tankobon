@@ -67,6 +67,7 @@ export default function RegisterPage() {
           </div>
         )}
 
+        {/* Register Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label htmlFor="name" className="block text-sm font-medium text-white mb-1">

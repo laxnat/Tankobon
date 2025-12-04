@@ -9,7 +9,7 @@ export default function Footer() {
     
             {/* Description */}
             <p className="text-sm mb-6 text-white/60 max-w-md mx-auto">
-            Your personal manga library tracker — built for fans, by fans.
+                Your personal manga library tracker — built for fans, by fans.
             </p>
     
         </div>

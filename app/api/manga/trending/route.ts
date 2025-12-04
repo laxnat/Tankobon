@@ -2,6 +2,7 @@
 
 import { NextResponse } from "next/server";
 
+{/* Retrieve manga in trending section */}
 export async function GET() {
   try {
     const response = await fetch(

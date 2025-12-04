@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { Loader2, Plus, Star, Search } from "lucide-react";
 
 interface Manga {
@@ -159,6 +158,7 @@ export default function SearchPage() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // Manga Popup Card
   const getPopupPosition = (index: number) => {
     if (windowWidth === 0) return 'left-full ml-2'; // Default during SSR
 
@@ -444,7 +444,6 @@ export default function SearchPage() {
           </div>
         )}
 
-        {/* Loading Spinner Overlay */}
         {loading && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
             <Loader2 className="h-16 w-16 text-white animate-spin" />
@@ -458,6 +457,7 @@ export default function SearchPage() {
 
             return (
               <div className="group relative">
+                {/* Manga Cover */}
                 <Link href={`/manga/${manga.malId}`} className="block">
                   <div className="rounded-lg overflow-hidden transition-transform duration-300">
                     <div className="relative w-full aspect-[2/3] bg-[#0d0f16] transition-all rounded-lg overflow-hidden">
@@ -475,6 +475,7 @@ export default function SearchPage() {
                   </div>
                 </Link>
 
+                {/* Add to Library */}
                 <button
                   onClick={() => addToLibrary(manga)}
                   className="absolute bottom-14 right-2 w-10 h-10 flex items-center justify-center bg-blue-600 font-bold text-white rounded-full hover:bg-blue-700 transition opacity-0 group-hover:opacity-100 shadow-lg z-10"
@@ -482,7 +483,7 @@ export default function SearchPage() {
                   <Plus className="w-5 h-5" />
                 </button>
 
-                {/* Hover Card with dynamic positioning */}
+                {/* Hover Card */}
                 <div
                   className={`
                     absolute top-0 w-64 bg-light-navy rounded-lg border border-white/5
@@ -550,6 +551,7 @@ export default function SearchPage() {
             <section className="max-w-7xl mx-auto mb-16">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-lg font-bold text-white tracking-wide">TOP MANGA</h2>
+                {/* Show All Button */}
                 <button
                   onClick={() => setShowAllTop((prev) => !prev)}
                   className="text-blue-400 text-sm font-medium hover:underline hover:text-blue-300 transition"
@@ -567,6 +569,7 @@ export default function SearchPage() {
                   const popupPosition = getPopupPosition(index);
                   return (
                     <div className="group relative">
+                      {/* Manga Cover */}
                       <Link href={`/manga/${manga.malId}`} className="block">
                         {/* Manga Card */}
                         <div className="rounded-lg overflow-hidden transition-transform duration-300 ">
@@ -584,6 +587,7 @@ export default function SearchPage() {
                         </div>
                       </Link>
 
+                      {/* Add to Library */}
                       <button
                         onClick={() => addToLibrary(manga)}
                         className="absolute bottom-14 right-2 w-10 h-10 flex items-center justify-center bg-blue-600 font-bold text-white rounded-full hover:bg-blue-700 transition opacity-0 group-hover:opacity-100 shadow-lg z-10"
@@ -654,6 +658,7 @@ export default function SearchPage() {
             <section className="max-w-7xl mx-auto mb-16">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-lg font-bold text-white tracking-wide">TRENDING NOW</h2>
+                {/* Show All Button */}
                 <button
                   onClick={() => setShowAllTrending((prev) => !prev)}
                   className="text-blue-400 text-sm font-medium hover:underline hover:text-blue-300 transition"
@@ -671,6 +676,7 @@ export default function SearchPage() {
                   const popupPosition = getPopupPosition(index);
                   return (
                     <div className="group relative">
+                      {/* Manga Cover */}
                       <Link href={`/manga/${manga.malId}`} className="block">
                         <div className="rounded-lg overflow-hidden transition-transform duration-300">
                           <div className="relative w-full aspect-[2/3] bg-[#0d0f16] transition-all rounded-lg overflow-hidden">
@@ -687,6 +693,7 @@ export default function SearchPage() {
                         </div>
                       </Link>
 
+                      {/* Add to Library */}
                       <button
                         onClick={() => addToLibrary(manga)}
                         className="absolute bottom-14 right-2 w-10 h-10 flex items-center justify-center bg-blue-600 font-bold text-white rounded-full hover:bg-blue-700 transition opacity-0 group-hover:opacity-100 shadow-lg z-10"
