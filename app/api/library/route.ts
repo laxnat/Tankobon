@@ -18,6 +18,7 @@ export async function GET(request: NextRequest) {
 
     const user = await prisma.user.findUnique({
       where: { email: session.user.email },
+      select: { id: true }, // Only get the ID
     });
 
     if (!user) {
@@ -37,18 +38,37 @@ export async function GET(request: NextRequest) {
             malId: parseInt(malId),
           }
         }
+        // Include all fields for single entry (it's fine)
       });
 
       return NextResponse.json({ entry });
     }
 
     // ----- Otherwise fetch all or by status -----
+    // KEY FIX: Only select the fields you actually need for the library view
     const library = await prisma.mangaLibrary.findMany({
       where: {
         userId: user.id,
         ...(status && { status: status as any }),
       },
+      select: {
+        id: true,
+        malId: true,
+        title: true,
+        imageUrl: true,
+        status: true,
+        rating: true,
+        chaptersRead: true,
+        totalChapters: true,
+        volumesRead: true,
+        totalVolumes: true,
+        ownedVolumes: true,
+        // DON'T select notes here - it's huge and not shown in the list view
+        // notes: true, // <-- Commented out
+        updatedAt: true,
+      },
       orderBy: { updatedAt: "desc" },
+      take: 500, // Safety limit - adjust based on your needs
     });
 
     return NextResponse.json({ library });
@@ -74,6 +94,7 @@ export async function POST(request: NextRequest) {
 
     const user = await prisma.user.findUnique({
       where: { email: session.user.email },
+      select: { id: true },
     });
 
     if (!user) {
@@ -98,6 +119,7 @@ export async function POST(request: NextRequest) {
           malId: parseInt(malId),
         },
       },
+      select: { id: true }, // Only check if it exists
     });
 
     if (existing) {
@@ -141,6 +163,7 @@ export async function PATCH(request: NextRequest) {
 
     const user = await prisma.user.findUnique({
       where: { email: session.user.email },
+      select: { id: true },
     });
 
     if (!user) {
@@ -148,7 +171,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { id, status, rating, chaptersRead, notes, startedAt, completedAt, ownedVolumes } = body;
+    const { id, status, rating, chaptersRead, volumesRead, notes, startedAt, completedAt, ownedVolumes } = body;
 
     if (!id) {
       return NextResponse.json({ error: "Entry ID required" }, { status: 400 });
@@ -163,8 +186,8 @@ export async function PATCH(request: NextRequest) {
         ...(status && { status }),
         ...(rating !== undefined && { rating }),
         ...(chaptersRead !== undefined && { chaptersRead }),
+        ...(volumesRead !== undefined && { volumesRead }),
         ...(notes !== undefined && { notes }),
-        ...(chaptersRead !== undefined && { chaptersRead }),
         ...(ownedVolumes !== undefined && { ownedVolumes }),
         ...(startedAt !== undefined && { startedAt: startedAt ? new Date(startedAt) : null }),
         ...(completedAt !== undefined && { completedAt: completedAt ? new Date(completedAt) : null }),
@@ -192,6 +215,7 @@ export async function DELETE(request: NextRequest) {
 
     const user = await prisma.user.findUnique({
       where: { email: session.user.email },
+      select: { id: true },
     });
 
     if (!user) {
