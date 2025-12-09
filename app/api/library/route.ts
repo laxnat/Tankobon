@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get("status");
     const malId = searchParams.get("malId");
 
-    // ----- If querying a specific manga entry -----
+    // If querying a specific manga entry
     if (malId) {
       const entry = await prisma.mangaLibrary.findUnique({
         where: {
@@ -38,14 +38,12 @@ export async function GET(request: NextRequest) {
             malId: parseInt(malId),
           }
         }
-        // Include all fields for single entry (it's fine)
       });
 
       return NextResponse.json({ entry });
     }
 
-    // ----- Otherwise fetch all or by status -----
-    // KEY FIX: Only select the fields you actually need for the library view
+    // Otherwise fetch all or by status
     const library = await prisma.mangaLibrary.findMany({
       where: {
         userId: user.id,
@@ -63,12 +61,10 @@ export async function GET(request: NextRequest) {
         volumesRead: true,
         totalVolumes: true,
         ownedVolumes: true,
-        // DON'T select notes here - it's huge and not shown in the list view
-        // notes: true, // <-- Commented out
         updatedAt: true,
       },
       orderBy: { updatedAt: "desc" },
-      take: 500, // Safety limit - adjust based on your needs
+      take: 500, // Safety limit 
     });
 
     return NextResponse.json({ library });
