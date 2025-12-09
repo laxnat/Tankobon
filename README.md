@@ -2,6 +2,8 @@
 
 A modern manga library management application built with Next.js. Track your manga collection, reading progress, and owned volumes all in one place.
 
+Check out the live application: [tankobon.vercel.app](https://tankobon.vercel.app)
+
 ![Next.js](https://img.shields.io/badge/Next.js-14-black?style=flat-square&logo=next.js)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat-square&logo=typescript)
 ![Prisma](https://img.shields.io/badge/Prisma-5-2D3748?style=flat-square&logo=prisma)
