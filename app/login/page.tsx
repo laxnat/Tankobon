@@ -1,11 +1,12 @@
 "use client";
 
+import { Suspense } from "react";
 import { useState, useEffect } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [formData, setFormData] = useState({
@@ -24,25 +25,25 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
-    setSuccess("");
     setLoading(true);
+    setError("");
 
     try {
       const result = await signIn("credentials", {
-        email: formData.email,
+        email: formData.email, 
         password: formData.password,
         redirect: false,
       });
 
       if (result?.error) {
         setError("Invalid email or password");
-      } else {
-        router.push("/library");
-        router.refresh();
+        return;
       }
+
+      const callbackUrl = searchParams.get("callbackUrl") || "/library";
+      router.push(callbackUrl);
     } catch (err) {
-      setError("An error occurred during sign in");
+      setError("An error occurred. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -65,7 +66,6 @@ export default function LoginPage() {
           </div>
         )}
 
-        {/* Login Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-white mb-1">
@@ -114,5 +114,13 @@ export default function LoginPage() {
         </p>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-white">Loading...</div>}>
+      <LoginForm />
+    </Suspense>
   );
 }
