@@ -456,7 +456,7 @@ export default function LibraryPage() {
 
       {/* Edit Modal */}
       {modalOpen && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 no-doc-scroll">
           <div className="bg-light-navy border border-white/5 rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] flex flex-col">
             <div className="p-6 border-b border-white/10 flex-shrink-0">
               <h2 className="text-2xl font-bold text-white">Edit Entry</h2>
@@ -620,7 +620,7 @@ export default function LibraryPage() {
       )}
       {/* Delete Confirmation */}
       {confirmDelete && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-[60]">
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-[60] no-doc-scroll">
           <div className="bg-[#131621] p-6 rounded-xl border border-white/10 shadow-xl max-w-sm w-full text-center">
             <h3 className="text-xl font-bold text-white mb-4">Confirm Deletion</h3>
             <p className="text-white-purple mb-6">
