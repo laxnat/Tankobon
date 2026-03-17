@@ -10,7 +10,7 @@ interface Manga {
   malId: number;
   title: string;
   titleEnglish: string | null;
-  imageUrl: string;
+  imageUrl: string | null;
   authors: Array<{ name: string; malId?: number }> | null;
   synopsis: string;
   score: number;
@@ -461,12 +461,12 @@ export default function SearchPage() {
                 <Link href={`/manga/${manga.malId}`} className="block">
                   <div className="rounded-lg overflow-hidden transition-transform duration-300">
                     <div className="relative w-full aspect-[2/3] bg-[#0d0f16] transition-all rounded-lg overflow-hidden">
-                      <Image
+                      {manga.imageUrl && <Image
                         src={manga.imageUrl}
                         alt={manga.title}
                         fill
                         className="object-cover rounded-lg"
-                      />
+                      />}
                     
                     </div>
                     <div className="pt-2">
@@ -574,12 +574,12 @@ export default function SearchPage() {
                         {/* Manga Card */}
                         <div className="rounded-lg overflow-hidden transition-transform duration-300 ">
                           <div className="relative w-full aspect-[2/3] bg-[#0d0f16] transition-all rounded-lg overflow-hidden">
-                            <Image
+                            {manga.imageUrl && <Image
                               src={manga.imageUrl}
                               alt={manga.title}
                               fill
                               className="object-cover rounded-lg"
-                            />
+                            />}
                           </div>
                           <div className="pt-2">
                             <h3 className="font-bold text-white text-sm line-clamp-2 text-left group-hover:text-blue-400">{manga.title}</h3>
@@ -680,12 +680,12 @@ export default function SearchPage() {
                       <Link href={`/manga/${manga.malId}`} className="block">
                         <div className="rounded-lg overflow-hidden transition-transform duration-300">
                           <div className="relative w-full aspect-[2/3] bg-[#0d0f16] transition-all rounded-lg overflow-hidden">
-                            <Image
+                            {manga.imageUrl && <Image
                               src={manga.imageUrl}
                               alt={manga.title}
                               fill
                               className="object-cover rounded-lg"
-                            />
+                            />}
                           </div>
                           <div className="pt-2">
                             <h3 className="font-bold text-white text-sm line-clamp-2 text-left">{manga.title}</h3>
