@@ -26,7 +26,7 @@ export async function GET() {
         malId: manga.mal_id,
         title: manga.title,
         titleEnglish: manga.title_english,
-        imageUrl: manga.images?.jpg?.large_image_url || "",
+        imageUrl: manga.images?.jpg?.large_image_url || null,
         synopsis: manga.synopsis,
         score: manga.score,
         chapters: manga.chapters,
