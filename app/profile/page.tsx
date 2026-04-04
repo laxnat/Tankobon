@@ -15,7 +15,7 @@ interface Stats {
 }
 
 export default function ProfilePage() {
-  const { data: session, status, update } = useSession();
+  const { data: session, status } = useSession();
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
@@ -25,9 +25,12 @@ export default function ProfilePage() {
   useEffect(() => {
     if (status === "authenticated") {
       fetchStats();
-      setPreviewUrl(session?.user?.image || null);
+      fetch("/api/profile/image")
+        .then((r) => r.ok ? r.json() : null)
+        .then((data) => { if (data?.image) setPreviewUrl(data.image) })
+        .catch(() => {});
     }
-  }, [status, session]);
+  }, [status]);
 
   const fetchStats = async () => {
     try {
@@ -46,31 +49,45 @@ export default function ProfilePage() {
     setTimeout(() => setShowPopup(false), 2500); // auto-hide after 2.5s
   };
 
+  const compressImage = (file: File, size = 256, quality = 0.85): Promise<string> =>
+    new Promise((resolve, reject) => {
+      const img = new window.Image();
+      const url = URL.createObjectURL(file);
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+        const canvas = document.createElement("canvas");
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext("2d")!;
+        const min = Math.min(img.width, img.height);
+        const sx = (img.width - min) / 2;
+        const sy = (img.height - min) / 2;
+        ctx.drawImage(img, sx, sy, min, min, 0, 0, size, size);
+        resolve(canvas.toDataURL("image/jpeg", quality));
+      };
+      img.onerror = reject;
+      img.src = url;
+    });
+
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-  
+
     setUploading(true);
-  
+
     try {
-      const reader = new FileReader();
-      reader.onloadend = async () => {
-        const base64 = reader.result as string;
-        setPreviewUrl(base64);
-  
-        const res = await fetch("/api/profile/update-pfp", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ image: base64 }),
-        });
-  
-        if (!res.ok) throw new Error("Failed to update profile image");
-  
-        await update(); // Refresh session
-        triggerPopup("Profile picture updated!");
-      };
-  
-      reader.readAsDataURL(file);
+      const compressed = await compressImage(file);
+      setPreviewUrl(compressed);
+
+      const res = await fetch("/api/profile/update-pfp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ image: compressed }),
+      });
+
+      if (!res.ok) throw new Error("Failed to update profile image");
+
+      triggerPopup("Profile picture updated!");
     } catch (err) {
       console.error("Failed to upload image:", err);
       triggerPopup("Upload failed. Try again.");

@@ -16,16 +16,19 @@ export const authOptions: NextAuthOptions = {  // Remove 'export' here
           iat: token.iat,
           exp: token.exp,
           jti: token.jti,
+          // image intentionally excluded — fetch via /api/profile/image instead
         };
       }
-      return token;
+      // Strip image from any legacy tokens that may have stored it
+      const { image: _image, ...rest } = token as typeof token & { image?: unknown };
+      return rest;
     },
     async session({ session, token }) {
       if (token && session.user) {
         session.user.id = token.id as string;
         session.user.name = token.name as string;
         session.user.email = token.email as string;
-        session.user.image = token.image as string | null | undefined;
+        // image is not in the token — components fetch it via /api/profile/image
       }
       return session;
     },

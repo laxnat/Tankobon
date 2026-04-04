@@ -6,8 +6,17 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 
 export default function Navbar() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const [isScrolled, setIsScrolled] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (status !== "authenticated") return;
+    fetch("/api/profile/image")
+      .then((r) => r.ok ? r.json() : null)
+      .then((data) => { if (data?.image) setAvatarUrl(data.image) })
+      .catch(() => {});
+  }, [status]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -56,9 +65,7 @@ export default function Navbar() {
                     className="relative w-10 h-10 rounded-full overflow-hidden ring-2 ring-white-purple hover:ring-white transition"
                   >
                     <Image
-                      src={
-                        session.user?.image || "/images/blankpfp.png"
-                      }
+                      src={avatarUrl || "/images/blankpfp.png"}
                       alt="Profile"
                       fill
                       className="object-cover"
