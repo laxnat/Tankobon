@@ -21,6 +21,7 @@ export default function ProfilePage() {
   const [uploading, setUploading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [showPopup, setShowPopup] = useState(false);
+  const [loadingCheckout, setLoadingCheckout] = useState(false);
 
   useEffect(() => {
     if (status === "authenticated") {
@@ -96,6 +97,19 @@ export default function ProfilePage() {
     }
   };  
 
+  const handleUpgrade = async () => {
+    setLoadingCheckout(true);
+    try {
+      const res = await fetch("/api/checkout", { method: "POST" });
+      const data = await res.json();
+      if (data.url) window.location.href = data.url;
+    } catch (err) {
+      console.error("Checkout failed:", err);
+    } finally {
+      setLoadingCheckout(false);
+    }
+  };
+
   if (loading)
     return (
       <div className="min-h-screen flex items-center justify-center text-white">
@@ -156,14 +170,34 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {/* Sign out button */}
-          <button
-            onClick={() => signOut({ callbackUrl: "/" })}
-            className="flex items-center gap-2 px-5 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-xl shadow-md shadow-red-600/30 transition"
-          >
-            <LogOut className="w-5 h-5" />
-            Sign Out
-          </button>
+          <div className="flex items-center gap-3">
+            {session.user.isPremium ? (
+              <div className="flex items-center gap-2 px-5 py-2 bg-yellow-500/20 border border-yellow-500/40 text-yellow-400 font-semibold rounded-xl">                                  
+                <Star className="w-4 h-4 fill-yellow-400" />
+                Premium
+              </div>      
+            ) : (
+              <button
+                onClick={handleUpgrade}
+                disabled={loadingCheckout}
+                className="flex items-center gap-2 px-5 py-2 bg-yellow-500 hover:bg-yellow-400 text-black font-semibold rounded-xl shadow-md shadow-yellow-500/30 transition disabled:opacity-60"          
+              >           
+                {loadingCheckout ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Star className="w-4 h-4" />
+                )}        
+                Go Premium
+              </button>
+            )}                        
+            <button
+              onClick={() => signOut({ callbackUrl: "/" })}                                                
+              className="flex items-center gap-2 px-5 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-xl shadow-md shadow-red-600/30 transition"                                 
+            >
+              <LogOut className="w-5 h-5" />
+              Sign Out
+              </button>                           
+          </div>
         </div>
 
         {/* Stats Grid */}
