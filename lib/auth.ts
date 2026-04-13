@@ -3,6 +3,36 @@ import NextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcrypt";
+import Email from "next-auth/providers/email";
+
+export async function authorizeCredentials(
+  credentials: Record<"email" | "password", string> | undefined
+) {
+  if (!credentials?.email || !credentials?.password) {
+    throw new Error("Invalid credentials");
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { email: credentials.email },
+    select: { id: true, name: true, email: true, password: true, image: true },
+  });
+
+  if (!user || !user.password) {
+    throw new Error("Invalid credentials")
+  }
+
+  const isCorrectPassword = await bcrypt.compare(
+    credentials.password,
+    user.password
+  );
+
+  if (!isCorrectPassword) {
+    throw new Error("Invalid credentials");
+  }
+
+  return { id: user.id, name: user.name, email: user.email, image: user.image };
+  
+}
 
 export const authOptions: NextAuthOptions = {
   callbacks: {
@@ -47,42 +77,7 @@ export const authOptions: NextAuthOptions = {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
       },
-      async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
-          throw new Error("Invalid credentials");
-        }
-
-        const user = await prisma.user.findUnique({
-          where: { email: credentials.email },
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            password: true,
-            image: true,
-          },
-        });
-
-        if (!user || !user.password) {
-          throw new Error("Invalid credentials");
-        }
-
-        const isCorrectPassword = await bcrypt.compare(
-          credentials.password,
-          user.password
-        );
-
-        if (!isCorrectPassword) {
-          throw new Error("Invalid credentials");
-        }
-
-        return {
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          image: user.image,
-        };
-      },
+      authorize: authorizeCredentials,
     }),
   ],
   session: {
