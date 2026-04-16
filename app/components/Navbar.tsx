@@ -4,88 +4,310 @@ import { useSession } from "next-auth/react";
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect } from "react";
+import { Menu, X, Star } from "lucide-react";
+
+const EASE = "cubic-bezier(0.4, 0, 0.2, 1)";
+
+// Aave-style multi-layer shadow — adapted for dark surfaces
+const SHADOW_REST = [
+  "0px 0.6px 0.6px -1.25px rgba(0,0,0,0.40)",
+  "0px 2.3px 2.3px -2.5px rgba(0,0,0,0.35)",
+  "0px 10px 10px -3.75px rgba(0,0,0,0.22)",
+].join(", ");
+
+const SHADOW_RAISED = [
+  "0px 0.6px 0.6px -1.25px rgba(0,0,0,0.50)",
+  "0px 2.3px 2.3px -2.5px rgba(0,0,0,0.45)",
+  "0px 14px 18px -3.75px rgba(0,0,0,0.38)",
+].join(", ");
 
 export default function Navbar() {
   const { data: session, status } = useSession();
   const [isScrolled, setIsScrolled] = useState(false);
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [isMobile, setIsMobile]     = useState(false);
+  const [avatarUrl, setAvatarUrl]   = useState<string | null>(null);
+  const [menuOpen, setMenuOpen]     = useState(false);
+
+  // Compact state: scrolled on desktop only
+  const compact = isScrolled && !isMobile;
 
   useEffect(() => {
     if (status !== "authenticated") return;
     fetch("/api/profile/image")
       .then((r) => r.ok ? r.json() : null)
-      .then((data) => { if (data?.image) setAvatarUrl(data.image) })
+      .then((d) => { if (d?.image) setAvatarUrl(d.image); })
       .catch(() => {});
   }, [status]);
 
   useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 50) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-
+    const onScroll = () => setIsScrolled(window.scrollY > 72);
+    const onResize = () => setIsMobile(window.innerWidth < 768);
+    onResize();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onResize, { passive: true });
     return () => {
-      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onResize);
     };
   }, []);
 
-  return (
-    <nav 
-      className={`fixed w-full z-40 backdrop-blur-lg transition-all duration-300 ${
-        isScrolled ? "py-1" : "py-2"
-      }`}
-    >
-      <div className="max-w-7xl mx-auto">
-        <div className={`flex justify-between items-center transition-all duration-300 ${
-          isScrolled ? "h-12" : "h-16"
-        }`}>
+  useEffect(() => {
+    document.body.style.overflow = menuOpen ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [menuOpen]);
 
-          <Link href="/" className="text-3xl font-bold text-white">
-            Tankōbon
-          </Link>
-          
-          <div className="hidden md:flex items-center space-x-8">
-            <Link href="/search" className="px-4 py-2 text-xl font-bold text-white-purple rounded-lg hover:text-white transition">
-              Search
+  return (
+    <>
+      {/*
+        Outer shell: fixed, full-width, flex-centers the card.
+        px-4 ensures the card always has breathing room on all screens.
+        pointer-events-none so clicks pass through empty flanks.
+      */}
+      <div className="fixed top-0 left-0 right-0 z-40 flex justify-center pointer-events-none px-4">
+        <div
+          className="w-full pointer-events-auto"
+          style={{
+            // max-w-5xl (1024px) at rest → max-w-4xl (896px) when compact
+            maxWidth:             compact ? "896px" : "1024px",
+            borderRadius:         "16px",
+            background:           compact
+              ? "rgba(15, 15, 24, 0.70)"
+              : "rgba(15, 15, 24, 0.88)",
+            backdropFilter:       "blur(20px) saturate(160%)",
+            WebkitBackdropFilter: "blur(20px) saturate(160%)",
+            border:               "none",
+            boxShadow:            compact ? SHADOW_RAISED : SHADOW_REST,
+            marginTop:            "12px",
+            transition: [
+              `max-width 0.52s ${EASE}`,
+              `background 0.32s ease`,
+              `box-shadow 0.32s ease`,
+            ].join(", "),
+          }}
+        >
+          <div
+            className="flex items-center justify-between"
+            style={{
+              height:       compact ? "52px" : "68px",
+              paddingLeft:  "20px",
+              paddingRight: "20px",
+              transition:   `height 0.52s ${EASE}`,
+            }}
+          >
+
+            {/* ── Logo ── */}
+            <Link
+              href="/"
+              className="flex shrink-0 select-none items-center"
+            >
+              <span
+                className="font-semibold text-white tracking-[-0.015em] hover:text-white/75 transition-colors duration-200"
+                style={{
+                  fontSize:   compact ? "0.9375rem" : "1.1875rem",
+                  transition: `font-size 0.52s ${EASE}`,
+                }}
+              >
+                Tankōbon
+              </span>
             </Link>
 
-            {session ? (
-              <>
-                <Link href="/library" className="px-4 py-2 text-xl font-bold text-white-purple rounded-lg hover:text-white transition">
-                  My Library
-                </Link>
-                <div className="flex items-center space-x-8">
+            {/* ── Desktop nav ── */}
+            <div className="hidden md:flex items-center gap-0.5">
+              <NavLink href="/search"  compact={compact}>Search</NavLink>
+
+              {session ? (
+                <>
+                  <NavLink href="/library" compact={compact}>My Library</NavLink>
+
+                  {/* Hairline divider */}
+                  <div
+                    style={{
+                      width:      "1px",
+                      height:     "14px",
+                      background: "rgba(255,255,255,0.12)",
+                      margin:     "0 10px",
+                      flexShrink: 0,
+                    }}
+                  />
+
+                  {/* Profile avatar */}
                   <Link
                     href="/profile"
-                    className="relative w-10 h-10 rounded-full overflow-hidden ring-2 ring-white-purple hover:ring-white transition"
+                    className="relative group flex-shrink-0"
+                    aria-label="Profile"
                   >
-                    <Image
-                      src={avatarUrl || "/images/blankpfp.png"}
-                      alt="Profile"
-                      fill
-                      className="object-cover"
-                    />
+                    <div
+                      className={`relative overflow-hidden rounded-full transition-[box-shadow] duration-200 ${
+                        session.user?.isPremium
+                          ? "ring-[1.5px] ring-yellow-400/65"
+                          : "ring-[1.5px] ring-white/18 group-hover:ring-white/42"
+                      }`}
+                      style={{
+                        width:      compact ? "28px" : "32px",
+                        height:     compact ? "28px" : "32px",
+                        transition: `width 0.52s ${EASE}, height 0.52s ${EASE}`,
+                      }}
+                    >
+                      <Image
+                        src={avatarUrl || "/images/blankpfp.png"}
+                        alt="Profile"
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+
+                    {session.user?.isPremium && (
+                      <span className="absolute -top-[3px] -right-[3px] w-3.5 h-3.5 bg-yellow-400 rounded-full flex items-center justify-center pointer-events-none">
+                        <Star className="w-[6px] h-[6px] text-yellow-900 fill-yellow-900" />
+                      </span>
+                    )}
                   </Link>
-                </div>
+                </>
+              ) : (
+                <>
+                  <NavLink href="/login" compact={compact}>Sign In</NavLink>
+
+                  <Link
+                    href="/register"
+                    className="font-medium text-white bg-blue-600 hover:bg-blue-500 active:bg-blue-700 rounded-xl transition-colors duration-150 select-none"
+                    style={{
+                      fontSize:   compact ? "0.8125rem" : "0.875rem",
+                      padding:    compact ? "5px 14px"  : "7px 16px",
+                      marginLeft: "4px",
+                      transition: [
+                        `font-size 0.52s ${EASE}`,
+                        `padding 0.52s ${EASE}`,
+                        "background 0.15s ease",
+                      ].join(", "),
+                    }}
+                  >
+                    Sign Up
+                  </Link>
+                </>
+              )}
+            </div>
+
+            {/* ── Mobile hamburger ── */}
+            <button
+              className="md:hidden p-1.5 text-white/55 hover:text-white transition-colors duration-200"
+              onClick={() => setMenuOpen((v) => !v)}
+              aria-label={menuOpen ? "Close menu" : "Open menu"}
+            >
+              {menuOpen
+                ? <X    className="w-[18px] h-[18px]" />
+                : <Menu className="w-[18px] h-[18px]" />
+              }
+            </button>
+
+          </div>
+        </div>
+      </div>
+
+      {/* ── Mobile menu overlay ── */}
+      <div
+        className={`fixed inset-0 z-30 md:hidden transition-opacity duration-300 ${
+          menuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+        }`}
+      >
+        {/* Scrim */}
+        <div
+          className="absolute inset-0 bg-black/25"
+          onClick={() => setMenuOpen(false)}
+        />
+
+        {/* Slide-down sheet */}
+        <div
+          className={`absolute top-0 left-0 right-0 border-b border-white/[0.07] transition-transform duration-300 ${
+            menuOpen ? "translate-y-0" : "-translate-y-full"
+          }`}
+          style={{
+            background:           "rgba(13, 13, 21, 0.97)",
+            backdropFilter:       "blur(20px) saturate(160%)",
+            WebkitBackdropFilter: "blur(20px) saturate(160%)",
+            // 12px margin + 68px nav height + 8px gap
+            paddingTop:           "88px",
+          }}
+        >
+          <div className="px-5 py-2 flex flex-col">
+            <MobileNavLink href="/search"  onClick={() => setMenuOpen(false)}>
+              Search
+            </MobileNavLink>
+            {session ? (
+              <>
+                <MobileNavLink href="/library" onClick={() => setMenuOpen(false)}>
+                  My Library
+                </MobileNavLink>
+                <MobileNavLink href="/profile" onClick={() => setMenuOpen(false)}>
+                  <span>Profile</span>
+                  {session.user?.isPremium && (
+                    <span className="ml-auto inline-flex items-center gap-1 px-2 py-0.5 bg-yellow-400/10 border border-yellow-400/20 text-yellow-400 text-[11px] font-medium rounded-full">
+                      <Star className="w-2.5 h-2.5 fill-yellow-400" />
+                      Premium
+                    </span>
+                  )}
+                </MobileNavLink>
               </>
             ) : (
               <>
-                <Link href="/login" className="px-4 py-2 text-xl font-bold text-white-purple rounded-lg hover:text-white transition">
-                  Sign In
-                </Link>
-                <Link href="/register" className="px-4 py-2 text-xl font-bold text-white bg-blue-600 rounded-lg hover:bg-blue-800 transition">
-                  Sign Up
-                </Link>
+                <MobileNavLink href="/login"    onClick={() => setMenuOpen(false)}>Sign In</MobileNavLink>
+                <MobileNavLink href="/register" onClick={() => setMenuOpen(false)}>Sign Up</MobileNavLink>
               </>
             )}
           </div>
         </div>
       </div>
-    </nav>
+    </>
+  );
+}
+
+// ── Sub-components ────────────────────────────────────────────────────────────
+
+function NavLink({
+  href,
+  children,
+  compact,
+}: {
+  href:     string;
+  children: React.ReactNode;
+  compact?: boolean;
+}) {
+  return (
+    <Link
+      href={href}
+      className="font-medium text-white/65 hover:text-white hover:bg-white/[0.07] rounded-lg transition-all duration-150 select-none"
+      style={{
+        fontSize:      compact ? "0.8125rem" : "0.875rem",
+        padding:       compact ? "4px 10px"  : "6px 13px",
+        letterSpacing: "-0.005em",
+        transition: [
+          `font-size 0.52s ${EASE}`,
+          `padding 0.52s ${EASE}`,
+          "color 0.15s ease",
+          "background 0.15s ease",
+        ].join(", "),
+      }}
+    >
+      {children}
+    </Link>
+  );
+}
+
+function MobileNavLink({
+  href,
+  children,
+  onClick,
+}: {
+  href:     string;
+  children: React.ReactNode;
+  onClick?: () => void;
+}) {
+  return (
+    <Link
+      href={href}
+      onClick={onClick}
+      className="flex items-center gap-2 px-1 py-3.5 text-[0.9375rem] font-normal text-white/65 hover:text-white border-b border-white/[0.06] last:border-0 transition-colors duration-150 select-none"
+    >
+      {children}
+    </Link>
   );
 }
