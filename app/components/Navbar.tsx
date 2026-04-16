@@ -101,7 +101,7 @@ export default function Navbar() {
               className="flex shrink-0 select-none items-center"
             >
               <span
-                className="font-semibold text-white tracking-[-0.015em] hover:text-white/75 transition-colors duration-200"
+                className="font-semibold text-white tracking-[-0.015em] hover:text-blue-400 transition-colors duration-300 leading-none"
                 style={{
                   fontSize:   compact ? "0.9375rem" : "1.1875rem",
                   transition: `font-size 0.52s ${EASE}`,

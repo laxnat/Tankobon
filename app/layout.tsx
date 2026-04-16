@@ -5,7 +5,7 @@ import { Providers } from "./providers";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 
-const overpass = Overpass({ 
+const overpass = Overpass({
   subsets: ["latin"],
   weight: ["400", "600", "700"], // Regular, SemiBold, Bold
 });
@@ -24,7 +24,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" className="dark">
       <body className={overpass.className}>
         <Providers>
           <Navbar />
