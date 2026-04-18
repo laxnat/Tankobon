@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { Loader2, BookOpen, Star, BarChart3, Upload, LogOut } from "lucide-react";
+import { toast } from "sonner";
 
 interface Stats {
   total: number;
@@ -99,13 +100,19 @@ export default function ProfilePage() {
 
   const handleUpgrade = async () => {
     setLoadingCheckout(true);
+    const toastId = toast.loading("Opening checkout…");
     try {
       const res = await fetch("/api/checkout", { method: "POST" });
       const data = await res.json();
-      if (data.url) window.location.href = data.url;
+      if (data.url) {
+        toast.dismiss(toastId);
+        window.location.href = data.url;
+      } else {
+        throw new Error("No checkout URL returned");
+      }
     } catch (err) {
       console.error("Checkout failed:", err);
-    } finally {
+      toast.error("Couldn't start checkout. Please try again.", { id: toastId });
       setLoadingCheckout(false);
     }
   };
