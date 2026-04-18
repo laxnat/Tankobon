@@ -70,13 +70,11 @@ export default function Navbar() {
             // max-w-5xl (1024px) at rest → max-w-4xl (896px) when compact
             maxWidth:             compact ? "896px" : "1024px",
             borderRadius:         "16px",
-            background:           compact
-              ? "rgba(15, 15, 24, 0.70)"
-              : "rgba(15, 15, 24, 0.88)",
-            backdropFilter:       "blur(20px) saturate(160%)",
-            WebkitBackdropFilter: "blur(20px) saturate(160%)",
+            background:           isScrolled ? "rgba(17, 17, 26, 0.85)" : "transparent",
+            backdropFilter:       isScrolled ? "blur(20px) saturate(160%)" : "none",
+            WebkitBackdropFilter: isScrolled ? "blur(20px) saturate(160%)" : "none",
             border:               "none",
-            boxShadow:            compact ? SHADOW_RAISED : SHADOW_REST,
+            boxShadow:            isScrolled ? SHADOW_RAISED : "none",
             marginTop:            "12px",
             transition: [
               `max-width 0.52s ${EASE}`,
