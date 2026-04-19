@@ -8,6 +8,10 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ["var(--font-archivo)", "sans-serif"],
+        display: ["var(--font-archivo-black)", "sans-serif"],
+      },
       colors: {
         // Project palette
         'bright-blue':    '#0e3f6b',
