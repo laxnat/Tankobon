@@ -14,17 +14,11 @@ const config: Config = {
       },
       colors: {
         // Project palette
-        'bright-blue':    '#0e3f6b',
-        'sky-blue':       '#02A9FF',
-        'red-accent':     '#EF233C',
-        'dark-navy':      '#0B1622',
-        'light-navy':     '#151F2E',
-        'muted-blue':     '#8BA0B2',
+        'navy-blue':    '#0e3f6b',
+        'reg-blue':       '#1257AB',
         'white-purple':   '#cfcfe8',
         'light-purple':   '#a1a1ce',
-        'blue-purple':    '#373766',
         'dark-purple':    '#36366e',
-        'darker-purple':  '#353570',
         // shadcn CSS-variable tokens (required for @apply in v3)
         border:      'var(--border)',
         input:       'var(--input)',
