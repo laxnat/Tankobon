@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { useSession, signOut } from "next-auth/react";
-import { Loader2, BookOpen, Star, BarChart3, Upload, LogOut } from "lucide-react";
+import { Loader2, BookOpen, Star, BarChart3, Upload, LogOut, Settings } from "lucide-react";
 import { toast } from "sonner";
+import Link from "next/link";
 
 interface Stats {
   total: number;
@@ -196,7 +197,14 @@ export default function ProfilePage() {
                 )}        
                 Go Premium
               </button>
-            )}                        
+            )}
+            <Link
+              href={"/settings"}
+              aria-label="Settings"
+              className="p-2 rounded-xl text-white/60 hover:text-white hover:bg-white/10 transition"
+            >
+              <Settings className="w-6 h-6"/>  
+            </Link>                        
             <button
               onClick={() => signOut({ callbackUrl: "/" })}                                                
               className="flex items-center gap-2 px-5 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-xl shadow-md shadow-red-600/30 transition"                                 

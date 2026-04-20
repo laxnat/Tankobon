@@ -36,7 +36,12 @@ export async function authorizeCredentials(
 
 export const authOptions: NextAuthOptions = {
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session }) {
+      // When update() is called from the client, tirgger === "update" and session contains whatever was passed to update()
+      if (trigger  === "update" && session?.name) {
+        token.name = session.name // sync the new name into the token
+      }
+      
       // Fetch isPremium fresh every time - keeps it in sync after webhook fires
       const dbUser = await prisma.user.findUnique({
         where: { id: (user?.id ?? token.id ) as string },
