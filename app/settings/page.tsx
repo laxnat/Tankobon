@@ -7,7 +7,7 @@ import { Loader2 } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
-
+import { CreditCard, Star } from "lucide-react"
 
 export default function SettingsPage() {
     const { data: session, update } = useSession()
@@ -43,6 +43,44 @@ export default function SettingsPage() {
             setSaving(false)
         }
     }
+
+    const [openingPortal, setOpeningPortal] = useState(false)
+    
+    const handleOpenPortal = async () => {
+        setOpeningPortal(true)
+        try {
+            const res = await fetch("/api/portal", { method: "POST" })
+            const data = await res.json()
+
+            if (!res.ok) throw new Error(data.error ??  "Failed to open portal")
+            window.location.href = data.url
+        } catch (err) {
+            toast.error(err instanceof Error ? err.message : "Something went wrong")
+            setOpeningPortal(false) // Only reset on failure - success navigates away
+        }
+    }
+
+    const [loadingCheckout, setLoadingCheckout] = useState(false);
+
+    const handleUpgrade = async () => {
+        setLoadingCheckout(true);
+        const toastId = toast.loading("Opening checkout…");
+        try {
+          const res = await fetch("/api/checkout", { method: "POST" });
+          const data = await res.json();
+          if (data.url) {
+            toast.dismiss(toastId);
+            window.location.href = data.url;
+          } else {
+            throw new Error("No checkout URL returned");
+          }
+        } catch (err) {
+          console.error("Checkout failed:", err);
+          toast.error("Couldn't start checkout. Please try again.", { id: toastId });
+          setLoadingCheckout(false);
+        }
+      };
+
     return (
         <div className="min-h-screen pt-24 px-8">                                
         <div className="max-w-2xl mx-auto">
@@ -79,8 +117,61 @@ export default function SettingsPage() {
               </SettingsRow>
             </div>
           </section>
-                                                                               
-          {/* Add more sections here */}
+
+          {/* Subcription section */}                                                      
+          <section className="mt-8">
+            <h2 className="text-sm font-semibold text-white/40 uppercase tracking-widest mb-2">
+                Subscription
+            </h2>
+            <div className="bg-light-navy/49 rounded-2xl border border-white/5 px-6 divide-y divide-white/5">
+                <SettingsRow
+                    label="Current Plan"
+                    description={session?.user?.isPremium ? "Unlimited library, all features" : "Up to 50 manga in your library"}
+                >
+                    {session?.user?.isPremium ? (
+                        <span className="flex items-center gape-1.5 text-sm font-semibold text-yellow-400">
+                            <Star className="w-4 h-4 fill-yellow-400" />
+                             Premium
+                        </span>
+                    ) : (
+                        <span className="text-sm text-white/40 font-medium">
+                            Free
+                        </span>
+                    )}
+                </SettingsRow>
+                <SettingsRow
+                    label={session?.user?.isPremium ? "Manage Subscription" : "Upgrade to Premium"}
+                    description={session?.user?.isPremium ? "Cancel, update payment method, or view invoices" : "Unlock unlimited library and all future features"}
+                >
+                    {session?.user?.isPremium ? (
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={handleOpenPortal}
+                            disabled={openingPortal}
+                            className="bg-reg-blue hover:bg-reg-blue/70 text-white"
+                        >
+                            {openingPortal 
+                                ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                : <><CreditCard className="w-3.5 h-3.5" /> Manage</>
+                            }
+                        </Button>
+                    ) : (
+                        <Button
+                            size="sm"
+                            onClick={handleUpgrade}
+                            disabled={loadingCheckout}
+                            className="bg-yellow-500 hover:bg-yellow-400 text-black"
+                        >
+                            {loadingCheckout
+                                ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                : <><Star className="w-3.5 h-3.5"/> Upgrade</>
+                            }
+                        </Button>
+                    )}
+                </SettingsRow>
+            </div>
+          </section>
         </div>                                                                 
       </div>  
     )
