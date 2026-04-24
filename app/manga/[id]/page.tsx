@@ -11,7 +11,6 @@ import {
   Users,
   Plus,
   Check,
-  Save,
 } from "lucide-react";
 
 interface MangaDetails {
@@ -36,10 +35,6 @@ export default function MangaDetailsPage() {
   const { id } = useParams();
   const [manga, setManga] = useState<MangaDetails | null>(null);
   const [loading, setLoading] = useState(true);
-
-  const [notes, setNotes] = useState("");
-  const [savingNotes, setSavingNotes] = useState(false);
-  const [notesSaved, setNotesSaved] = useState(false);
 
   const [entryId, setEntryId] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
@@ -79,20 +74,15 @@ export default function MangaDetailsPage() {
   
           setEntryId(entry.id);
           setAdded(true);
-  
-          // Use notes from the database directly
-          setNotes(entry.notes?.trim() ? entry.notes : "");
         } else {
           // Not in library
           setEntryId(null);
           setAdded(false);
-          setNotes("");   // clear notes
         }
       } catch (err) {
         console.error("Failed to load library entry:", err);
         setEntryId(null);
         setAdded(false);
-        setNotes("");
       }
     };
   
@@ -154,51 +144,6 @@ export default function MangaDetailsPage() {
       setAdding(false);
     }
   };
-
-  /* Save Notes Handler */
-  const saveNotes = async () => {
-    if (!session) {
-      triggerTopPopup("Please sign in to save notes.");
-      return;
-    }
-    if (!manga) return;
-
-    setSavingNotes(true);
-    try {
-      // If no entryId yet, fetch it
-      let idToUse = entryId;
-      if (!idToUse) {
-        const res = await fetch(`/api/library?malId=${manga.malId}`);
-        const data = await res.json();
-        if (!res.ok || !data.library?.length)
-          triggerTopPopup(data.error || "Manga not found in your library.");
-        idToUse = data.library[0].id;
-        setEntryId(idToUse);
-      }
-
-      // Update notes by entry ID
-      const res = await fetch("/api/library", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: idToUse, notes: notes.trim() }),
-      });
-
-      if (!res.ok) {
-        const data = await res.json();
-        triggerTopPopup(data.error || "Failed to save notes.");
-      }
-
-      setNotesSaved(true);
-      setTimeout(() => setNotesSaved(false), 2000);
-      triggerTopPopup("Notes updated!");
-    } catch (err) {
-      console.error(err);
-      triggerTopPopup(err instanceof Error ? err.message : "Error saving notes");
-    } finally {
-      setSavingNotes(false);
-    }
-  };
-
 
   if (loading)
     return (
@@ -322,33 +267,6 @@ export default function MangaDetailsPage() {
             </p>
           </div>
 
-          {/* Notes Section */}
-          <div className="bg-light-navy/30 border border-white/5 rounded-xl p-4 shadow-lg">
-            <h2 className="text-xl font-bold mb-2 text-white">Your Notes</h2>
-            <textarea
-              placeholder="Write your personal notes or impressions here..."
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              className="w-full h-28 bg-[#0E1118] text-white rounded-lg p-3 border border-white/5 focus:outline-none focus:ring-2 focus:ring-blue-500 mb-3"
-            />
-            <button
-              onClick={saveNotes}
-              disabled={savingNotes}
-              className="flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition bg-blue-600 hover:bg-blue-700 text-white"
-            >
-              {savingNotes ? (
-                <Loader2 className="w-5 h-5 animate-spin" />
-              ) : notesSaved ? (
-                <>
-                  <Check className="w-5 h-5" /> Notes Saved
-                </>
-              ) : (
-                <>
-                  <Save className="w-5 h-5" /> Save Notes
-                </>
-              )}
-            </button>
-          </div>
         </div>
       </div>
       {/* Success Popup */}

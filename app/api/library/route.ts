@@ -63,6 +63,7 @@ export async function GET(request: NextRequest) {
         volumesRead: true,
         totalVolumes: true,
         ownedVolumes: true,
+        notes: true,
         updatedAt: true,
       },
       orderBy: { updatedAt: "desc" },

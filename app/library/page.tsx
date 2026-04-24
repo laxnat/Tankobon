@@ -577,15 +577,26 @@ export default function LibraryPage() {
                           const num = parseInt(part.trim());
                           return !isNaN(num) ? [num] : [];
                         });
-                    
+
                       setEditForm((prev) => ({
                         ...prev,
                         ownedVolumes: Array.from(new Set(expandedVolumes)),
                       }));
-                    }}                    
+                    }}
                     className="mt-2 w-full p-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-blue-500 transition"
                   />
                 )}
+              </div>
+
+              {/* Notes */}
+              <div>
+                <label className="block text-white-purple text-sm mb-2">Notes</label>
+                <textarea
+                  placeholder="Write your personal notes or impressions here..."
+                  value={editForm.notes}
+                  onChange={(e) => setEditForm({ ...editForm, notes: e.target.value })}
+                  className="w-full h-28 p-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-blue-500 transition resize-none"
+                />
               </div>
             </div>
 
