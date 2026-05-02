@@ -23,7 +23,7 @@ export const metadata: Metadata = {
   title: "Tankōbon",
   description: "Track and manage your manga collection",
   icons: {
-    icon: "/logo.png",
+    icon: "/tankobon.png",
   },
 };
 

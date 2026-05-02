@@ -96,10 +96,25 @@ export default function Navbar() {
             {/* ── Logo ── */}
             <Link
               href="/"
-              className="flex shrink-0 select-none items-center"
+              className="flex shrink-0 select-none items-center gap-2"
             >
+              <div
+                className="relative flex-shrink-0"
+                style={{
+                  width:      compact ? "32px" : "48px",
+                  height:     compact ? "32px" : "48px",
+                  transition: `width 0.52s ${EASE}, height 0.52s ${EASE}`,
+                }}
+              >
+                <Image
+                  src="/tankobon.png"
+                  alt="Tankōbon logo"
+                  fill
+                  className="object-contain"
+                />
+              </div>
               <span
-                className="font-semibold text-white tracking-[-0.015em] hover:text-blue-400 transition-colors duration-300 leading-none"
+                className="font-display text-white tracking-[-0.015em] hover:text-blue-400 transition-colors duration-300 leading-none"
                 style={{
                   fontSize:   compact ? "0.9375rem" : "1.1875rem",
                   transition: `font-size 0.52s ${EASE}`,
