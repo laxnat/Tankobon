@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo, useCallback, memo } from "react";
 import { useSession } from "next-auth/react";
+import { toast } from "sonner";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -181,7 +182,7 @@ export default function LibraryPage() {
       if (response.ok) setLibrary(data.library);
     } catch (error) {
       console.error("Error fetching library:", error);
-      triggerTopPopup("Error fetching library.")
+      toast.error("Error fetching library.")
     } finally {
       setLoading(false);
     }
@@ -231,19 +232,6 @@ export default function LibraryPage() {
     setCurrentEntry(null);
   }, []);
 
-  const [showPopup, setShowPopup] = useState(false);
-  const [popupMessage, setPopupMessage] = useState("");
-
-  const triggerTopPopup = (message: string) => {
-    setPopupMessage(message);
-    setShowPopup(true);
-  
-    setTimeout(() => {
-      setShowPopup(false);
-      setPopupMessage("");
-    }, 2500);
-  };  
-
   const saveEdit = async () => {
     if (!currentEntry) return;
     try {
@@ -259,11 +247,11 @@ export default function LibraryPage() {
       if (response.ok) {
         setModalOpen(false);
         fetchLibrary();
-        triggerTopPopup("Edit saved!")
+        toast.success("Edit saved!")
       }
     } catch (error) {
       console.error("Error updating entry:", error);
-      triggerTopPopup("Error updating entry.")
+      toast.error("Error updating entry.")
     }
   };
 
@@ -275,12 +263,12 @@ export default function LibraryPage() {
       const response = await fetch(`/api/library?id=${id}`, { method: "DELETE" });
       if (response.ok) {
         await fetchLibrary();
-        triggerTopPopup("Manga deleted from library!")
+        toast.success("Manga deleted from library!")
         return true;
       }
     } catch (error) {
       console.error("Error deleting entry:", error);
-      triggerTopPopup("Error deleting entry.")
+      toast.error("Error deleting entry.")
     }
     return false;
   };
@@ -324,7 +312,17 @@ export default function LibraryPage() {
             ) : (
               <h1 className="text-5xl font-bold text-white mb-2">My Library</h1>
             )}
-            <p className="text-white-purple">{library.length} manga in collection</p>
+            <div className="flex items-center gap-3">
+              <p className="text-white-purple">{library.length} manga in collection</p>
+              {!session?.user?.isPremium && library.length >= 50 && (
+                <Link
+                  href="/premium"
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold bg-yellow-400/10 border border-yellow-400/30 text-yellow-400 hover:bg-yellow-400/20 transition-colors"
+                >
+                  ★ Upgrade for unlimited
+                </Link>
+              )}
+            </div>
           </div>
         </div>
 
@@ -665,14 +663,6 @@ export default function LibraryPage() {
                 Yes, Delete
               </button>
             </div>
-          </div>
-        </div>
-      )}
-      {/* Success Popup */}
-      {showPopup && (
-        <div className="fixed top-8 left-1/2 transform -translate-x-1/2 z-50">
-          <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white font-bold px-6 py-3 rounded-xl shadow-lg shadow-blue-500/30 animate-fadeIn">
-            {popupMessage}
           </div>
         </div>
       )}

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Image from "next/image";
 import { useSession } from "next-auth/react";
+import { toast } from "sonner";
 import {
   Loader2,
   Star,
@@ -39,9 +40,6 @@ export default function MangaDetailsPage() {
   const [entryId, setEntryId] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
   const [added, setAdded] = useState(false);
-
-  const [showPopup, setShowPopup] = useState(false);
-  const [popupMessage, setPopupMessage] = useState("");
 
   // Fetch manga details
   useEffect(() => {
@@ -89,20 +87,10 @@ export default function MangaDetailsPage() {
     fetchLibraryEntry();
   }, [session, manga]);  
 
-  const triggerTopPopup = (message: string) => {
-    setPopupMessage(message);
-    setShowPopup(true);
-  
-    setTimeout(() => {
-      setShowPopup(false);
-      setPopupMessage("");
-    }, 2500);
-  };  
-
   /* Add to Library Handler */
   const addToLibrary = async () => {
     if (!session) {
-      triggerTopPopup("Please sign in to add manga to your library.");
+      toast("Please sign in to add manga to your library.");
       return;
     }
     if (!manga) return;
@@ -126,20 +114,19 @@ export default function MangaDetailsPage() {
 
       if (!res.ok) {
         if (res.status === 409) {
-          triggerTopPopup("Already in your library!");
+          toast("Already in your library!");
         } else {
-          triggerTopPopup(data.error || "Failed to add manga.");
+          toast.error(data.error || "Failed to add manga.");
         }
         return;
       }
 
-      const { entry } = await res.json();
-      setEntryId(entry.id);
+      setEntryId(data.entry.id);
       setAdded(true);
-      triggerTopPopup("Added to Library!");
+      toast.success("Added to Library!");
     } catch (err) {
       console.error(err);
-      triggerTopPopup(err instanceof Error ? err.message : "Error adding manga");
+      toast.error(err instanceof Error ? err.message : "Error adding manga");
     } finally {
       setAdding(false);
     }
@@ -269,14 +256,6 @@ export default function MangaDetailsPage() {
 
         </div>
       </div>
-      {/* Success Popup */}
-      {showPopup && (
-        <div className="fixed top-8 left-1/2 transform -translate-x-1/2 z-50">
-          <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white font-bold px-6 py-3 rounded-xl shadow-lg shadow-blue-500/30 animate-fadeIn">
-            {popupMessage}
-          </div>
-        </div>
-      )}
     </div>
   );
 }
