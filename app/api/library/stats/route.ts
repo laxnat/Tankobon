@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { count } from "console";
 
 export async function GET() {
   const session = await getServerSession(authOptions);
@@ -13,36 +14,45 @@ export async function GET() {
 
   const userId = session.user.id;
 
-  // Fetch all user's library entries
-  const entries = await prisma.mangaLibrary.findMany({
+  const statusCounts = await prisma.mangaLibrary.groupBy({
+    by: ["status"],
     where: { userId },
-    select: { status: true, rating: true, updatedAt: true },
+    _count: { status: true },
   });
 
-  // Count entries by status
-  const total = entries.length;
-  const reading = entries.filter((e) => e.status === "READING").length;
-  const completed = entries.filter((e) => e.status === "COMPLETED").length;
-  const planToRead = entries.filter((e) => e.status === "PLAN_TO_READ").length;
-  const onHold = entries.filter((e) => e.status === "ON_HOLD").length;
-  const dropped = entries.filter((e) => e.status === "DROPPED").length;
+  const aggregates = await prisma.mangaLibrary.aggregate({
+    where: { userId },
+    _count: { id: true },
+    _avg: { rating: true },
+    _sum: {
+      chaptersRead: true,
+      volumesRead: true,
+    },
+  });
 
-  // Average rating
-  const ratedEntries = entries.filter((e) => e.rating !== null);
-  const avgRating =
-    ratedEntries.length > 0
-      ? ratedEntries.reduce((sum, e) => sum + (e.rating || 0), 0) /
-        ratedEntries.length
-      : 0;
+  const ownedData = await prisma.mangaLibrary.findMany({
+    where: { userId },
+    select: { ownedVolumes: true },
+  });
+
+  const totalOwnedVolumes = ownedData.reduce(
+    (sum, e) => sum + (Array.isArray(e.ownedVolumes) ? e.ownedVolumes.length : 0), 0
+  );
+
+  const countByStatus = Object.fromEntries(statusCounts.map((row) => [row.status, row._count.status]));
+
+  const avgRating = aggregates._avg.rating;
 
   // Return stats
   return NextResponse.json({
-    total,
-    reading,
-    completed,
-    planToRead,
-    onHold,
-    dropped,
-    avgRating: Number(avgRating.toFixed(2)),
+    total: aggregates._count.id,
+    reading: countByStatus["READING"] ?? 0,
+    completed: countByStatus["COMPLETED"] ?? 0,
+    planToRead: countByStatus["PLAN_TO_READ"] ?? 0,
+    onHold: countByStatus["ON_HOLD"] ?? 0,
+    dropped: countByStatus["DROPPED"] ?? 0,
+    avgRating: avgRating ? Number(avgRating.toFixed(2)) : 0,
+    chaptersRead: aggregates._sum.chaptersRead ?? 0,
+    volumesRead: aggregates._sum.volumesRead ?? 0, totalOwnedVolumes,
   });
 }
