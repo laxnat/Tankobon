@@ -107,6 +107,7 @@ export default function MangaDetailsPage() {
           totalChapters: manga.chapters,
           totalVolumes: manga.volumes,
           status: "PLAN_TO_READ",
+          genres: manga.genres,
         }),
       });
 

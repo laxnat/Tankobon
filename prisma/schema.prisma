@@ -67,6 +67,7 @@ model MangaLibrary {
   malId       Int
   title       String
   imageUrl    String?
+  genres      String[] @default([])
   status      ReadingStatus @default(PLAN_TO_READ)
   rating      Int?     // 1-10
   chaptersRead Int?    @default(0)

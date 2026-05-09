@@ -5,6 +5,7 @@ import { useSession, signOut } from "next-auth/react";
 import { Loader2, BookOpen, Star, BarChart3, Upload, LogOut, Settings } from "lucide-react";
 import { toast } from "sonner";
 import Link from "next/link";
+import { GenreChart } from "../components/GenreChart";
 
 interface Stats {
   total: number;
@@ -14,6 +15,9 @@ interface Stats {
   onHold: number;
   dropped: number;
   avgRating: number;
+  chaptersRead: number;
+  volumesRead: number;
+  totalOwnedVolumes: number;
 }
 
 export default function ProfilePage() {
@@ -24,10 +28,11 @@ export default function ProfilePage() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [showPopup, setShowPopup] = useState(false);
   const [loadingCheckout, setLoadingCheckout] = useState(false);
+  const [genreData, setGenreData] = useState<{ genre: string; count: number }[]>([]);
 
   useEffect(() => {
     if (status === "authenticated") {
-      fetchStats();
+      fetchData();
       fetch("/api/profile/image")
         .then((r) => r.ok ? r.json() : null)
         .then((data) => { if (data?.image) setPreviewUrl(data.image) })
@@ -35,13 +40,33 @@ export default function ProfilePage() {
     }
   }, [status]);
 
-  const fetchStats = async () => {
+  const fetchData = async () => {
     try {
-      const res = await fetch("/api/library/stats");
-      const data = await res.json();
-      if (res.ok) setStats(data);
+      // Fire both fetches at the same time — no reason to wait for one before starting the other
+      const [statsRes, genreRes] = await Promise.all([
+        fetch("/api/library/stats"),
+        fetch("/api/profile/stats/genres"),
+      ]);
+
+      const [statsData, genreJson] = await Promise.all([
+        statsRes.json(),
+        genreRes.json(),
+      ]);
+
+      if (statsRes.ok) {                                        
+        setStats(statsData);
+        console.log("success");
+      } else {
+        console.error("Stats fetch failed:", statsData);
+      }   
+      if (genreRes.ok) {                                        
+        console.log("Genre data:", genreJson.genres);
+        setGenreData(genreJson.genres);                         
+      }       else {
+        console.error("Genre fetch failed:", genreJson);
+      }     
     } catch (err) {
-      console.error("Failed to fetch stats:", err);
+      console.error("Failed to fetch profile data:", err);
     } finally {
       setLoading(false);
     }
@@ -241,6 +266,12 @@ export default function ProfilePage() {
             </h2>
             <p className="text-white-purple text-lg font-bold">Completed</p>
           </div>
+
+          <div className="bg-light-navy/40 rounded-2xl p-6 border border-white/5 shadowlg flex justify-center gap-2">
+            <BookOpen className="w-6 h-6 text-purple-400" />
+            <h2 className="text-white-purple text-l font-bold">{stats?.chaptersRead ?? 0}</h2>
+            <p className="text-white-purple text-lg font-bold"> Chapters Read</p>
+          </div>
         </div>
 
         {/* Detailed breakdown */}
@@ -252,6 +283,11 @@ export default function ProfilePage() {
             <StatItem label="On Hold" value={stats?.onHold ?? 0} color="text-yellow-400" />
             <StatItem label="Dropped" value={stats?.dropped ?? 0} color="text-red-400" />
           </div>
+        </div>
+
+        <div className="mt-6 bg-light-navy/30 p-6 rounded-2xl border border-white/5 shadow-lg">
+            <h2 className="text-white font-bold text-xl mb-4">Genre Breakdown</h2>
+            <GenreChart genres={genreData} />
         </div>
       </div>
       {/* Success Popup */}

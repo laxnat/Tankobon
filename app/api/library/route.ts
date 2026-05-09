@@ -122,7 +122,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { malId, title, imageUrl, status, totalChapters, totalVolumes, ownedVolumes } = body;
+    const { malId, title, imageUrl, status, totalChapters, totalVolumes, ownedVolumes, genres } = body;
 
     if (!malId || !title) {
       return NextResponse.json(
@@ -159,6 +159,7 @@ export async function POST(request: NextRequest) {
         totalChapters: totalChapters ? parseInt(totalChapters) : null,
         totalVolumes: totalVolumes ? parseInt(totalVolumes) : null,
         ownedVolumes: ownedVolumes || [],
+        genres: Array.isArray(genres) ? genres : [],
       },
     });
 

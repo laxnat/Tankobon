@@ -128,6 +128,7 @@ export default function SearchPage() {
           totalChapters: manga.chapters,
           totalVolumes: manga.volumes,
           status: "PLAN_TO_READ",
+          genres: manga.genres,
         }),
       });
 
@@ -486,7 +487,7 @@ export default function SearchPage() {
                 {/* Hover Card */}
                 <div
                   className={`
-                    absolute top-0 w-64 bg-light-navy rounded-lg border border-white/5
+                    absolute top-0 w-64 bg-navy-blue rounded-lg border border-white/5
                     shadow-2xl p-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible
                     transition-all duration-200 z-10 pointer-events-none
                     ${popupPosition}
@@ -598,7 +599,7 @@ export default function SearchPage() {
                       {/* Hover Popup */}
                       <div
                         className={`
-                          absolute top-0 w-64 bg-light-navy rounded-lg border border-white/5
+                          absolute top-0 w-64 bg-navy-blue rounded-lg border border-white/5
                           shadow-2xl p-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible
                           transition-all duration-200 z-10 pointer-events-none
                           ${popupPosition}
@@ -704,7 +705,7 @@ export default function SearchPage() {
                       {/* Hover Popup */}
                       <div
                         className={`
-                          absolute top-0 w-64 bg-light-navy rounded-lg border border-white/5
+                          absolute top-0 w-64 bg-navy-blue rounded-lg border border-white/5
                           shadow-2xl p-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible
                           transition-all duration-200 z-10 pointer-events-none
                           ${popupPosition}
