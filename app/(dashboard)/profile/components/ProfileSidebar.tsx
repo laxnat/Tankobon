@@ -11,6 +11,7 @@ import {
   Settings,
   LogOut,
   BookOpen,
+  Search,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -200,6 +201,16 @@ export default function ProfileSidebar() {
                   render prop (base-nova style) is how you swap the default <button>
                   for a custom element like Link. Equivalent to Radix's `asChild`.
                 */}
+                <SidebarMenuButton
+                  size="lg"
+                  render={<Link href="/search" />}
+                >
+                  <Search className="text-white/60" />
+                  <span>Search</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+
+              <SidebarMenuItem>
                 <SidebarMenuButton
                   size="lg"
                   render={<Link href="/library" />}

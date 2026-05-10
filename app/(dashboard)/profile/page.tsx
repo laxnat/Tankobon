@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { Loader2, BookOpen, Star, BarChart3 } from "lucide-react";
-import { GenreChart } from "../components/GenreChart";
+import { GenreChart } from "@/app/components/GenreChart";
 
 interface Stats {
   total: number;
