@@ -2,8 +2,6 @@ import type { Metadata } from "next";
 import { Archivo, Archivo_Black } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
-import Navbar from "./components/Navbar";
-import Footer from "./components/Footer";
 
 // Body font
 const archivo = Archivo({
@@ -36,9 +34,7 @@ export default function RootLayout({
     <html lang="en" className={`dark ${archivo.variable} ${archivoBlack.variable}`}>
       <body className={archivo.className}>
         <Providers>
-          <Navbar />
           {children}
-          <Footer />
         </Providers>
       </body>
     </html>
