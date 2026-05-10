@@ -40,7 +40,7 @@ function LoginForm() {
         return;
       }
 
-      const callbackUrl = searchParams.get("callbackUrl") || "/library";
+      const callbackUrl = searchParams.get("callbackUrl") || "/profile";
       router.push(callbackUrl);
     } catch (err) {
       setError("An error occurred. Please try again.");
