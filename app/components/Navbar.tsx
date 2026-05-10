@@ -126,23 +126,8 @@ export default function Navbar() {
 
             {/* ── Desktop nav ── */}
             <div className="hidden md:flex items-center gap-0.5">
-              <NavLink href="/search"  compact={compact}>Search</NavLink>
-
               {session ? (
                 <>
-                  <NavLink href="/library" compact={compact}>My Library</NavLink>
-
-                  {/* Hairline divider */}
-                  <div
-                    style={{
-                      width:      "1px",
-                      height:     "14px",
-                      background: "rgba(255,255,255,0.12)",
-                      margin:     "0 10px",
-                      flexShrink: 0,
-                    }}
-                  />
-
                   {/* Profile avatar */}
                   <Link
                     href="/profile"
@@ -242,14 +227,8 @@ export default function Navbar() {
           }}
         >
           <div className="px-5 py-2 flex flex-col">
-            <MobileNavLink href="/search"  onClick={() => setMenuOpen(false)}>
-              Search
-            </MobileNavLink>
             {session ? (
               <>
-                <MobileNavLink href="/library" onClick={() => setMenuOpen(false)}>
-                  My Library
-                </MobileNavLink>
                 <MobileNavLink href="/profile" onClick={() => setMenuOpen(false)}>
                   <span>Profile</span>
                   {session.user?.isPremium && (
