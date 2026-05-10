@@ -22,22 +22,13 @@ const SHADOW_RAISED = [
 ].join(", ");
 
 export default function Navbar() {
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobile, setIsMobile]     = useState(false);
-  const [avatarUrl, setAvatarUrl]   = useState<string | null>(null);
   const [menuOpen, setMenuOpen]     = useState(false);
 
   // Compact state: scrolled on desktop only
   const compact = isScrolled && !isMobile;
-
-  useEffect(() => {
-    if (status !== "authenticated") return;
-    fetch("/api/profile/image")
-      .then((r) => r.ok ? r.json() : null)
-      .then((d) => { if (d?.image) setAvatarUrl(d.image); })
-      .catch(() => {});
-  }, [status]);
 
   useEffect(() => {
     const onScroll = () => setIsScrolled(window.scrollY > 72);
@@ -126,40 +117,30 @@ export default function Navbar() {
 
             {/* ── Desktop nav ── */}
             <div className="hidden md:flex items-center gap-0.5">
+              {/* Premium CTA — hidden once the user already has premium */}
+              {!session?.user?.isPremium && (
+                <Link
+                  href="/premium"
+                  className="inline-flex items-center gap-1.5 font-semibold text-yellow-900 bg-yellow-400 hover:bg-yellow-300 active:bg-yellow-500 rounded-xl transition-colors duration-150 select-none"
+                  style={{
+                    fontSize: compact ? "0.8125rem" : "0.875rem",
+                    padding:  compact ? "5px 12px"  : "7px 14px",
+                    marginRight: "4px",
+                    transition: [
+                      `font-size 0.52s ${EASE}`,
+                      `padding 0.52s ${EASE}`,
+                      "background 0.15s ease",
+                    ].join(", "),
+                  }}
+                >
+                  <Star className="w-3.5 h-3.5 fill-yellow-900" />
+                  Premium
+                </Link>
+              )}
+
               {session ? (
                 <>
-                  {/* Profile avatar */}
-                  <Link
-                    href="/profile"
-                    className="relative group flex-shrink-0"
-                    aria-label="Profile"
-                  >
-                    <div
-                      className={`relative overflow-hidden rounded-full transition-[box-shadow] duration-200 ${
-                        session.user?.isPremium
-                          ? "ring-[1.5px] ring-yellow-400/65"
-                          : "ring-[1.5px] ring-white/18 group-hover:ring-white/42"
-                      }`}
-                      style={{
-                        width:      compact ? "28px" : "32px",
-                        height:     compact ? "28px" : "32px",
-                        transition: `width 0.52s ${EASE}, height 0.52s ${EASE}`,
-                      }}
-                    >
-                      <Image
-                        src={avatarUrl || "/images/blankpfp.png"}
-                        alt="Profile"
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-
-                    {session.user?.isPremium && (
-                      <span className="absolute -top-[3px] -right-[3px] w-3.5 h-3.5 bg-yellow-400 rounded-full flex items-center justify-center pointer-events-none">
-                        <Star className="w-[6px] h-[6px] text-yellow-900 fill-yellow-900" />
-                      </span>
-                    )}
-                  </Link>
+                  <NavLink href="/profile" compact={compact}>Dashboard</NavLink>
                 </>
               ) : (
                 <>
@@ -227,10 +208,18 @@ export default function Navbar() {
           }}
         >
           <div className="px-5 py-2 flex flex-col">
+            {/* Premium CTA — hidden once the user already has premium */}
+            {!session?.user?.isPremium && (
+              <MobileNavLink href="/premium" onClick={() => setMenuOpen(false)}>
+                <Star className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400" />
+                <span className="text-yellow-400">Premium</span>
+              </MobileNavLink>
+            )}
+
             {session ? (
               <>
                 <MobileNavLink href="/profile" onClick={() => setMenuOpen(false)}>
-                  <span>Profile</span>
+                  <span>Dashboard</span>
                   {session.user?.isPremium && (
                     <span className="ml-auto inline-flex items-center gap-1 px-2 py-0.5 bg-yellow-400/10 border border-yellow-400/20 text-yellow-400 text-[11px] font-medium rounded-full">
                       <Star className="w-2.5 h-2.5 fill-yellow-400" />
