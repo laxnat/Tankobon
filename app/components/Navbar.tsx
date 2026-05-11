@@ -119,23 +119,7 @@ export default function Navbar() {
             <div className="hidden md:flex items-center gap-0.5">
               {/* Premium CTA — hidden once the user already has premium */}
               {!session?.user?.isPremium && (
-                <Link
-                  href="/premium"
-                  className="inline-flex items-center gap-1.5 font-semibold text-yellow-900 bg-yellow-400 hover:bg-yellow-300 active:bg-yellow-500 rounded-xl transition-colors duration-150 select-none"
-                  style={{
-                    fontSize: compact ? "0.8125rem" : "0.875rem",
-                    padding:  compact ? "5px 12px"  : "7px 14px",
-                    marginRight: "4px",
-                    transition: [
-                      `font-size 0.52s ${EASE}`,
-                      `padding 0.52s ${EASE}`,
-                      "background 0.15s ease",
-                    ].join(", "),
-                  }}
-                >
-                  <Star className="w-3.5 h-3.5 fill-yellow-900" />
-                  Premium
-                </Link>
+                <NavLink href="/premium" compact={compact}>Pricing</NavLink>
               )}
 
               {session ? (
@@ -255,7 +239,7 @@ function NavLink({
   return (
     <Link
       href={href}
-      className="font-medium text-white/65 hover:text-white hover:bg-white/[0.07] rounded-lg transition-all duration-150 select-none"
+      className="font-medium text-white/65 hover:text-white hover:underline rounded-lg transition-all duration-150 select-none"
       style={{
         fontSize:      compact ? "0.8125rem" : "0.875rem",
         padding:       compact ? "4px 10px"  : "6px 13px",
