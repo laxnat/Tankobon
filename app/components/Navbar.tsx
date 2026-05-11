@@ -105,7 +105,7 @@ export default function Navbar() {
                 />
               </div>
               <span
-                className="font-display text-white tracking-[-0.015em] hover:text-blue-400 transition-colors duration-300 leading-none"
+                className="font-display text-white tracking-[-0.015em] hover:text-reg-blue transition-colors duration-300 leading-none"
                 style={{
                   fontSize:   compact ? "0.9375rem" : "1.1875rem",
                   transition: `font-size 0.52s ${EASE}`,
@@ -132,7 +132,7 @@ export default function Navbar() {
 
                   <Link
                     href="/register"
-                    className="font-medium text-white bg-blue-600 hover:bg-blue-500 active:bg-blue-700 rounded-xl transition-colors duration-150 select-none"
+                    className="font-medium text-white bg-reg-blue hover:bg-reg-blue/55 active:bg-blue-700 rounded-xl transition-colors duration-150 select-none"
                     style={{
                       fontSize:   compact ? "0.8125rem" : "0.875rem",
                       padding:    compact ? "5px 14px"  : "7px 16px",
