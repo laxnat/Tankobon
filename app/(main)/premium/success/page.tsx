@@ -13,10 +13,10 @@ export default function PremiumSuccessPage() {
                     Your payment was successful. Premium features are now active on your account.
                 </p>
                 <Link
-                    href="/profile"
+                    href="/dashboard"
                     className="inline-block px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-md shadow-blue-600/30 transition"
                 >
-                    Go to Profile
+                    Go to Dashboard
                 </Link>
             </div>
         </div>

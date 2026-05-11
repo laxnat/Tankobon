@@ -124,7 +124,7 @@ export default function Navbar() {
 
               {session ? (
                 <>
-                  <NavLink href="/profile" compact={compact}>Dashboard</NavLink>
+                  <NavLink href="/dashboard" compact={compact}>Dashboard</NavLink>
                 </>
               ) : (
                 <>
@@ -202,7 +202,7 @@ export default function Navbar() {
 
             {session ? (
               <>
-                <MobileNavLink href="/profile" onClick={() => setMenuOpen(false)}>
+                <MobileNavLink href="/dashboard" onClick={() => setMenuOpen(false)}>
                   <span>Dashboard</span>
                   {session.user?.isPremium && (
                     <span className="ml-auto inline-flex items-center gap-1 px-2 py-0.5 bg-yellow-400/10 border border-yellow-400/20 text-yellow-400 text-[11px] font-medium rounded-full">

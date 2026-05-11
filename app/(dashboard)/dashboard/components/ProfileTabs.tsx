@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const TABS = [
-  { label: "Overview", href: "/profile" },
+  { label: "Overview", href: "/dashboard" },
   { label: "Settings", href: "/settings" },
 ] as const;
 
@@ -24,7 +24,7 @@ const TABS = [
 export function ProfileTabs() {
   const pathname = usePathname();
 
-  // Match the active tab: /profile matches "Overview", /settings matches "Settings", etc.
+  // Match the active tab: /dashboard matches "Overview", /settings matches "Settings", etc.
   const activeTab =
     TABS.find((t) => t.href === pathname)?.href ?? TABS[0].href;
 

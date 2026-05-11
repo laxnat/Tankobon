@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
         // the actual Session ID is returned in the query parameter when your customer
         // is redirected to the success page.
         success_url: `${process.env.NEXT_PUBLIC_APP_URL}/premium/success?session_id={CHECKOUT_SESSION_ID}`,                                                       
-        cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/profile`, 
+        cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard`,
     });
       
     // Redirect to the URL returned on the Checkout Session.

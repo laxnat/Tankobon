@@ -1,9 +1,9 @@
 import { SidebarProvider } from "@/components/ui/sidebar";
-import ProfileSidebar from "@/app/(dashboard)/profile/components/ProfileSidebar";
+import ProfileSidebar from "@/app/(dashboard)/dashboard/components/ProfileSidebar";
 
-// Shared shell for all "app" pages — profile, search, library, etc.
+// Shared shell for all "app" pages — dashboard, search, library, etc.
 // Any page under (dashboard)/* gets the sidebar automatically.
-// Route groups are URL-transparent: /search stays /search, /profile stays /profile.
+// Route groups are URL-transparent: /search stays /search, /dashboard stays /dashboard.
 export default function DashboardLayout({
   children,
 }: {

@@ -224,10 +224,10 @@ export default function ProfileSidebar() {
                 <SidebarMenuButton
                   size="lg"
                   isActive
-                  render={<Link href="/profile" />}
+                  render={<Link href="/dashboard" />}
                 >
                   <span className="text-lg">👤</span>
-                  <span>Profile</span>
+                  <span>Dashboard</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
 

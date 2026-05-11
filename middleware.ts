@@ -13,7 +13,7 @@ export async function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl
 
     // -- Auth wall: must be logged in --
-    const requiresAuth = pathname.startsWith("/profile") || pathname.startsWith("/library")
+    const requiresAuth = pathname.startsWith("/dashboard") || pathname.startsWith("/library")
     if (requiresAuth && !token) {
         return NextResponse.redirect(new URL("/login", request.url))
     }
@@ -28,7 +28,7 @@ export async function middleware(request: NextRequest) {
 // Only run middleware on these paths - never on static files or Next.js internals
 export const config = {
     matcher: [
-        "/profile/:path*",
+        "/dashboard/:path*",
         "/library/:path*",
         "/export/:path*",
         // Add more premium routes later
