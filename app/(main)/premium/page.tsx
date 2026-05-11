@@ -67,17 +67,12 @@ export default function PremiumPage() {
         animate="show"
         transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
       >
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-400/10 border border-blue-400/20 text-light-purple text-xs font-medium tracking-wide mb-6">
-          <Star className="w-3 h-3 fill-blue-400" />
-          Plans & Pricing
-        </div>
-        <h1 className="text-5xl font-extrabold text-white tracking-tight mb-4">
+        <h1 className="text-5xl font-display text-white tracking-tight mt-12 mb-4">
           Free forever.{" "}
-          <span className="text-blue-400">Unlock more.</span>
+          <span className="text-reg-blue">Unlock more.</span>
         </h1>
-        <p className="text-white/55 text-lg leading-relaxed">
-          Tankōbon is free to use. Premium removes the limits and goes deeper
-          for serious collectors.
+        <p className="text-white/55 leading-relaxed">
+          Tankōbon is free to use. Premium removes the limits and goes deeper for serious collectors.
         </p>
       </motion.div>
 
@@ -86,7 +81,11 @@ export default function PremiumPage() {
 
         {/* Free */}
         <motion.div
-          className="relative flex flex-col bg-light-navy/30 border border-white/[0.07] rounded-2xl p-8"
+          className="relative flex flex-col rounded-2xl p-8"
+          style={{
+            background: "linear-gradient(145deg, rgba(255,255,255,0.08) 0%, rgba(209,213,219,0.08) 100%)",
+            border: "1px solid rgba(255,255,255,0.1)",
+          }}
           variants={fadeUp}
           initial="hidden"
           whileInView="show"
@@ -94,11 +93,11 @@ export default function PremiumPage() {
           transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1], delay: 0.05 }}
         >
           <div className="mb-6">
-            <p className="text-xs font-semibold tracking-widest text-white/40 uppercase mb-2">
+            <p className="text-xs font-display tracking-widest text-white/40 uppercase mb-2">
               Free
             </p>
             <div className="flex items-end gap-1">
-              <span className="text-4xl font-extrabold text-white">$0</span>
+              <span className="text-4xl text-white">$0</span>
               <span className="text-white/40 mb-1">/month</span>
             </div>
             <p className="text-white/45 text-sm mt-2">
@@ -113,8 +112,8 @@ export default function PremiumPage() {
           <ul className="flex flex-col gap-3 flex-1">
             {FREE_FEATURES.map((label) => (
               <li key={label} className="flex items-center gap-3">
-                <span className="flex-shrink-0 w-4 h-4 rounded-full bg-blue-500/15 flex items-center justify-center">
-                  <Check className="w-2.5 h-2.5 text-blue-400 stroke-[2.5]" />
+                <span className="flex-shrink-0 w-4 h-4 rounded-full bg-reg-blue/70 flex items-center justify-center">
+                  <Check className="w-2.5 h-2.5 text-white/75 stroke-[2.5]" />
                 </span>
                 <span className="text-white/75 text-sm">{label}</span>
               </li>
@@ -129,7 +128,7 @@ export default function PremiumPage() {
             ) : (
               <Link
                 href="/register"
-                className="block w-full text-center py-2.5 text-white/75 text-sm font-medium border border-white/10 rounded-xl hover:border-white/20 hover:text-white transition-colors duration-150"
+                className="block w-full text-center py-2.5 text-white/75 text-sm border border-white/10 rounded-xl hover:border-white/20 hover:text-white transition-colors duration-150"
               >
                 Get started free
               </Link>
@@ -141,7 +140,7 @@ export default function PremiumPage() {
         <motion.div
           className="relative flex flex-col rounded-2xl p-8 overflow-hidden"
           style={{
-            background: "linear-gradient(145deg, rgba(21,31,46,0.9) 0%, rgba(17,17,26,0.95) 100%)",
+            background: "linear-gradient(145deg, rgba(21,31,46,0.8) 0%, rgba(17,17,26,0.95) 100%)",
             border: "1px solid rgba(96, 165, 250, 0.2)",
           }}
           variants={fadeUp}
@@ -150,21 +149,19 @@ export default function PremiumPage() {
           viewport={{ once: true, margin: "-60px" }}
           transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1], delay: 0.15 }}
         >
-          {/* Subtle blue glow top edge */}
-          
-
           <div className="mb-6">
             <div className="flex items-center justify-between mb-2">
-              <p className="text-xs font-semibold tracking-widest text-blue-400/70 uppercase">
+              <p className="text-xs font-display tracking-widest text-reg-blue uppercase">
                 Premium
               </p>
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-400/10 border border-blue-400/20 text-blue-400 text-[10px] font-medium">
-                <Star className="w-2.5 h-2.5 fill-blue-400" />
+              <span
+                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border border-reg-blue text-white/55 text-[10px]"
+              >
                 Best value
               </span>
             </div>
             <div className="flex items-end gap-1">
-              <span className="text-4xl font-extrabold text-white">$8.99</span>
+              <span className="text-4xl text-white">$8.99</span>
               <span className="text-white/40 mb-1">/month</span>
             </div>
             <p className="text-white/45 text-sm mt-2">
@@ -179,8 +176,8 @@ export default function PremiumPage() {
           <ul className="flex flex-col gap-3 flex-1">
             {PREMIUM_FEATURES.map((label) => (
               <li key={label} className="flex items-center gap-3">
-                <span className="flex-shrink-0 w-4 h-4 rounded-full bg-blue-400/15 flex items-center justify-center">
-                  <Check className="w-2.5 h-2.5 text-blue-400 stroke-[2.5]" />
+                <span className="flex-shrink-0 w-4 h-4 rounded-full bg-reg-blue/70 flex items-center justify-center">
+                  <Check className="w-2.5 h-2.5 text-white/75 stroke-[2.5]" />
                 </span>
                 <span className="text-white/75 text-sm">{label}</span>
               </li>
@@ -189,21 +186,21 @@ export default function PremiumPage() {
 
           <div className="mt-8">
             {isPremium ? (
-              <div className="w-full text-center py-2.5 text-blue-400/50 text-sm border border-blue-400/15 rounded-xl">
+              <div className="w-full text-center py-2.5 text-white/55 text-sm border border-white/55 rounded-xl">
                 Your current plan
               </div>
             ) : session ? (
               <button
                 onClick={handleUpgrade}
                 disabled={loading}
-                className="w-full py-2.5 text-sm font-semibold text-blue-900 bg-blue-400 hover:bg-blue-300 active:bg-blue-500 rounded-xl transition-colors duration-150 disabled:opacity-60 disabled:cursor-not-allowed"
+                className="w-full py-2.5 text-sm text-white bg-reg-blue hover:bg-reg-blue/70 active:bg-blue-500 rounded-xl transition-colors duration-150 disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 {loading ? "Redirecting…" : "Upgrade to Premium"}
               </button>
             ) : (
               <Link
                 href="/register"
-                className="block w-full text-center py-2.5 text-sm font-semibold text-blue-900 bg-blue-400 hover:bg-blue-300 rounded-xl transition-colors duration-150"
+                className="block w-full text-center py-2.5 text-sm text-white bg-reg-blue hover:bg-reg-blue/70 rounded-xl transition-colors duration-150"
               >
                 Get started
               </Link>
@@ -215,7 +212,7 @@ export default function PremiumPage() {
 
       {/* ── Fine print ── */}
       <motion.p
-        className="text-center text-white/25 text-xs mt-10"
+        className="text-center text-white/55 text-xs mt-10"
         variants={fadeUp}
         initial="hidden"
         whileInView="show"
