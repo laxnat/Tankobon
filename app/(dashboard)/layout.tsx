@@ -1,5 +1,5 @@
 import { SidebarProvider } from "@/components/ui/sidebar";
-import ProfileSidebar from "@/app/(dashboard)/dashboard/components/ProfileSidebar";
+import Sidebar from "@/app/(dashboard)/dashboard/components/Sidebar";
 
 // Shared shell for all "app" pages — dashboard, search, library, etc.
 // Any page under (dashboard)/* gets the sidebar automatically.
@@ -11,7 +11,7 @@ export default function DashboardLayout({
 }) {
   return (
     <SidebarProvider>
-      <ProfileSidebar />
+      <Sidebar />
       {/*
         md:ml-64 offsets the content by the sidebar width (16rem = 256px).
         On mobile the sidebar is a Sheet drawer, so no margin needed there.
