@@ -3,14 +3,55 @@
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
-import { Search } from "lucide-react";
+import { usePathname } from "next/navigation";
+
+// Maps URL segments to the display labels shown in breadcrumbs.
+const SEGMENT_LABELS: Record<string, string> = {
+  dashboard: "Dashboard",
+  discover:  "Discover",
+  library:   "Library",
+  settings:  "Settings",
+};
+
+function Breadcrumbs() {
+  const pathname = usePathname();
+  const segments = pathname.split("/").filter(Boolean);
+  const crumbs = segments.map((seg, i) => ({
+    label: SEGMENT_LABELS[seg] ?? seg.charAt(0).toUpperCase() + seg.slice(1),
+    href:  "/" + segments.slice(0, i + 1).join("/"),
+  }));
+
+  return (
+    <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-sm">
+      {crumbs.map((crumb, i) => {
+        const isLast = i === crumbs.length - 1;
+        return (
+          <span key={crumb.href} className="flex items-center gap-1.5">
+            {/* Separator */}
+            {i > 0 && <span className="text-white/20">/</span>}
+
+            {/* Last segment */}
+            {isLast ? (
+              <span className="text-white font-medium">{crumb.label}</span>
+            ) : (
+              <Link
+                href={crumb.href}
+                className="text-white/40 hover:text-white/70 transition-colors"
+              >
+                {crumb.label}
+              </Link>
+            )}
+          </span>
+        );
+      })}
+    </nav>
+  );
+}
 
 export default function DashboardHeader() {
   const { data: session } = useSession();
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
-  // Same pattern as the sidebar: fire once on mount to load the stored avatar.
-  // useEffect([]) = "run after the first render, never again" — right for a one-time fetch.
   useEffect(() => {
     fetch("/api/profile/image")
       .then((r) => (r.ok ? r.json() : null))
@@ -21,38 +62,14 @@ export default function DashboardHeader() {
   }, []);
 
   return (
-    // sticky top-0 keeps the header pinned as the content area scrolls.
-    // z-10 sits it above normal content but below modals/sheets (typically z-50+).
-    // bg-[#11111a] matches the page body background so content scrolling behind
-    // it doesn't bleed through — no backdrop-blur needed on a solid color.
-    <header className="sticky top-0 z-10 flex items-center justify-between px-8 py-3 border-b border-white/[0.06] bg-[#11111a]">
-      {/* ── Search trigger ── */}
-      {/*
-        This is a link styled as a search bar, not a real <input>.
-        Clicking it navigates to /search where the actual search UI lives.
-        This pattern (cmd+K launchers, Spotlight-style bars) is common: the
-        trigger is decorative, the real search is a separate page or modal.
-      */}
-      <Link
-        href="/search"
-        className="flex items-center gap-2.5 px-4 py-2 bg-white/[0.05] hover:bg-white/[0.08] border border-white/[0.08] rounded-xl text-white/40 hover:text-white/60 text-sm transition-colors w-72"
-      >
-        <Search className="w-4 h-4 flex-shrink-0" />
-        <span>Search manga…</span>
-      </Link>
+    <header className="sticky top-0 z-10 flex items-center justify-between px-8 py-8">
+      <Breadcrumbs />
 
-      {/* ── Profile: name + avatar ── */}
-      {/*
-        Name before avatar mirrors the reading direction: text → image.
-        Linking to /dashboard makes the avatar a shortcut back home.
-      */}
+      {/* ── Profile: avatar + name ── */}
       <Link
         href="/dashboard"
         className="flex items-center gap-2.5 hover:opacity-80 transition-opacity"
       >
-        <span className="text-white/70 text-sm font-medium">
-          {session?.user?.name || "User"}
-        </span>
         <div className="w-8 h-8 rounded-full overflow-hidden border border-white/20 flex-shrink-0">
           <img
             src={avatarUrl || "/images/blankpfp.png"}
@@ -60,6 +77,9 @@ export default function DashboardHeader() {
             className="object-cover w-full h-full"
           />
         </div>
+        <span className="text-white/70 text-sm font-medium">
+          {session?.user?.name || "User"}
+        </span>
       </Link>
     </header>
   );
