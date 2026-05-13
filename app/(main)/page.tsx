@@ -30,8 +30,8 @@ export default function Home() {
           </p>
 
           {/* Short description */}
-          <p className="text-white-purple text-lg leading-relaxed max-w-xl mx-auto mb-12">
-            Welcome to <span className="text-white font-semibold">Tankōbon</span> — your personal manga library tracker.
+          <p className="text-white text-lg leading-relaxed max-w-xl mx-auto mb-12">
+            Welcome to <span className="text-white font-display">Tankōbon</span> — your personal manga library tracker.
             Search, save, and organize your manga collection while discovering new favorites along the way.
           </p>
 
@@ -46,7 +46,7 @@ export default function Home() {
 
             <Link
               href="/register"
-              className="px-8 py-3 bg-transparent text-white-purple border border-white-purple rounded-lg hover:border-white hover:text-white transition text-lg font-regular"
+              className="px-8 py-3 bg-transparent text-white/55 border border-white/55 rounded-lg hover:border-white hover:text-white transition text-lg"
             >
               Get Started
             </Link>

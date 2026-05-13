@@ -303,7 +303,7 @@ export default function LibraryPage() {
 
   return (
     <div className="min-h-screen pt-24 px-4 md:px-8">
-      <div className="max-w-[1800px] mx-auto">
+      <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8 flex items-center justify-between">
           <div>

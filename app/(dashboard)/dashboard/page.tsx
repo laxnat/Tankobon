@@ -18,7 +18,7 @@ interface Stats {
   totalOwnedVolumes: number;
 }
 
-export default function ProfilePage() {
+export default function DashboardPage() {
   const { data: session, status } = useSession();
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -74,7 +74,7 @@ export default function ProfilePage() {
     );
 
   return (
-    <div className="max-w-3xl">
+    <div className="max-w-7xl">
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-light-navy/40 rounded-2xl p-6 border border-white/5 shadow-lg flex justify-center gap-2">
