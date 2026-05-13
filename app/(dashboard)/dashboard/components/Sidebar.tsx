@@ -87,9 +87,9 @@ export default function ProfileSidebar() {
       {/*  Nav items */}
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel className="pl-2 tracking-wide text-white/55">Overview</SidebarGroupLabel>
-          <SidebarGroupContent className="px-0">
-            <SidebarMenu>
+          <SidebarGroupLabel className="pl-2 text-sm tracking-tight text-white/55">Overview</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu className="gap-1">
               {navItems.map(({ href, icon: Icon, label }) => {
                 const active = pathname === href;
                 return (
