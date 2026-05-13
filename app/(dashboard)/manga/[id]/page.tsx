@@ -61,15 +61,15 @@ export default function MangaDetailsPage() {
   /* Fetch user's library entry + preload notes */
   useEffect(() => {
     if (!session || !manga) return;
-  
+
     const fetchLibraryEntry = async () => {
       try {
         const res = await fetch(`/api/library?malId=${manga.malId}`);
         const data = await res.json();
-  
+
         if (res.ok && data.entry) {
           const entry = data.entry;
-  
+
           setEntryId(entry.id);
           setAdded(true);
         } else {
@@ -83,9 +83,9 @@ export default function MangaDetailsPage() {
         setAdded(false);
       }
     };
-  
+
     fetchLibraryEntry();
-  }, [session, manga]);  
+  }, [session, manga]);
 
   /* Add to Library Handler */
   const addToLibrary = async () => {
@@ -135,20 +135,20 @@ export default function MangaDetailsPage() {
 
   if (loading)
     return (
-      <div className="min-h-screen flex items-center justify-center text-white">
+      <div className="flex items-center justify-center py-20 text-white">
         <Loader2 className="animate-spin w-8 h-8 mr-2" /> Loading...
       </div>
     );
 
   if (!manga)
     return (
-      <div className="min-h-screen flex items-center justify-center text-white">
+      <div className="flex items-center justify-center py-20 text-white">
         Manga not found.
       </div>
     );
 
   return (
-    <div className="min-h-screen pt-24 text-white max-w-5xl mx-auto">
+    <div className="text-white max-w-5xl mx-auto">
       <div className="flex flex-col md:flex-row mb-12">
         {/* ===== LEFT COLUMN ===== */}
         <div className="flex flex-col items-center pr-6 space-y-6">
