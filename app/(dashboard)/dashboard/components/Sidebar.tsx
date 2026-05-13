@@ -4,13 +4,19 @@ import { useEffect, useState } from "react";
 import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
 import {
   Loader2,
   Star,
   Settings,
   LogOut,
   BookOpen,
+  Compass,
+  LayoutDashboard,
+  type LucideIcon,
 } from "lucide-react";
+// Settings/BookOpen/Compass/LayoutDashboard stay imported — they're used in navItems above
 import { toast } from "sonner";
 import {
   Sidebar,
@@ -18,14 +24,23 @@ import {
   SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
+  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 
+const navItems: { href: string; icon: LucideIcon; label: string }[] = [
+  { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
+  { href: "/discover",  icon: Compass,         label: "Discover"   },
+  { href: "/library",   icon: BookOpen,        label: "Library" },
+  { href: "/settings",  icon: Settings,        label: "Settings"   },
+];
+
 export default function ProfileSidebar() {
   const { data: session } = useSession();
+  const pathname = usePathname();
   const [loadingCheckout, setLoadingCheckout] = useState(false);
 
   const handleUpgrade = async () => {
@@ -50,23 +65,20 @@ export default function ProfileSidebar() {
 
   return (
     <Sidebar
-      className="top-0 h-svh w-64 border-r border-white/[0.06]"
-      collapsible="offcanvas"
+      className="h-svh w-64 border-r border-white/[0.06]"
+      collapsible="none"
     >
       {/* Logo */}
-      <SidebarHeader className="p-4 pb-0">
-        <Link
-          href="/"
-          className="flex items-center gap-2.5 px-1 py-2 rounded-lg hover:bg-white/[0.05] transition-colors duration-150 select-none"
-        >
+      <SidebarHeader className="p-4 py-8">
+        <Link href="/" className="flex items-center gap-2.5 select-none">
           <Image
             src="/tankobon.png"
             alt="Tankōbon"
-            width={32}
-            height={32}
+            width={45}
+            height={45}
             className="object-contain"
           />
-          <span className="font-display text-white text-[1.0625rem] tracking-[-0.015em] leading-none">
+          <span className="font-display text-white hover:text-reg-blue text-xl leading-none">
             Tankōbon
           </span>
         </Link>
@@ -75,38 +87,26 @@ export default function ProfileSidebar() {
       {/*  Nav items */}
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupContent>
+          <SidebarGroupLabel className="pl-2 tracking-wide text-white/55">Overview</SidebarGroupLabel>
+          <SidebarGroupContent className="px-0">
             <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  size="lg"
-                  render={<Link href="/library" />}
-                >
-                  <BookOpen className="text-blue-400" />
-                  <span>My Library</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  size="lg"
-                  isActive
-                  render={<Link href="/dashboard" />}
-                >
-                  <span className="text-lg">👤</span>
-                  <span>Dashboard</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  size="lg"
-                  render={<Link href="/settings" />}
-                >
-                  <Settings className="text-white/60" />
-                  <span>Settings</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
+              {navItems.map(({ href, icon: Icon, label }) => {
+                const active = pathname === href;
+                return (
+                  <SidebarMenuItem key={href}>
+                    <SidebarMenuButton
+                      size="lg"
+                      isActive={active}
+                      className={`pl-4 ${cn("gap-4", active && "bg-sidebar-accent")}`}
+                      render={<Link href={href} />}
+                    >
+                      {/* Icon is reg-blue on the active page, muted otherwise */}
+                      <Icon className={active ? "text-reg-blue" : "text-white/55"} />
+                      <span className="font-display text-white">{label}</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -135,7 +135,7 @@ export default function ProfileSidebar() {
           className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-white/5 hover:bg-red-600/80 text-white/70 hover:text-white text-sm font-medium rounded-xl transition"
         >
           <LogOut className="w-4 h-4" />
-          Sign Out
+          Log Out
         </button>
       </SidebarFooter>
     </Sidebar>
