@@ -14,6 +14,8 @@ const config: Config = {
       },
       colors: {
         // Project palette
+        'dark-navy':    '#11111a',   // main page background
+        'light-navy':   '#1a1a28',   // sidebar + card surfaces
         'navy-blue':    '#0e3f6b',
         'reg-blue':       '#1257AB',
         'white-purple':   '#cfcfe8',
