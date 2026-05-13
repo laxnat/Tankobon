@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Star, TrendingUp, Loader2, Filter, Trash2 } from "lucide-react";
+import { Star, ChevronDown, Loader2, Trash2, LayoutList, LayoutGrid } from "lucide-react";
 
 interface LibraryEntry {
   id: string;
@@ -66,18 +66,6 @@ const LibraryItem = memo(({
               >
                 <span className="text-white text-2xl">⋯</span>
               </button>
-
-              {/* Hover Preview */}
-              <div className="absolute left-[-140px] top-1/2 -translate-y-1/2 w-28 h-40 rounded-lg overflow-hidden opacity-0 group-hover:opacity-100 transition-opacity shadow-2xl z-20 border-2 border-white/20 pointer-events-none">
-                <Image
-                  src={entry.imageUrl}
-                  alt={entry.title}
-                  width={112}
-                  height={160}
-                  className="object-cover"
-                  loading="lazy"
-                />
-              </div>
             </>
           )}
         </div>
@@ -143,6 +131,63 @@ const LibraryItem = memo(({
 
 LibraryItem.displayName = "LibraryItem";
 
+// Bookshelf view: a cover grid. Each card fills with the manga art; hovering reveals
+// the title, status, and an edit button — keeping the grid uncluttered at rest.
+const BookshelfView = memo(({
+  entries,
+  onEdit,
+  getStatusColor,
+}: {
+  entries: LibraryEntry[];
+  onEdit: (entry: LibraryEntry) => void;
+  getStatusColor: (status: string) => string;
+}) => (
+  <div className="grid grid-cols-[repeat(auto-fill,minmax(110px,1fr))] gap-4">
+    {entries.map((entry) => (
+      <div key={entry.id} className="group relative cursor-pointer" onClick={() => onEdit(entry)}>
+        {/* Book cover */}
+        <div className="relative w-full aspect-[2/3] rounded-xl overflow-hidden border border-white/10 shadow-lg">
+          {entry.imageUrl ? (
+            <Image
+              src={entry.imageUrl}
+              alt={entry.title}
+              fill
+              sizes="110px"
+              className="object-cover"
+              loading="lazy"
+            />
+          ) : (
+            // Placeholder for entries without a cover
+            <div className="w-full h-full bg-light-navy/60 flex items-center justify-center">
+              <span className="text-white/20 text-xs text-center px-2">{entry.title}</span>
+            </div>
+          )}
+
+          {/* Hover overlay */}
+          <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-2">
+            <p className="text-white text-xs font-semibold leading-snug line-clamp-3 mb-1">
+              {entry.title}
+            </p>
+            <span className={`text-xs font-medium ${getStatusColor(entry.status)}`}>
+              {entry.status.replace(/_/g, " ")}
+            </span>
+          </div>
+        </div>
+
+        {/* Rating badge — shown only when rated */}
+        {entry.rating && (
+          <div className="absolute top-1.5 right-1.5 flex items-center gap-0.5 px-1.5 py-0.5 bg-black/70 rounded-md">
+            <Star className="w-2.5 h-2.5 fill-blue-400 text-blue-400" />
+            <span className="text-white text-[10px] font-bold">{entry.rating}</span>
+          </div>
+        )}
+      </div>
+    ))}
+  </div>
+));
+
+BookshelfView.displayName = "BookshelfView";
+
 export default function LibraryPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -150,6 +195,7 @@ export default function LibraryPage() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>("ALL");
   const [sortBy, setSortBy] = useState<string>("title");
+  const [view, setView] = useState<"list" | "bookshelf">("list");
   const [modalOpen, setModalOpen] = useState(false);
   const [currentEntry, setCurrentEntry] = useState<LibraryEntry | null>(null);
   const [ownedVolumesInput, setOwnedVolumesInput] = useState("");
@@ -292,23 +338,14 @@ export default function LibraryPage() {
       </div>
     );
   
-  const statuses = [
-    { value: "ALL", label: "All Manga", count: library.length },
-    { value: "READING", label: "Reading" },
-    { value: "COMPLETED", label: "Completed" },
-    { value: "PLAN_TO_READ", label: "Plan to Read" },
-    { value: "ON_HOLD", label: "On Hold" },
-    { value: "DROPPED", label: "Dropped" },
-  ];
-
   return (
-    <div className="min-h-screen pt-24 px-4 md:px-8">
+    <div className="min-h-screen px-4 md:px-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-8 flex items-center justify-between">
+        <div className="mb-8 flex items-end justify-between">
           <div>
             {session ? (
-              <h1 className="text-5xl font-bold text-white mb-2">{session.user?.name}'s Library</h1>
+              <h1 className="text-5xl font-display text-white mb-2">{session.user?.name}'s Library</h1>
             ) : (
               <h1 className="text-5xl font-bold text-white mb-2">My Library</h1>
             )}
@@ -324,132 +361,110 @@ export default function LibraryPage() {
               )}
             </div>
           </div>
+
+          {/* View toggle + Filter + Sort */}
+          <div className="flex items-center gap-3">
+            {/* List / Bookshelf toggle */}
+            <div className="flex items-center bg-white/5 border border-white/10 rounded-xl p-1 gap-1">
+              <button
+                onClick={() => setView("list")}
+                title="List view"
+                className={`p-1.5 rounded-lg transition-colors ${
+                  view === "list" ? "bg-white/15 text-white" : "text-white/40 hover:text-white/70"
+                }`}
+              >
+                <LayoutList className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => setView("bookshelf")}
+                title="Bookshelf view"
+                className={`p-1.5 rounded-lg transition-colors ${
+                  view === "bookshelf" ? "bg-white/15 text-white" : "text-white/40 hover:text-white/70"
+                }`}
+              >
+                <LayoutGrid className="w-4 h-4" />
+              </button>
+            </div>
+            {/* Status filter */}
+            <div className="relative">
+              <select
+                value={filter}
+                onChange={(e) => setFilter(e.target.value)}
+                className="appearance-none pl-4 pr-9 py-2 bg-white/5 border border-white/10 rounded-xl text-white text-sm focus:outline-none focus:border-blue-500 transition cursor-pointer"
+              >
+                <option value="ALL">All Manga</option>
+                <option value="READING">Reading</option>
+                <option value="COMPLETED">Completed</option>
+                <option value="PLAN_TO_READ">Plan to Read</option>
+                <option value="ON_HOLD">On Hold</option>
+                <option value="DROPPED">Dropped</option>
+              </select>
+              {/* ChevronDown overlaid on the right — pointer-events-none so clicks pass through to the select */}
+              <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+            </div>
+
+            {/* Sort */}
+            <div className="relative">
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="appearance-none pl-4 pr-9 py-2 bg-white/5 border border-white/10 rounded-xl text-white text-sm focus:outline-none focus:border-blue-500 transition cursor-pointer"
+              >
+                <option value="title">Title (A–Z)</option>
+                <option value="score-high">Highest Rated</option>
+                <option value="score-low">Lowest Rated</option>
+                <option value="recent">Recently Updated</option>
+              </select>
+              <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+            </div>
+          </div>
         </div>
 
-        <div className="flex gap-8">
-          {/* Sidebar Filters */}
-          <aside className="w-72 flex-shrink-0 hidden lg:block">
-            <div className="bg-light-navy/30 rounded-2xl p-6 border border-white/5 sticky top-24">
-              <div className="mb-8">
-                <div className="flex items-center gap-2 mb-4">
-                  <Filter className="w-4 h-4 text-white-purple" />
-                  <h3 className="text-white font-bold text-sm uppercase tracking-wider">Filter</h3>
-                </div>
-                <div className="space-y-1">
-                  {statuses.map((status) => (
-                    <button
-                      key={status.value}
-                      onClick={() => setFilter(status.value)}
-                      className={`w-full text-left px-4 py-3 rounded-xl transition-all ${
-                        filter === status.value
-                          ? "bg-blue-900 text-white shadow-lg"
-                          : "text-white-purple hover:bg-white/5 hover:text-white"
-                      }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="font-medium">{status.label}</span>
-                        {filter === status.value && (
-                          <div className="w-2 h-2 rounded-full bg-white"></div>
-                        )}
-                      </div>
-                    </button>
-                  ))}
-                </div>
+        {/* Content */}
+        {sortedLibrary.length === 0 ? (
+          <div className="text-center py-20">
+            <div className="text-white-purple text-lg mb-4">No manga found</div>
+            <p className="text-white-purple/60">Try adjusting your filters</p>
+          </div>
+        ) : view === "bookshelf" ? (
+          <BookshelfView
+            entries={sortedLibrary}
+            onEdit={openModal}
+            getStatusColor={getStatusColor}
+          />
+        ) : (
+          <div>
+            <div className="hidden lg:flex items-center gap-6 px-4 pb-3 mb-2 border-b border-white/10">
+              <div className="w-14"></div>
+              <div className="w-[500px]">
+                <span className="text-white text-sm font-semibold uppercase tracking-wider">Title</span>
               </div>
-
-              <div>
-                <div className="flex items-center gap-2 mb-4">
-                  <TrendingUp className="w-4 h-4 text-white-purple" />
-                  <h3 className="text-white font-bold text-sm uppercase tracking-wider">Sort</h3>
-                </div>
-                <div className="space-y-1">
-                  <button
-                    onClick={() => setSortBy("title")}
-                    className={`w-full text-left px-4 py-3 rounded-xl transition-all ${
-                      sortBy === "title"
-                        ? "bg-blue-900 text-white shadow-lg"
-                        : "text-white-purple hover:bg-white/5 hover:text-white"
-                    }`}
-                  >
-                    <span className="font-medium">Title (A-Z)</span>
-                  </button>
-                  <button
-                    onClick={() => setSortBy("score-high")}
-                    className={`w-full text-left px-4 py-3 rounded-xl transition-all ${
-                      sortBy === "score-high"
-                        ? "bg-blue-600 text-white shadow-lg shadow-blue-600/20"
-                        : "text-white-purple hover:bg-white/5 hover:text-white"
-                    }`}
-                  >
-                    <span className="font-medium">Highest Rated</span>
-                  </button>
-                  <button
-                    onClick={() => setSortBy("score-low")}
-                    className={`w-full text-left px-4 py-3 rounded-xl transition-all ${
-                      sortBy === "score-low"
-                        ? "bg-blue-600 text-white shadow-lg shadow-blue-600/20"
-                        : "text-white-purple hover:bg-white/5 hover:text-white"
-                    }`}
-                  >
-                    <span className="font-medium">Lowest Rated</span>
-                  </button>
-                  <button
-                    onClick={() => setSortBy("recent")}
-                    className={`w-full text-left px-4 py-3 rounded-xl transition-all ${
-                      sortBy === "recent"
-                        ? "bg-blue-600 text-white shadow-lg shadow-blue-600/20"
-                        : "text-white-purple hover:bg-white/5 hover:text-white"
-                    }`}
-                  >
-                    <span className="font-medium">Recently Updated</span>
-                  </button>
-                </div>
+              <div className="w-24 text-center">
+                <span className="text-white text-sm font-semibold uppercase tracking-wider">Score</span>
+              </div>
+              <div className="w-28 text-center">
+                <span className="text-white text-sm font-semibold uppercase tracking-wider">Chapters</span>
+              </div>
+              <div className="w-24 text-center">
+                <span className="text-white text-sm font-semibold uppercase tracking-wider">Volumes</span>
+              </div>
+              <div className="w-28 text-center">
+                <span className="text-white text-sm font-semibold uppercase tracking-wider">Collected</span>
               </div>
             </div>
-          </aside>
 
-          {/* Manga List */}
-          <main className="flex-1 min-w-0">
-            {sortedLibrary.length === 0 ? (
-              <div className="text-center py-20">
-                <div className="text-white-purple text-lg mb-4">No manga found</div>
-                <p className="text-white-purple/60">Try adjusting your filters</p>
-              </div>
-            ) : (
-              <div>
-                <div className="hidden lg:flex items-center gap-6 px-4 pb-3 mb-2 border-b border-white/10">
-                  <div className="w-14"></div>
-                  <div className="w-[500px]">
-                    <span className="text-white text-sm font-semibold uppercase tracking-wider">Title</span>
-                  </div>
-                  <div className="w-24 text-center">
-                    <span className="text-white text-sm font-semibold uppercase tracking-wider">Score</span>
-                  </div>
-                  <div className="w-28 text-center">
-                    <span className="text-white text-sm font-semibold uppercase tracking-wider">Chapters</span>
-                  </div>
-                  <div className="w-24 text-center">
-                    <span className="text-white text-sm font-semibold uppercase tracking-wider">Volumes</span>
-                  </div>
-                  <div className="w-28 text-center">
-                    <span className="text-white text-sm font-semibold uppercase tracking-wider">Collected</span>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  {sortedLibrary.map((entry) => (
-                    <LibraryItem
-                      key={entry.id}
-                      entry={entry}
-                      onEdit={openModal}
-                      getStatusColor={getStatusColor}
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
-          </main>
-        </div>
+            <div className="space-y-2">
+              {sortedLibrary.map((entry) => (
+                <LibraryItem
+                  key={entry.id}
+                  entry={entry}
+                  onEdit={openModal}
+                  getStatusColor={getStatusColor}
+                />
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Edit Modal */}
