@@ -5,7 +5,7 @@ import Image from "next/image";
 
 export default function Footer() {
     return (
-        <footer className="relative w-screen left-[50%] right-[50%] -translate-x-[50%] bg-[#0a0a12] border-t border-white/10 mt-40">
+        <footer className="relative w-screen left-[50%] right-[50%] -translate-x-[50%] bg-light-navy border-t border-white/10 mt-40 rounded-t-3xl">
             <div className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-3 items-center text-white/70">
                 {/* Left — logo */}
                 <Link
