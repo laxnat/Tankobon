@@ -172,7 +172,7 @@ export default function DiscoverPage() {
   };
 
   return (
-    <div className="min-h-screen p-8 pt-24">
+    <div className="p-8">
       <div className="max-w-7xl mx-auto mb-16">
         {/* ===================== SEARCH BAR + FILTERS ===================== */}
         <section className="mb-16">

@@ -333,13 +333,13 @@ export default function LibraryPage() {
 
   if (loading)
     return (
-      <div className="min-h-screen flex items-center justify-center text-white">
+      <div className="flex items-center justify-center py-20 text-white">
         <Loader2 className="animate-spin w-6 h-6 mr-2" /> Loading...
       </div>
     );
-  
+
   return (
-    <div className="min-h-screen px-4 md:px-8">
+    <div className="px-4 md:px-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8 flex items-end justify-between">

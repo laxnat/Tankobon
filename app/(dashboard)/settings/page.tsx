@@ -82,7 +82,7 @@ export default function SettingsPage() {
       };
 
     return (
-        <div className="min-h-screen pt-24 px-8">                                
+        <div className="px-8">                                
         <div className="max-w-2xl mx-auto">
           <h1 className="text-3xl font-bold text-white mb-8">Settings</h1>
                                                                                
