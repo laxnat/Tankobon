@@ -15,11 +15,30 @@ const SEGMENT_LABELS: Record<string, string> = {
 
 function Breadcrumbs() {
   const pathname = usePathname();
-  const segments = pathname.split("/").filter(Boolean);
-  const crumbs = segments.map((seg, i) => ({
-    label: SEGMENT_LABELS[seg] ?? seg.charAt(0).toUpperCase() + seg.slice(1),
-    href:  "/" + segments.slice(0, i + 1).join("/"),
-  }));
+  const rawSegments = pathname.split("/").filter(Boolean);
+
+  // Walk segments manually so we can consume "manga" + "[id]" as one crumb.
+  const crumbs: Array<{ label: string; href: string }> = [];
+  let i = 0;
+  while (i < rawSegments.length) {
+    const seg = rawSegments[i];
+    const next = rawSegments[i + 1];
+
+    if (seg === "manga" && next !== undefined) {
+      // Collapse "manga" + id into a single entry: "manga/123"
+      crumbs.push({
+        label: `Manga/[${next}]`,
+        href: "/" + rawSegments.slice(0, i + 2).join("/"),
+      });
+      i += 2;
+    } else {
+      crumbs.push({
+        label: SEGMENT_LABELS[seg] ?? seg.charAt(0).toUpperCase() + seg.slice(1),
+        href: "/" + rawSegments.slice(0, i + 1).join("/"),
+      });
+      i += 1;
+    }
+  }
 
   return (
     <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-sm">
