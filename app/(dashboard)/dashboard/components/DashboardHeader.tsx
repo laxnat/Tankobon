@@ -41,21 +41,21 @@ function Breadcrumbs() {
   }
 
   return (
-    <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-sm">
+    <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 font-display text-md">
       {crumbs.map((crumb, i) => {
         const isLast = i === crumbs.length - 1;
         return (
           <span key={crumb.href} className="flex items-center gap-1.5">
             {/* Separator */}
-            {i > 0 && <span className="text-white/20">/</span>}
+            {i > 0 && <span className="text-white/55">/</span>}
 
             {/* Last segment */}
             {isLast ? (
-              <span className="text-white font-medium">{crumb.label}</span>
+              <span className="text-white">{crumb.label}</span>
             ) : (
               <Link
                 href={crumb.href}
-                className="text-white/40 hover:text-white/70 transition-colors"
+                className="text-white/55 hover:text-white transition-colors"
               >
                 {crumb.label}
               </Link>
@@ -81,13 +81,13 @@ export default function DashboardHeader() {
   }, []);
 
   return (
-    <header className="sticky top-0 z-10 flex items-center justify-between px-8 py-8">
+    <header className="max-w-full px-16 sticky top-0 z-10 flex items-center justify-between py-8">
       <Breadcrumbs />
 
       {/* ── Profile: avatar + name ── */}
       <Link
         href="/dashboard"
-        className="flex items-center gap-2.5 hover:opacity-80 transition-opacity"
+        className="flex items-center gap-2.5 transition-opacity"
       >
         <div className="w-8 h-8 rounded-full overflow-hidden border border-white/20 flex-shrink-0">
           <img
@@ -96,7 +96,7 @@ export default function DashboardHeader() {
             className="object-cover w-full h-full"
           />
         </div>
-        <span className="text-white/70 text-sm font-medium">
+        <span className="text-white/55 hover:text-white text-md">
           {session?.user?.name || "User"}
         </span>
       </Link>
