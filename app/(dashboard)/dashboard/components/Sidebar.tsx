@@ -119,7 +119,7 @@ export default function ProfileSidebar() {
           <button
             onClick={handleUpgrade}
             disabled={loadingCheckout}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-yellow-500 hover:bg-yellow-400 text-black text-sm font-semibold rounded-xl shadow-md shadow-yellow-500/20 transition disabled:opacity-60"
+            className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-reg-blue hover:bg-reg-blue/70 text-white text-sm rounded-xl transition disabled:opacity-60"
           >
             {loadingCheckout ? (
               <Loader2 className="w-4 h-4 animate-spin" />
@@ -132,7 +132,7 @@ export default function ProfileSidebar() {
 
         <button
           onClick={() => signOut({ callbackUrl: "/" })}
-          className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-white/5 hover:bg-red-600/80 text-white/70 hover:text-white text-sm font-medium rounded-xl transition"
+          className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-white/5 hover:bg-red-600/80 text-white/70 hover:text-white text-sm rounded-xl transition"
         >
           <LogOut className="w-4 h-4" />
           Log Out
