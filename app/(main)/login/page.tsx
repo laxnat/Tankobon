@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { motion } from "framer-motion";
 
 function LoginForm() {
   const router = useRouter();
@@ -49,10 +50,26 @@ function LoginForm() {
     }
   };
 
+  const fadeUp = {
+    hidden: { opacity: 0, y: 28 },
+    show:   { opacity: 1, y: 0  },
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="bg-light-navy/50 p-8 rounded-lg border border-white/5 w-full max-w-md">
-        <h1 className="text-3xl font-bold text-white mb-6 text-center">Sign In</h1>
+      <motion.div 
+        className="p-8 rounded-2xl w-full max-w-md"
+        style={{
+          background: "linear-gradient(145deg, rgba(21,31,46,0.8) 0%, rgba(17,17,26,0.95) 100%)",
+          border: "1px solid rgba(96, 165, 250, 0.2)",
+        }}
+        variants={fadeUp}
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, margin: "-60px" }}
+        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1], delay: 0.15 }}
+      >
+        <h1 className="text-3xl font-display text-white uppercase mb-6 text-center">Log In</h1>
 
         {success && (
           <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
@@ -68,7 +85,7 @@ function LoginForm() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-white mb-1">
+            <label htmlFor="email" className="block text-sm text-white/55 mb-1">
               Email
             </label>
             <input
@@ -82,7 +99,7 @@ function LoginForm() {
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-white mb-1">
+            <label htmlFor="password" className="block text-sm text-white/55 mb-1">
               Password
             </label>
             <input
@@ -99,20 +116,20 @@ function LoginForm() {
             <button
               type="submit"
               disabled={loading}
-              className="w-1/4 py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-1/4 py-2 px-4 bg-reg-blue text-white rounded-lg hover:bg-reg-blue/70 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Sign In
+              Log In
             </button>
           </div>
         </form>
 
-        <p className="mt-6 text-center text-sm text-white">
+        <p className="mt-6 text-center text-sm text-white/55">
           Don't have an account?{" "}
-          <Link href="/register" className="text-sky-blue hover:underline">
+          <Link href="/register" className="text-white hover:underline">
             Sign up
           </Link>
         </p>
-      </div>
+      </motion.div>
     </div>
   );
 }
