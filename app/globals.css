@@ -125,9 +125,7 @@
 
 html, body {
   overflow-x: hidden;       /* hides horizontal scrollbar */
-  overscroll-behavior: none; /* prevents rubber-band bounce revealing bg color */
 }
-
 
 body {
   @apply bg-dark-navy;
