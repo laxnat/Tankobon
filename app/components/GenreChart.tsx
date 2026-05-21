@@ -40,15 +40,12 @@ export function GenreChart({ genres }: { genres: GenreEntry[] }) {
     }
 
     return (
-        <ResponsiveContainer width="100%" height={300}>
+        <ResponsiveContainer width={350} height={200}>
             <PieChart>
                 <Pie
                     data={data}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={75}
-                    outerRadius={115}
-                    paddingAngle={3}                                
+                    innerRadius={45}
+                    outerRadius={85}
                     dataKey="value"
                 >
                     {data.map((entry, index) => (
@@ -68,10 +65,14 @@ export function GenreChart({ genres }: { genres: GenreEntry[] }) {
                     formatter={(value, name) => [`${value} manga`, name]}                                 
                 />
                 <Legend
+                    layout="vertical"
+                    align="right"
+                    verticalAlign="middle"
                     iconType="circle"
                     iconSize={8}
+                    wrapperStyle={{ paddingLeft: "32px" }}
                     formatter={(value) => (                         
-                      <span style={{ color: "#94a3b8", fontSize: "13px" }}>{value}</span>                                  
+                      <span style={{ color: "white", fontSize: "13px" }}>{value}</span>                                  
                     )}   
                 />
             </PieChart>

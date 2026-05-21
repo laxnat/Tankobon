@@ -76,16 +76,16 @@ export default function DashboardPage() {
 
   return (
     <div className="px-8">
-      <div className="max-w-7xl">
+      <div className="max-w-7xl grid grid-cols-4 gap-8">
         {/* Statistics Card*/}
-        <Card className="max-w-xs bg-light-navy ring-0 border border-white/10">
+        <Card className="col-span-1 max-w-xs max-h-xl bg-light-navy ring-0 border border-white/10 hover:border-white/50">
           <CardHeader>
             <CardTitle className="font-display text-xl">Statistics</CardTitle>
           </CardHeader>
           <CardContent className="pl-10">
             <div className="flex justify-between">
               <div className="flex items-center gap-2">
-                <BookOpen className="w-6 h-6 text-blue-400" />
+                {/* <BookOpen className="w-6 h-6 text-blue-400" /> */}
                 <p className="text-white text-md">Total Manga:</p>
               </div>
               <p className="text-white text-md justify-end ">{stats?.total ?? 0}</p>
@@ -93,7 +93,7 @@ export default function DashboardPage() {
 
             <div className="flex justify-between">
               <div className="flex items-center gap-2">
-                <Star className="w-6 h-6 text-yellow-400" />
+                {/* <Star className="w-6 h-6 text-yellow-400" /> */}
                 <p className="text-white text-md">Average Rating:</p>
               </div>
               <p className="text-white text-md">{stats?.avgRating ?? 0}</p>
@@ -101,7 +101,7 @@ export default function DashboardPage() {
 
             <div className="flex justify-between">
               <div className="flex items-center gap-2">
-                <BarChart3 className="w-6 h-6 text-emerald-400" />
+                {/* <BarChart3 className="w-6 h-6 text-emerald-400" /> */}
                 <p className="text-white text-md ">Completed:</p>
               </div>
               <p className="text-white text-md ">{stats?.completed ?? 0}</p>
@@ -109,50 +109,61 @@ export default function DashboardPage() {
 
             <div className="flex justify-between">
               <div className="flex items-center gap-2">
-                <BookOpen className="w-6 h-6 text-purple-400" />
+                {/* <BookOpen className="w-6 h-6 text-purple-400" /> */}
                 <p className="text-white text-md ">Chapters Read:</p>
               </div>
               <p className="text-white text-md ">{stats?.chaptersRead ?? 0}</p>
             </div>
+
+            <div className="flex justify-between">
+              <p className="text-white text-md">Reading:</p>
+              <p className="text-white text-md">{stats?.reading ?? 0}</p>
+            </div>
+
+            <div className="flex justify-between">
+              <p className="text-white text-md">Plan To Read:</p>
+              <p className="text-white text-md">{stats?.planToRead ?? 0}</p>
+            </div>
+
+            <div className="flex justify-between">
+              <p className="text-white text-md">On Hold:</p>
+              <p className="text-white text-md">{stats?.onHold ?? 0}</p>
+            </div>
+
+            <div className="flex justify-between">
+              <p className="text-white text-md">Dropped:</p>
+              <p className="text-white text-md">{stats?.dropped ?? 0}</p>
+            </div>
           </CardContent>
         </Card>
-        
 
-        {/* Progress Overview */}
-        <div className="mt-6 bg-light-navy/30 p-6 rounded-2xl border border-white/5 shadow-lg">
-          <h2 className="text-white  text-lg mb-4">Progress Overview</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-white">
-            <StatItem label="Reading" value={stats?.reading ?? 0} color="text-green-400" />
-            <StatItem label="Plan to Read" value={stats?.planToRead ?? 0} color="text-blue-400" />
-            <StatItem label="On Hold" value={stats?.onHold ?? 0} color="text-yellow-400" />
-            <StatItem label="Dropped" value={stats?.dropped ?? 0} color="text-red-400" />
-          </div>
-        </div>
+        {/* Genres Chart */}
+        <Card className="col-span-2 max-w-fit max-h-xl bg-light-navy ring-0 border border-white/10 hover:border-white/50">
+          <CardHeader>
+            <CardTitle className="font-display text-xl">Genres Chart</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <GenreChart genres={genreData} />
+          </CardContent>
+        </Card>
 
-        {/* Genre Breakdown */}
-        <div className="mt-6 bg-light-navy/30 p-6 rounded-2xl border border-white/5 shadow-lg">
-          <h2 className="text-white  text-lg mb-4">Genre Breakdown</h2>
-          <GenreChart genres={genreData} />
-        </div>
+        {/* Reading Streak Card */}
+
+        {/* Currently Reading Carousel Card */}
+
+        {/* Recently Updated Strip Card */}
+
+        {/* Favorites Card */}
+
+        {/* Profile Card */}
+        <Card className="col-span-1 row-span-2 max-w-fit max-h-fit bg-light-navy ring-0 border border-white/10 hover:border-white/50">
+          <CardHeader>
+            <CardTitle>Social</CardTitle>
+            
+          </CardHeader>
+        </Card>
       </div>
     </div>
     
-  );
-}
-
-function StatItem({
-  label,
-  value,
-  color,
-}: {
-  label: string;
-  value: number;
-  color: string;
-}) {
-  return (
-    <div className="bg-white-purple/5 border border-white/5 rounded-xl p-4 flex justify-center gap-2">
-      <h3 className={`text-lg  ${color}`}>{value}</h3>
-      <p className="text-lg text-white-purple ">{label}</p>
-    </div>
   );
 }
