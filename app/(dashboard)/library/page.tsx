@@ -6,31 +6,9 @@ import { toast } from "sonner";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Star, ChevronDown, Loader2, Trash2, LayoutList, LayoutGrid } from "lucide-react";
-
-interface LibraryEntry {
-  id: string;
-  malId: number;
-  title: string;
-  imageUrl: string | null;
-  status: string;
-  rating: number | null;
-  chaptersRead: number | null;
-  totalChapters: number | null;
-  volumesRead: number | null;
-  totalVolumes: number | null;
-  ownedVolumes: number[];
-  notes: string | null;
-}
-
-interface EditForm {
-  status: string;
-  rating: number;
-  chaptersRead: number;
-  volumesRead: number;
-  ownedVolumes: number[];
-  notes: string;
-}
+import { Star, ChevronDown, Loader2, LayoutList, LayoutGrid } from "lucide-react";
+import { EditEntryModal } from "@/components/edit-entry-modal";
+import type { LibraryEntry } from "@/components/edit-entry-modal";
 
 // Memoized library item component
 const LibraryItem = memo(({ 
@@ -196,17 +174,7 @@ export default function LibraryPage() {
   const [filter, setFilter] = useState<string>("ALL");
   const [sortBy, setSortBy] = useState<string>("title");
   const [view, setView] = useState<"list" | "bookshelf">("list");
-  const [modalOpen, setModalOpen] = useState(false);
-  const [currentEntry, setCurrentEntry] = useState<LibraryEntry | null>(null);
-  const [ownedVolumesInput, setOwnedVolumesInput] = useState("");
-  const [editForm, setEditForm] = useState<EditForm>({
-    status: "",
-    rating: 1,
-    chaptersRead: 0,
-    volumesRead: 0,
-    ownedVolumes: [],
-    notes: "",
-  });
+  const [selectedEntry, setSelectedEntry] = useState<LibraryEntry | null>(null);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -256,68 +224,9 @@ export default function LibraryPage() {
     });
   }, [library, sortBy]);
 
-  // Memoized callback functions
   const openModal = useCallback((entry: LibraryEntry) => {
-    setCurrentEntry(entry);
-    setEditForm({
-      status: entry.status,
-      rating: entry.rating || 1,
-      chaptersRead: entry.chaptersRead || 0,
-      volumesRead: entry.volumesRead || 0,
-      ownedVolumes: Array.isArray(entry.ownedVolumes) ? entry.ownedVolumes : [],
-      notes: entry.notes || "",
-    });
-    setOwnedVolumesInput(
-      Array.isArray(entry.ownedVolumes) ? entry.ownedVolumes.join(",") : ""
-    );
-    setModalOpen(true);
+    setSelectedEntry(entry);
   }, []);
-
-  const closeModal = useCallback(() => {
-    setModalOpen(false);
-    setCurrentEntry(null);
-  }, []);
-
-  const saveEdit = async () => {
-    if (!currentEntry) return;
-    try {
-      const response = await fetch("/api/library", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          id: currentEntry.id,
-          ...editForm,
-        }),
-      });
-
-      if (response.ok) {
-        setModalOpen(false);
-        fetchLibrary();
-        toast.success("Edit saved!")
-      }
-    } catch (error) {
-      console.error("Error updating entry:", error);
-      toast.error("Error updating entry.")
-    }
-  };
-
-  const [confirmDelete, setConfirmDelete] = useState(false);
-  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
-
-  const deleteEntry = async (id: string) => {
-    try {
-      const response = await fetch(`/api/library?id=${id}`, { method: "DELETE" });
-      if (response.ok) {
-        await fetchLibrary();
-        toast.success("Manga deleted from library!")
-        return true;
-      }
-    } catch (error) {
-      console.error("Error deleting entry:", error);
-      toast.error("Error deleting entry.")
-    }
-    return false;
-  };
 
   // Memoized status color function
   const getStatusColor = useCallback((status: string) => {
@@ -467,220 +376,11 @@ export default function LibraryPage() {
         )}
       </div>
 
-      {/* Edit Modal */}
-      {modalOpen && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 no-doc-scroll">
-          <div className="bg-light-navy border border-white/5 rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] flex flex-col">
-            <div className="p-6 border-b border-white/10 flex-shrink-0">
-              <h2 className="text-2xl font-bold text-white">Edit Entry</h2>
-            </div>
-
-            <div className="p-6 space-y-4 overflow-y-auto flex-1">
-              {/* Status */}
-              <div className="relative">
-                <select
-                  value={editForm.status}
-                  onChange={(e) => setEditForm({ ...editForm, status: e.target.value })}
-                  className="w-full p-3 pr-12 bg-white/5 border border-white/10 rounded-xl text-white appearance-none focus:outline-none focus:border-blue-500 transition"
-                >
-                  <option value="READING">Reading</option>
-                  <option value="COMPLETED">Completed</option>
-                  <option value="PLAN_TO_READ">Plan to Read</option>
-                  <option value="ON_HOLD">On Hold</option>
-                  <option value="DROPPED">Dropped</option>
-                </select>
-
-                {/* Custom Arrow */}
-                <div className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 pb-2 text-white/60">
-                  ⌄
-                </div>
-              </div>
-
-              {/* Rating */}
-              <div>
-                <label className="block text-white-purple text-sm mb-2">Rating (1-10)</label>
-                <input
-                  type="number"
-                  min="1"
-                  max="10"
-                  value={editForm.rating}
-                  onChange={(e) => setEditForm({ ...editForm, rating: parseInt(e.target.value) })}
-                  className="w-full p-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-blue-500 transition"
-                />
-              </div>
-
-              {/* Chapters Read */}
-              <div>
-                <label className="block text-white-purple text-sm mb-2">Chapters Read</label>
-                <input
-                  type="number"
-                  min="0"
-                  value={editForm.chaptersRead}
-                  onChange={(e) => setEditForm({ ...editForm, chaptersRead: parseInt(e.target.value) })}
-                  className="w-full p-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-blue-500 transition"
-                />
-              </div>
-
-              {/* Volumes Read */}
-              <div>
-                <label className="block text-white-purple text-sm mb-2">Volumes Read</label>
-                <input
-                  type="number"
-                  min="0"
-                  value={editForm.volumesRead}
-                  onChange={(e) => setEditForm({ ...editForm, volumesRead: parseInt(e.target.value) })}
-                  className="w-full p-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-blue-500 transition"
-                />
-              </div>
-
-              {/* Volumes Owned */}
-              <div>
-                <label className="block text-white-purple text-sm mb-2">Volumes Owned</label>
-                <div className="flex flex-wrap gap-2">
-                  {currentEntry?.totalVolumes ? (
-                    Array.from({ length: currentEntry.totalVolumes }, (_, i) => {
-                      const volNum = i + 1;
-                      const isOwned = editForm.ownedVolumes.includes(volNum);
-                      return (
-                        <button
-                          key={volNum}
-                          onClick={() => {
-                            setEditForm(prev => ({
-                              ...prev,
-                              ownedVolumes: isOwned
-                                ? prev.ownedVolumes.filter(v => v !== volNum)
-                                : [...prev.ownedVolumes, volNum],
-                            }));
-                          }}
-                          className={`w-8 h-8 rounded-lg text-sm font-medium ${
-                            isOwned ? "bg-blue-500 text-white" : "bg-white/10 text-white"
-                          }`}
-                        >
-                          {volNum}
-                        </button>
-                      );
-                    })
-                  ) : (
-                    <div className="text-white-purple/60 italic">
-                      Total volumes unknown – select owned volumes manually below.
-                    </div>
-                  )}
-                </div>
-
-                {/* Manual Volume Entry */}
-                {!currentEntry?.totalVolumes && (
-                  <input
-                    type="text"
-                    inputMode="text"
-                    placeholder="Enter owned volumes, e.g., 1,3,5,7-10"
-                    value={ownedVolumesInput}
-                    onChange={(e) => setOwnedVolumesInput(e.target.value)}
-                    onBlur={() => {
-                      const expandedVolumes = ownedVolumesInput
-                        .split(",")
-                        .flatMap((part) => {
-                          const range = part.trim().split("-");
-                          if (range.length === 2) {
-                            const start = parseInt(range[0]);
-                            const end = parseInt(range[1]);
-                            if (!isNaN(start) && !isNaN(end) && start <= end) {
-                              return Array.from({ length: end - start + 1 }, (_, i) => start + i);
-                            }
-                          }
-                          const num = parseInt(part.trim());
-                          return !isNaN(num) ? [num] : [];
-                        });
-
-                      setEditForm((prev) => ({
-                        ...prev,
-                        ownedVolumes: Array.from(new Set(expandedVolumes)),
-                      }));
-                    }}
-                    className="mt-2 w-full p-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-blue-500 transition"
-                  />
-                )}
-              </div>
-
-              {/* Notes */}
-              <div>
-                <label className="block text-white-purple text-sm mb-2">Notes</label>
-                <textarea
-                  placeholder="Write your personal notes or impressions here..."
-                  value={editForm.notes}
-                  onChange={(e) => setEditForm({ ...editForm, notes: e.target.value })}
-                  className="w-full h-28 p-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-blue-500 transition resize-none"
-                />
-              </div>
-            </div>
-
-            {/* Save/Cancel/Delete Buttons */}
-            <div className="p-6 border-t border-white/10 flex justify-end gap-3 flex-shrink-0">
-              <button
-                onClick={() => {
-                  if (!currentEntry) return;
-                  setPendingDeleteId(currentEntry.id);
-                  setConfirmDelete(true);
-                }}
-                className="flex items-center gap-2 px-5 py-2.5 bg-red-600/80 hover:bg-red-700 text-white rounded-xl font-medium shadow-lg shadow-red-600/20 transition"
-              >
-                <Trash2 className="w-4 h-4" />
-                Delete
-              </button>
-              <button
-                onClick={closeModal}
-                className="px-6 py-2.5 bg-white/5 hover:bg-white/10 text-white rounded-xl font-medium transition"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={saveEdit}
-                className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium shadow-lg shadow-blue-600/20 transition"
-              >
-                Save Changes
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-      {/* Delete Confirmation */}
-      {confirmDelete && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-[60] no-doc-scroll">
-          <div className="bg-[#131621] p-6 rounded-xl border border-white/10 shadow-xl max-w-sm w-full text-center">
-            <h3 className="text-xl font-bold text-white mb-4">Confirm Deletion</h3>
-            <p className="text-white-purple mb-6">
-              Are you sure you want to remove this manga from your library?
-            </p>
-
-            <div className="flex justify-center gap-4">
-              <button
-                onClick={() => {
-                  setConfirmDelete(false);
-                  setPendingDeleteId(null);
-                }}
-                className="px-4 py-2 rounded-lg bg-white/10 text-white hover:bg-white/20 transition"
-              >
-                Cancel
-              </button>
-
-              <button
-                onClick={async () => {
-                  if (!pendingDeleteId) return;
-
-                  const success = await deleteEntry(pendingDeleteId);
-                  if (success) {
-                    setConfirmDelete(false);
-                    setPendingDeleteId(null);
-                    closeModal();
-                  }
-                }}
-                className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white transition"
-              >
-                Yes, Delete
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <EditEntryModal
+        entry={selectedEntry}
+        onClose={() => setSelectedEntry(null)}
+        onRefresh={fetchLibrary}
+      />
     </div>
   );
 }
