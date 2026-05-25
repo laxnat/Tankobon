@@ -1,5 +1,5 @@
-import Navbar from "@/app/components/Navbar";
-import Footer from "@/app/components/Footer";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
 // This layout wraps all "public" pages (home, library, search, etc.) with the
 // shared Navbar and Footer. Pages under /dashboard use their own layout instead

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { Loader2, BookOpen, Star, BarChart3, Car } from "lucide-react";
-import { GenreChart } from "@/app/components/GenreChart";
+import { GenreChart } from "@/components/GenreChart";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface Stats {

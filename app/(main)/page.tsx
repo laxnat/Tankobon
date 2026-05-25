@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Star, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
-import FeaturesGallery from "@/app/components/FeaturesGallery";
+import FeaturesGallery from "@/components/FeaturesGallery";
 
 export default function Home() {
   // Smooth scroll for "Learn More"
