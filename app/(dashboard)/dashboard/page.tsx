@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react";
 import { Loader2, BookOpen, Star, BarChart3, Car } from "lucide-react";
 import { GenreChart } from "@/components/GenreChart";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import Image from "next/image";
 
 interface Stats {
   total: number;
@@ -19,11 +20,21 @@ interface Stats {
   totalOwnedVolumes: number;
 }
 
+interface ReadingEntry {
+  id: string;
+  malId: number;
+  title: string;
+  imageUrl: string | null;
+  chaptersRead: number;
+  totalChapters: number | null;
+}
+
 export default function DashboardPage() {
   const { data: session, status } = useSession();
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
   const [genreData, setGenreData] = useState<{ genre: string; count: number }[]>([]);
+  const [readingList, setReadingList] = useState<ReadingEntry[]>([]);
 
   useEffect(() => {
     if (status === "authenticated") {
@@ -33,14 +44,16 @@ export default function DashboardPage() {
 
   const fetchData = async () => {
     try {
-      const [statsRes, genreRes] = await Promise.all([
+      const [statsRes, genreRes, readingRes] = await Promise.all([
         fetch("/api/library/stats"),
         fetch("/api/profile/stats/genres"),
+        fetch("/api/library?status=READING"),
       ]);
 
-      const [statsData, genreJson] = await Promise.all([
+      const [statsData, genreJson, readingJson] = await Promise.all([
         statsRes.json(),
         genreRes.json(),
+        readingRes.json(),
       ]);
 
       if (statsRes.ok) {
@@ -52,6 +65,11 @@ export default function DashboardPage() {
         setGenreData(genreJson.genres);
       } else {
         console.error("Genre fetch failed:", genreJson);
+      }
+      if (readingRes.ok) {
+        setReadingList(readingJson.library)
+      } else {
+        console.error("Reading stats fetch failed:", readingJson);
       }
     } catch (err) {
       console.error("Failed to fetch profile data:", err);
@@ -150,6 +168,28 @@ export default function DashboardPage() {
         {/* Reading Streak Card */}
 
         {/* Currently Reading Carousel Card */}
+        <Card className="col-span-1 max-w-xs max-h-xl bg-light-navy ring-0 border border-white/10 hover:border-white/50">
+          <CardHeader>
+            <CardTitle className="font-display text-xl">Currently Reading</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {readingList.length === 0 ? (
+              <p>No Manga Currently Reading</p>
+            ) : (
+              <div>
+              {readingList.map((entry) => (
+                <div key={(entry.id)}>
+                  {entry.title}
+                  {entry.imageUrl && (
+                    <Image src={entry.imageUrl} alt={entry.title} width={80} height={120} />
+                  )}
+                  {entry.chaptersRead} / {entry.totalChapters ?? "?"} chapters
+                </div>
+              ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
         {/* Recently Updated Strip Card */}
 
