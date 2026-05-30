@@ -120,7 +120,7 @@ const BookshelfView = memo(({
   onEdit: (entry: LibraryEntry) => void;
   getStatusColor: (status: string) => string;
 }) => (
-  <div className="grid grid-cols-[repeat(auto-fill,minmax(110px,1fr))] gap-4">
+  <div className="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-4">
     {entries.map((entry) => (
       <div key={entry.id} className="group relative cursor-pointer" onClick={() => onEdit(entry)}>
         {/* Book cover */}
