@@ -1,5 +1,7 @@
 # Tankobon
 
+Note: Website is currently undergoing a major refactor and upgrade. Manga search and library are still functional
+
 A modern manga library management application built with Next.js. Track your manga collection, reading progress, and owned volumes all in one place.
 
 Check out the live application: [tankobon.vercel.app](https://tankobon.vercel.app)
