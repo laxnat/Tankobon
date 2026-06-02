@@ -65,7 +65,40 @@ export default function DiscoverPage() {
     fetchData();
   }, []);
 
-  const handleSearch = async (e: React.FormEvent) => {
+  // useEffect that waits 450ms after user stops typing before firing
+  // Allows for free filter reactivity (changing a filter re-searches)
+  useEffect(() => {
+    if (!query.trim()) {
+      setResults([]);
+      return;
+    }
+
+    const controller = new AbortController();
+
+    const timer = setTimeout(async () => {
+      setLoading(true)
+      setError("")
+      try {
+        const response = await fetch(
+          `/api/manga/search?q=${encodeURIComponent(query)}&type=${typeFilter}&sort=${sortFilter}&status=${statusFilter}&adult=${adultFilter}`
+        );
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || "Failed to search");
+        setResults(data.results);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "An error occurred");
+      } finally {
+        setLoading(false);
+      }
+    }, 450);
+
+    return () => {
+      clearTimeout(timer);
+      controller.abort(); // cancel in-flight request if query changes
+    }
+  }, [query, typeFilter, sortFilter, statusFilter, adultFilter]);
+
+  /* const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!query.trim()) return;
 
@@ -94,7 +127,7 @@ export default function DiscoverPage() {
     if (query.trim() === "") {
       setResults([]);
     }
-  }, [query]);
+  }, [query]); */
 
   const triggerTopPopup = (message: string) => {
     setPopupMessage(message);
@@ -179,7 +212,7 @@ export default function DiscoverPage() {
           <div className="max-w-7xl mx-auto flex flex-col sm:flex-row flex-wrap justify-center sm:justify-between items-center gap-4">
             {/* Search Bar */}
             <form
-              onSubmit={handleSearch}
+              // onSubmit={handleSearch}
               className="flex items-center gap-3 bg-light-navy border border-white/5 rounded-lg px-3 py-2 flex-1 min-w-[250px] sm:min-w-[300px] lg:min-w-[400px]flex-shrink-0"
             >
               <Search className="w-5 h-5 text-white" />
