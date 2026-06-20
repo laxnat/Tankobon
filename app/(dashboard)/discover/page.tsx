@@ -70,7 +70,6 @@ export default function DiscoverPage() {
     fetchData();
   }, []);
 
-<<<<<<< HEAD
   // Core search function — takes an explicit snapshot of filters so it's safe
   // to call from inside a debounced closure without stale state issues
   async function searchManga(
@@ -148,40 +147,6 @@ export default function DiscoverPage() {
       adult: adultFilter,
     });
   };
-=======
-  // useEffect that waits 450ms after user stops typing before firing
-  // Allows for free filter reactivity (changing a filter re-searches)
-  useEffect(() => {
-    if (!query.trim()) {
-      setResults([]);
-      return;
-    }
-
-    const controller = new AbortController();
-
-    const timer = setTimeout(async () => {
-      setLoading(true)
-      setError("")
-      try {
-        const response = await fetch(
-          `/api/manga/search?q=${encodeURIComponent(query)}&type=${typeFilter}&sort=${sortFilter}&status=${statusFilter}&adult=${adultFilter}`
-        );
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.error || "Failed to search");
-        setResults(data.results);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "An error occurred");
-      } finally {
-        setLoading(false);
-      }
-    }, 450);
-
-    return () => {
-      clearTimeout(timer);
-      controller.abort(); // cancel in-flight request if query changes
-    }
-  }, [query, typeFilter, sortFilter, statusFilter, adultFilter]);
->>>>>>> d16248355144f8e4cb3dc35b57722cc3e5de92cf
 
   const triggerTopPopup = (message: string) => {
     setPopupMessage(message);
@@ -266,6 +231,7 @@ export default function DiscoverPage() {
           <div className="max-w-7xl mx-auto flex flex-col sm:flex-row flex-wrap justify-center sm:justify-between items-center gap-4">
             {/* Search Bar */}
             <form
+              onSubmit={handleSearch}
               className="flex items-center gap-3 bg-light-navy border border-white/5 rounded-lg px-3 py-2 flex-1 min-w-[250px] sm:min-w-[300px] lg:min-w-[400px]flex-shrink-0"
             >
               {/* Show spinner while searching, static icon otherwise */}
