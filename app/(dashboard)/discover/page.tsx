@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
@@ -44,6 +44,11 @@ export default function DiscoverPage() {
   const [showPopup, setShowPopup] = useState(false);
   const [popupMessage, setPopupMessage] = useState("");
 
+  // Refs are stable across renders — perfect for timers and abort controllers
+  // that need to be cancelled/replaced without triggering re-renders
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const abortRef = useRef<AbortController | null>(null);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -65,36 +70,83 @@ export default function DiscoverPage() {
     fetchData();
   }, []);
 
-  const handleSearch = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!query.trim()) return;
+  // Core search function — takes an explicit snapshot of filters so it's safe
+  // to call from inside a debounced closure without stale state issues
+  async function searchManga(
+    searchQuery: string,
+    filters: { type: string; sort: string; status: string; adult: string }
+  ) {
+    // Cancel any request that's still in flight before starting a new one.
+    // Without this, a slow earlier response could overwrite a faster newer one.
+    if (abortRef.current) abortRef.current.abort();
+    abortRef.current = new AbortController();
 
     setLoading(true);
     setError("");
 
     try {
-      const response = await fetch(
-        `/api/manga/search?q=${encodeURIComponent(query)}&type=${typeFilter}&sort=${sortFilter}&status=${statusFilter}&adult=${adultFilter}`
-      );
+      const params = new URLSearchParams({
+        q: searchQuery,
+        type: filters.type,
+        sort: filters.sort,
+        status: filters.status,
+        adult: filters.adult,
+      });
+      const response = await fetch(`/api/manga/search?${params}`, {
+        signal: abortRef.current.signal,
+      });
       const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to search");
-      }
-
+      if (!response.ok) throw new Error(data.error || "Failed to search");
       setResults(data.results);
     } catch (err) {
+      // AbortError is expected — a newer search cancelled this one. Don't show an error.
+      if (err instanceof Error && err.name === "AbortError") return;
       setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
       setLoading(false);
     }
-  };
+  }
 
+  // Debounced live search: fires 600ms after the user stops typing.
+  // Also re-runs when filters change while there's an active query.
+  // 600ms gives comfortable headroom under Jikan's 3 req/sec rate limit.
   useEffect(() => {
-    if (query.trim() === "") {
+    if (!query.trim() || query.trim().length < 2) {
       setResults([]);
+      setLoading(false);
+      return;
     }
-  }, [query]);
+
+    // Clear any pending debounce from the previous keystroke
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+
+    debounceRef.current = setTimeout(() => {
+      searchManga(query, {
+        type: typeFilter,
+        sort: sortFilter,
+        status: statusFilter,
+        adult: adultFilter,
+      });
+    }, 600);
+
+    // Cleanup: if the component unmounts mid-debounce, cancel the timer
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, [query, typeFilter, sortFilter, statusFilter, adultFilter]);
+
+  // Pressing Enter skips the 600ms wait and searches immediately
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!query.trim() || query.trim().length < 2) return;
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    searchManga(query, {
+      type: typeFilter,
+      sort: sortFilter,
+      status: statusFilter,
+      adult: adultFilter,
+    });
+  };
 
   const triggerTopPopup = (message: string) => {
     setPopupMessage(message);
@@ -182,7 +234,11 @@ export default function DiscoverPage() {
               onSubmit={handleSearch}
               className="flex items-center gap-3 bg-light-navy border border-white/5 rounded-lg px-3 py-2 flex-1 min-w-[250px] sm:min-w-[300px] lg:min-w-[400px]flex-shrink-0"
             >
-              <Search className="w-5 h-5 text-white" />
+              {/* Show spinner while searching, static icon otherwise */}
+              {loading
+                ? <Loader2 className="w-5 h-5 text-white/60 animate-spin flex-shrink-0" />
+                : <Search className="w-5 h-5 text-white flex-shrink-0" />
+              }
               <input
                 type="text"
                 value={query}
@@ -316,12 +372,6 @@ export default function DiscoverPage() {
           </div>
         )}
 
-        {loading && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <Loader2 className="h-16 w-16 text-white animate-spin" />
-          </div>
-        )}
-
         {/* Search Results */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6">
           {results.map((manga, index) => {
@@ -348,7 +398,7 @@ export default function DiscoverPage() {
           })}
         </div>
 
-        {results.length === 0 && !loading && query && (
+        {results.length === 0 && !loading && query.trim().length >= 2 && (
           <div className="text-center text-gray-500 mt-8">No results found</div>
         )}
 
