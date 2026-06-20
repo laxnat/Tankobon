@@ -70,6 +70,7 @@ export default function DiscoverPage() {
     fetchData();
   }, []);
 
+<<<<<<< HEAD
   // Core search function — takes an explicit snapshot of filters so it's safe
   // to call from inside a debounced closure without stale state issues
   async function searchManga(
@@ -147,6 +148,40 @@ export default function DiscoverPage() {
       adult: adultFilter,
     });
   };
+=======
+  // useEffect that waits 450ms after user stops typing before firing
+  // Allows for free filter reactivity (changing a filter re-searches)
+  useEffect(() => {
+    if (!query.trim()) {
+      setResults([]);
+      return;
+    }
+
+    const controller = new AbortController();
+
+    const timer = setTimeout(async () => {
+      setLoading(true)
+      setError("")
+      try {
+        const response = await fetch(
+          `/api/manga/search?q=${encodeURIComponent(query)}&type=${typeFilter}&sort=${sortFilter}&status=${statusFilter}&adult=${adultFilter}`
+        );
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || "Failed to search");
+        setResults(data.results);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "An error occurred");
+      } finally {
+        setLoading(false);
+      }
+    }, 450);
+
+    return () => {
+      clearTimeout(timer);
+      controller.abort(); // cancel in-flight request if query changes
+    }
+  }, [query, typeFilter, sortFilter, statusFilter, adultFilter]);
+>>>>>>> d16248355144f8e4cb3dc35b57722cc3e5de92cf
 
   const triggerTopPopup = (message: string) => {
     setPopupMessage(message);
@@ -231,7 +266,6 @@ export default function DiscoverPage() {
           <div className="max-w-7xl mx-auto flex flex-col sm:flex-row flex-wrap justify-center sm:justify-between items-center gap-4">
             {/* Search Bar */}
             <form
-              onSubmit={handleSearch}
               className="flex items-center gap-3 bg-light-navy border border-white/5 rounded-lg px-3 py-2 flex-1 min-w-[250px] sm:min-w-[300px] lg:min-w-[400px]flex-shrink-0"
             >
               {/* Show spinner while searching, static icon otherwise */}
@@ -244,7 +278,7 @@ export default function DiscoverPage() {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search manga..."
-                className="w-full bg-transparent border-0 focus:outline-none text-white placeholder-white/60 text-md font-bold"
+                className="w-full bg-transparent border-0 focus:outline-none text-white placeholder-white/60 text-md"
               />
             </form>
 
@@ -259,7 +293,7 @@ export default function DiscoverPage() {
                     setShowStatusMenu(false);
                     setShow18Menu(false);
                   }}
-                  className="bg-light-navy border border-white/5 rounded-md px-3 py-2 text-white/80 font-semibold hover:border-blue-500/40 focus:border-blue-500/60 focus:ring-2 focus:ring-blue-500/30 outline-none transition-all cursor-pointer w-[200px] flex justify-between items-center"
+                  className="bg-light-navy border border-white/5 rounded-md px-3 py-2 text-white/80 hover:border-blue-500/40 focus:border-blue-500/60 focus:ring-2 focus:ring-blue-500/30 outline-none transition-all cursor-pointer w-[200px] flex justify-between items-center"
                 >
                   <span>
                     Type:{" "}
@@ -290,7 +324,7 @@ export default function DiscoverPage() {
               <div className="relative">
                 <button
                   onClick={() => { setShowSortMenu(!showSortMenu); setShowTypeMenu(false); setShowStatusMenu(false); setShow18Menu(false); }}
-                  className="bg-light-navy border border-white/5 rounded-md px-3 py-2 text-white/80 font-semibold hover:border-purple-500/40 focus:border-purple-500/60 focus:ring-2 focus:ring-purple-500/30 outline-none transition-all cursor-pointer w-[200px] flex justify-between items-center"
+                  className="bg-light-navy border border-white/5 rounded-md px-3 py-2 text-white/80 hover:border-purple-500/40 focus:border-purple-500/60 focus:ring-2 focus:ring-purple-500/30 outline-none transition-all cursor-pointer w-[200px] flex justify-between items-center"
                 >
                   <span>Sort By: <span className="text-purple-400 capitalize">{sortFilter.replace("_", " ")}</span></span>
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-white/60" viewBox="0 0 20 20" fill="currentColor">
@@ -316,7 +350,7 @@ export default function DiscoverPage() {
               <div className="relative">
                 <button
                   onClick={() => { setShowStatusMenu(!showStatusMenu); setShowTypeMenu(false); setShowSortMenu(false); setShow18Menu(false); }}
-                  className="bg-light-navy border border-white/5 rounded-md px-3 py-2 text-white/80 font-semibold hover:border-emerald-500/40 focus:border-emerald-500/60 focus:ring-2 focus:ring-emerald-500/30 outline-none transition-all cursor-pointer w-[200px] flex justify-between items-center"
+                  className="bg-light-navy border border-white/5 rounded-md px-3 py-2 text-white/80 hover:border-emerald-500/40 focus:border-emerald-500/60 focus:ring-2 focus:ring-emerald-500/30 outline-none transition-all cursor-pointer w-[200px] flex justify-between items-center"
                 >
                   <span>Status: <span className="text-emerald-400 capitalize">{statusFilter.replace("_", " ")}</span></span>
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-white/60" viewBox="0 0 20 20" fill="currentColor">
@@ -342,9 +376,9 @@ export default function DiscoverPage() {
               <div className="relative">
                 <button
                   onClick={() => { setShow18Menu(!show18Menu); setShowTypeMenu(false); setShowSortMenu(false); setShowStatusMenu(false); }}
-                  className="bg-light-navy border border-white/5 rounded-md px-3 py-2 text-white/80 font-semibold w-[200px] flex justify-between items-center"
+                  className="bg-light-navy border border-white/5 rounded-md px-3 py-2 text-white/80 w-[200px] flex justify-between items-center"
                 >
-                  <span>18+ Filter: <span className="text-red-400 font-bold">{adultFilter === "all" ? "Show" : "Hide"}</span></span>
+                  <span>18+ Filter: <span className="text-red-400">{adultFilter === "all" ? "Show" : "Hide"}</span></span>
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-white/60" viewBox="0 0 20 20" fill="currentColor">
                     <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.21 8.27a.75.75 0 01.02-1.06z" clipRule="evenodd" />
                   </svg>
@@ -384,7 +418,7 @@ export default function DiscoverPage() {
                       {manga.imageUrl && <Image src={manga.imageUrl} alt={manga.title} fill className="object-cover rounded-lg" />}
                     </div>
                     <div className="pt-2">
-                      <h3 className="font-bold text-white text-sm line-clamp-2 text-left">{manga.title}</h3>
+                      <h3 className="text-white text-sm line-clamp-2 text-left">{manga.title}</h3>
                     </div>
                   </div>
                 </Link>
@@ -407,9 +441,9 @@ export default function DiscoverPage() {
             {/* ===================== TOP MANGA ===================== */}
             <section className="max-w-7xl mx-auto mb-16">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-lg font-bold text-white tracking-wide">TOP MANGA</h2>
+                <h2 className="text-lg font-display text-white tracking-wide">Top Manga</h2>
                 <button onClick={() => setShowAllTop((prev) => !prev)}
-                  className="text-blue-400 text-sm font-medium hover:underline hover:text-blue-300 transition">
+                  className="text-blue-400 text-sm hover:underline hover:text-blue-300 transition">
                   {showAllTop ? "Show Less ↑" : "View All →"}
                 </button>
               </div>
@@ -424,7 +458,7 @@ export default function DiscoverPage() {
                             {manga.imageUrl && <Image src={manga.imageUrl} alt={manga.title} fill className="object-cover rounded-lg" />}
                           </div>
                           <div className="pt-2">
-                            <h3 className="font-bold text-white text-sm line-clamp-2 text-left group-hover:text-blue-400">{manga.title}</h3>
+                            <h3 className="text-white text-sm line-clamp-2 text-left group-hover:text-blue-400">{manga.title}</h3>
                           </div>
                         </div>
                       </Link>
@@ -442,9 +476,9 @@ export default function DiscoverPage() {
             {/* ===================== TRENDING NOW ===================== */}
             <section className="max-w-7xl mx-auto mb-16">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-lg font-bold text-white tracking-wide">TRENDING NOW</h2>
+                <h2 className="text-lg font-display text-white tracking-wide">Trending Manga</h2>
                 <button onClick={() => setShowAllTrending((prev) => !prev)}
-                  className="text-blue-400 text-sm font-medium hover:underline hover:text-blue-300 transition">
+                  className="text-blue-400 text-sm hover:underline hover:text-blue-300 transition">
                   {showAllTrending ? "Show Less ↑" : "View All →"}
                 </button>
               </div>
@@ -459,7 +493,7 @@ export default function DiscoverPage() {
                             {manga.imageUrl && <Image src={manga.imageUrl} alt={manga.title} fill className="object-cover rounded-lg" />}
                           </div>
                           <div className="pt-2">
-                            <h3 className="font-bold text-white text-sm line-clamp-2 text-left">{manga.title}</h3>
+                            <h3 className="text-white text-sm line-clamp-2 text-left">{manga.title}</h3>
                           </div>
                         </div>
                       </Link>
@@ -479,7 +513,7 @@ export default function DiscoverPage() {
 
       {showPopup && (
         <div className="fixed top-8 left-1/2 transform -translate-x-1/2 z-50">
-          <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white font-bold px-6 py-3 rounded-xl shadow-lg shadow-blue-500/30 animate-fadeIn">
+          <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-3 rounded-xl shadow-lg shadow-blue-500/30 animate-fadeIn">
             {popupMessage}
           </div>
         </div>
@@ -493,7 +527,7 @@ function MangaHoverCard({ manga, popupPosition }: { manga: Manga; popupPosition:
     <div className={`absolute top-0 w-64 bg-navy-blue rounded-lg border border-white/5 shadow-2xl p-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10 pointer-events-none ${popupPosition}`}>
       <div className="flex gap-3 mb-3">
         <div className="flex-1 min-w-0">
-          <h3 className="font-bold text-white text-sm mb-1 line-clamp-2">{manga.title}</h3>
+          <h3 className="font-display text-white text-sm mb-1 line-clamp-2">{manga.title}</h3>
           {manga.titleEnglish && <p className="text-xs text-white-purple mb-2 line-clamp-2">{manga.titleEnglish}</p>}
           {manga.authors && manga.authors.length > 0 && (
             <p className="text-xs text-white-purple mb-2 truncate">
@@ -502,7 +536,7 @@ function MangaHoverCard({ manga, popupPosition }: { manga: Manga; popupPosition:
           )}
           <div className="flex items-center gap-2 mb-2 text-xs">
             <Star className="w-3 h-3 mb-0.5 fill-blue-400 text-blue-400" />
-            <span className="font-bold text-white-purple">{manga.score ? `${manga.score}` : "TBD"}</span>
+            <span className="font-display text-white-purple">{manga.score ? `${manga.score}` : "TBD"}</span>
             <span className="text-white-purple">{manga.chapters ? `${manga.chapters} ch` : "? ch"}</span>
             <span className="text-white-purple">{manga.volumes ? `${manga.volumes} vol` : "? vol"}</span>
           </div>
