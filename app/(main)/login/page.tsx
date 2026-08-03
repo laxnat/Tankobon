@@ -36,13 +36,13 @@ function LoginForm() {
         redirect: false,
       });
 
-      if (result?.error) {
+      if (!result?.ok || result?.error) {
         setError("Invalid email or password");
         return;
       }
 
       const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
-      router.push(callbackUrl);
+      window.location.href = callbackUrl;
     } catch (err) {
       setError("An error occurred. Please try again.");
     } finally {
