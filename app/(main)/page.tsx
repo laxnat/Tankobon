@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { Star, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 import FeaturesGallery from "@/components/FeaturesGallery";
 
@@ -67,46 +66,6 @@ export default function Home() {
         <FeaturesGallery />
       </div>
 
-      {/* Premium teaser */}
-      <section className="max-w-5xl mx-auto px-6 sm:px-8 mt-24 mb-8">
-        <motion.div
-          initial={{ opacity: 0, y: 32 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          className="relative overflow-hidden rounded-2xl px-8 py-12 md:px-14 md:py-14 flex flex-col md:flex-row items-center gap-8 md:gap-12"
-          style={{
-            background: "linear-gradient(145deg, rgba(21,31,46,0.8) 0%, rgba(17,17,26,0.95) 100%)",
-            border: "1px solid rgba(96, 165, 250, 0.2)",
-          }}
-        >
-
-          {/* Left: copy */}
-          <div className="flex-1 text-center md:text-left">
-            <div className="inline-flex items-center text-reg-blue text-xl uppercase font-display tracking-wide mb-4">
-              Premium
-            </div>
-            <h2 className="text-3xl md:text-4xl font-display text-white tracking-tight mb-3">
-              Go beyond the basics.
-            </h2>
-            <p className="text-white/55 text-base leading-relaxed max-w-md">
-              Unlimited library size, volume tracking, advanced analytics, and
-              more — for collectors who take their manga seriously.
-            </p>
-          </div>
-
-          {/* Right: CTA */}
-          <div className="flex-shrink-0">
-            <Link
-              href="/premium"
-              className="inline-flex items-center gap-2 px-6 py-3 text-sm font-semibold text-white bg-reg-blue hover:bg-reg-blue/70 rounded-xl transition-colors duration-150"
-            >
-              See plans
-              <ArrowRight className="w-4 h-4" />
-            </Link>
-          </div>
-        </motion.div>
-      </section>
     </div>
   );
 }

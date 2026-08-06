@@ -1,14 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useSession, signOut } from "next-auth/react";
+import { signOut } from "next-auth/react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
-  Loader2,
-  Star,
   Settings,
   LogOut,
   BookOpen,
@@ -16,8 +13,6 @@ import {
   LayoutDashboard,
   type LucideIcon,
 } from "lucide-react";
-// Settings/BookOpen/Compass/LayoutDashboard stay imported — they're used in navItems above
-import { toast } from "sonner";
 import {
   Sidebar,
   SidebarContent,
@@ -39,29 +34,7 @@ const navItems: { href: string; icon: LucideIcon; label: string }[] = [
 ];
 
 export default function ProfileSidebar() {
-  const { data: session } = useSession();
   const pathname = usePathname();
-  const [loadingCheckout, setLoadingCheckout] = useState(false);
-
-  const handleUpgrade = async () => {
-    setLoadingCheckout(true);
-    const toastId = toast.loading("Opening checkout…");
-    try {
-      const res = await fetch("/api/checkout", { method: "POST" });
-      const data = await res.json();
-      if (data.url) {
-        toast.dismiss(toastId);
-        window.location.href = data.url;
-      } else {
-        throw new Error("No checkout URL returned");
-      }
-    } catch {
-      toast.error("Couldn't start checkout. Please try again.", {
-        id: toastId,
-      });
-      setLoadingCheckout(false);
-    }
-  };
 
   return (
     <Sidebar
@@ -112,24 +85,8 @@ export default function ProfileSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      {/* ── Footer: upgrade + sign out ── */}
+      {/* ── Footer: sign out ── */}
       <SidebarFooter className="p-4 gap-2">
-        {/* Go Premium — hidden if user already has premium */}
-        {!session?.user?.isPremium && (
-          <button
-            onClick={handleUpgrade}
-            disabled={loadingCheckout}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-reg-blue hover:bg-reg-blue/70 text-white text-sm rounded-xl transition disabled:opacity-60"
-          >
-            {loadingCheckout ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <Star className="w-4 h-4" />
-            )}
-            Go Premium
-          </button>
-        )}
-
         <button
           onClick={() => signOut({ callbackUrl: "/" })}
           className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-white/5 hover:bg-red-600/80 text-white/70 hover:text-white text-sm rounded-xl transition"

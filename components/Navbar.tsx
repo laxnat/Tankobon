@@ -4,7 +4,7 @@ import { useSession } from "next-auth/react";
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect } from "react";
-import { Menu, X, Star } from "lucide-react";
+import { Menu, X } from "lucide-react";
 
 const EASE = "cubic-bezier(0.4, 0, 0.2, 1)";
 
@@ -117,12 +117,7 @@ export default function Navbar() {
 
             {/* ── Desktop nav ── */}
             <div className="hidden md:flex items-center gap-0.5">
-              {/* Premium CTA — hidden once the user already has premium */}
-              {!session?.user?.isPremium && (
-                <NavLink href="/premium" compact={compact}>Pricing</NavLink>
-              )}
-
-              {session ? (
+                {session ? (
                 <>
                   <NavLink href="/dashboard" compact={compact}>Dashboard</NavLink>
                 </>
@@ -192,24 +187,10 @@ export default function Navbar() {
           }}
         >
           <div className="px-5 py-2 flex flex-col">
-            {/* Premium CTA — hidden once the user already has premium */}
-            {!session?.user?.isPremium && (
-              <MobileNavLink href="/premium" onClick={() => setMenuOpen(false)}>
-                <Star className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400" />
-                <span className="text-yellow-400">Premium</span>
-              </MobileNavLink>
-            )}
-
             {session ? (
               <>
                 <MobileNavLink href="/dashboard" onClick={() => setMenuOpen(false)}>
                   <span>Dashboard</span>
-                  {session.user?.isPremium && (
-                    <span className="ml-auto inline-flex items-center gap-1 px-2 py-0.5 bg-yellow-400/10 border border-yellow-400/20 text-yellow-400 text-[11px] font-medium rounded-full">
-                      <Star className="w-2.5 h-2.5 fill-yellow-400" />
-                      Premium
-                    </span>
-                  )}
                 </MobileNavLink>
               </>
             ) : (

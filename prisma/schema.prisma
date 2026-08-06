@@ -15,8 +15,6 @@ model User {
   email             String    @unique
   emailVerified     DateTime?
   password          String
-  stripeCustomerId  String? @unique
-  isPremium         Boolean   @default(false)
   image             String?
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt

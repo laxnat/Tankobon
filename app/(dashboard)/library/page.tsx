@@ -260,14 +260,6 @@ export default function LibraryPage() {
             )}
             <div className="flex items-center gap-3">
               <p className="text-white-purple">{library.length} manga in collection</p>
-              {!session?.user?.isPremium && library.length >= 50 && (
-                <Link
-                  href="/premium"
-                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold bg-yellow-400/10 border border-yellow-400/30 text-yellow-400 hover:bg-yellow-400/20 transition-colors"
-                >
-                  ★ Upgrade for unlimited
-                </Link>
-              )}
             </div>
           </div>
 

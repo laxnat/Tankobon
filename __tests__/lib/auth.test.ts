@@ -25,8 +25,6 @@ const mockUser = {
     email: 'user@example.com',
     emailVerified: null,
     password: '$2b$10$hashedpassword',
-    stripeCustomerId: null,
-    isPremium: false,
     image: null,
     createdAt: new Date('2024-01-01'),
     updatedAt: new Date('2024-01-01'),
@@ -90,63 +88,42 @@ describe('authorizeCredentials', () => {
 describe('jwt callback', () => {
     const jwtCallback = authOptions.callbacks!.jwt!
 
-    it('sets isPremium from DB on initial sign-in', async () => {
-        mockFindUnique.mockResolvedValue({ ...mockUser, isPremium: true })
-
+    it('returns correct token shape on initial sign-in', async () => {
         const token = await jwtCallback({
-            token: {
-                sub: 'abc', iat: 0, exp: 0, jti: 'x',
-                id: '',
-                isPremium: true
-            },
+            token: { sub: 'abc', iat: 0, exp: 0, jti: 'x', id: '' },
             user: { id: 'user_1', email: 'user@example.com', name: 'Test User' },
             account: null,
             trigger: 'signIn',
         })
 
-        expect(token.isPremium).toBe(true)
+        expect(token.id).toBe('user_1')
+        expect(token.email).toBe('user@example.com')
+        expect(token.name).toBe('Test User')
     })
 
-    it('defaults isPremium to false when DB returns null', async () => {
-        mockFindUnique.mockResolvedValue(null)      // user deleted mid-session edge case
-
+    it('updates name when trigger is update', async () => {
         const token = await jwtCallback({
-            token: {
-                sub: 'abc', jwt: 0, exp: 0, jti: 'x',
-                id: '',
-                isPremium: true
-            },
-            user: { id: 'user_1', email: 'user@example.com', name: 'Test User' },
-            account: null,
-            trigger: 'signIn',
-        })
-
-        expect(token.isPremium).toBe(false)
-    })
-
-    it('refreshes isPremium on subsequent requests (no user object', async () => {
-        // isPremium is refetched on every JWT validation
-        // Session stays in sync after Stripe webhook fires
-        mockFindUnique.mockResolvedValue({ ...mockUser, isPremium: true })
-
-        const token = await jwtCallback({
-            // No 'user' object (request after initial login)
-            token: {
-                id: 'user_1',
-                email: 'user@example.com',
-                isPremium: false,
-                sub: 'abc',
-                iat: 0,
-                exp: 0,
-                jti: 'x'
-            },
-            user: { id: 'user_1', email: 'user@example.com', name: 'Test User' },
+            token: { id: 'user_1', email: 'user@example.com', name: 'Old Name', sub: 'abc', iat: 0, exp: 0, jti: 'x' },
+            user: undefined as any,
             account: null,
             trigger: 'update',
+            session: { name: 'New Name' },
         })
 
-        // Was false in the token. now true bc DB says so
-        expect(token.isPremium).toBe(true)
+        expect(token.name).toBe('New Name')
+    })
+
+    it('passes token through unchanged on subsequent requests', async () => {
+        const existingToken = { id: 'user_1', email: 'user@example.com', name: 'Test User', sub: 'abc', iat: 0, exp: 0, jti: 'x' }
+
+        const token = await jwtCallback({
+            token: existingToken,
+            user: undefined as any,
+            account: null,
+            trigger: 'signIn',
+        })
+
+        expect(token).toEqual(existingToken)
     })
 })
 
@@ -157,30 +134,22 @@ describe('session callback', () => {
     it('maps token fields onto session.user', async () => {
         const session: any = await sessionCallback({
             session: {
-                user: { 
-                    id: '', 
-                    name: '', 
-                    email: '', 
-                    image: '', 
-                    isPremium: false, 
-                },
+                user: { id: '', name: '', email: '', image: '' },
                 expires: '2099-01-01T00:00:00.000Z',
             },
             token: {
                 id: 'user_1',
                 name: 'Test User',
                 email: 'user@example.com',
-                isPremium: true,
                 sub: 'abc',
                 iat: 0,
                 exp: 0,
                 jti: 'x',
             },
-            
         } as any)  // NextAuth's union overload doesn't narrow by strategy at compile time
 
         expect(session.user.id).toBe('user_1')
+        expect(session.user.name).toBe('Test User')
         expect(session.user.email).toBe('user@example.com')
-        expect(session.user.isPremium).toBe(true)
     })
 })

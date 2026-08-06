@@ -3,7 +3,6 @@ import NextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcrypt";
-import Email from "next-auth/providers/email";
 
 export async function authorizeCredentials(
   credentials: Record<"email" | "password", string> | undefined
@@ -37,23 +36,16 @@ export async function authorizeCredentials(
 export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user, trigger, session }) {
-      // When update() is called from the client, tirgger === "update" and session contains whatever was passed to update()
-      if (trigger  === "update" && session?.name) {
+      // When update() is called from the client, trigger === "update" and session contains whatever was passed to update()
+      if (trigger === "update" && session?.name) {
         token.name = session.name // sync the new name into the token
       }
-      
-      // Fetch isPremium fresh every time - keeps it in sync after webhook fires
-      const dbUser = await prisma.user.findUnique({
-        where: { id: (user?.id ?? token.id ) as string },
-        select: { isPremium: true },
-      });
-      
+
       if (user) {
         return {
           id: user.id,
           email: user.email,
           name: user.name,
-          isPremium: dbUser?.isPremium ?? false,
           sub: token.sub,
           iat: token.iat,
           exp: token.exp,
@@ -62,14 +54,13 @@ export const authOptions: NextAuthOptions = {
         };
       }
 
-      return { ...token, isPremium: dbUser?.isPremium ?? false };
+      return token;
     },
     async session({ session, token }) {
       if (token && session.user) {
         session.user.id = token.id as string;
         session.user.name = token.name as string;
         session.user.email = token.email as string;
-        session.user.isPremium = token.isPremium;
         // Image is not in the token — components fetch it via /api/profile/image
       }
       return session;

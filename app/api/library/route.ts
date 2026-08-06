@@ -93,32 +93,11 @@ export async function POST(request: NextRequest) {
 
     const user = await prisma.user.findUnique({
       where: { email: session.user.email },
-      select: { id: true, isPremium: true },
+      select: { id: true },
     });
 
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
-    }
-
-    // -- Free tier limit --
-    if (!user.isPremium) {
-      const FREE_TIER_LIMIT = 50
-
-      const currentCount = await prisma.mangaLibrary.count({
-        where: { userId: user.id },
-      })
-
-      if (currentCount >= FREE_TIER_LIMIT) {
-        return NextResponse.json(
-          {
-            error: "Library limit reached",
-            // Pass structured data so the frontend can show a specific upgrade prompt
-            code: "FREE_TIER_LIMIT",
-            limit: FREE_TIER_LIMIT,
-          },
-          { status: 403 }
-        )
-      }
     }
 
     const body = await request.json();
