@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
-import { Loader2, BookOpen, Star, BarChart3, Car } from "lucide-react";
+import { Loader2, Flame, Clock, Heart, Users } from "lucide-react";
 import { GenreChart } from "@/components/GenreChart";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Image from "next/image";
@@ -93,117 +93,124 @@ export default function DashboardPage() {
     );
 
   return (
-    <div className="px-8">
-      <div className="max-w-7xl grid grid-cols-4 gap-8">
-        {/* Statistics Card*/}
-        <Card className="col-span-1 max-w-xs max-h-xl bg-light-navy ring-0 border border-white/10 hover:border-white/50">
-          <CardHeader>
+    // h-full fills main's content box (main has px-8 py-8 already, no extra padding needed)
+    // flex row: scrollable left grid + fixed-width right Social panel
+    <div className="flex gap-4 h-full">
+
+      {/* ── Left: 3-column × 3-row grid, fills all available height ── */}
+      {/* grid-rows-3 = equal thirds; min-h-0 lets flex shrink below content size */}
+      <div className="flex-1 grid grid-cols-3 grid-rows-3 gap-4 min-h-0">
+
+        {/* ── Row 1 ── */}
+        <Card className="bg-light-navy border border-white/10 hover:border-white/50 flex flex-col overflow-hidden">
+          <CardHeader className="flex-shrink-0 pb-2">
             <CardTitle className="font-display text-xl">Statistics</CardTitle>
           </CardHeader>
-          <CardContent className="pl-10">
-            <div className="flex justify-between">
-              <div className="flex items-center gap-2">
-                {/* <BookOpen className="w-6 h-6 text-blue-400" /> */}
-                <p className="text-white text-md">Total Manga:</p>
-              </div>
-              <p className="text-white text-md justify-end ">{stats?.total ?? 0}</p>
-            </div>
-
-            <div className="flex justify-between">
-              <div className="flex items-center gap-2">
-                {/* <Star className="w-6 h-6 text-yellow-400" /> */}
-                <p className="text-white text-md">Average Rating:</p>
-              </div>
-              <p className="text-white text-md">{stats?.avgRating ?? 0}</p>
-            </div>
-
-            <div className="flex justify-between">
-              <div className="flex items-center gap-2">
-                {/* <BarChart3 className="w-6 h-6 text-emerald-400" /> */}
-                <p className="text-white text-md ">Completed:</p>
-              </div>
-              <p className="text-white text-md ">{stats?.completed ?? 0}</p>
-            </div>
-
-            <div className="flex justify-between">
-              <div className="flex items-center gap-2">
-                {/* <BookOpen className="w-6 h-6 text-purple-400" /> */}
-                <p className="text-white text-md ">Chapters Read:</p>
-              </div>
-              <p className="text-white text-md ">{stats?.chaptersRead ?? 0}</p>
-            </div>
-
-            <div className="flex justify-between">
-              <p className="text-white text-md">Reading:</p>
-              <p className="text-white text-md">{stats?.reading ?? 0}</p>
-            </div>
-
-            <div className="flex justify-between">
-              <p className="text-white text-md">Plan To Read:</p>
-              <p className="text-white text-md">{stats?.planToRead ?? 0}</p>
-            </div>
-
-            <div className="flex justify-between">
-              <p className="text-white text-md">On Hold:</p>
-              <p className="text-white text-md">{stats?.onHold ?? 0}</p>
-            </div>
-
-            <div className="flex justify-between">
-              <p className="text-white text-md">Dropped:</p>
-              <p className="text-white text-md">{stats?.dropped ?? 0}</p>
-            </div>
+          {/* overflow-y-auto so stats scroll inside the card if the row is short */}
+          <CardContent className="flex-1 overflow-y-auto pl-6">
+            <div className="flex justify-between"><p className="text-white text-sm">Total Manga</p><p className="text-white text-sm">{stats?.total ?? 0}</p></div>
+            <div className="flex justify-between"><p className="text-white text-sm">Average Rating</p><p className="text-white text-sm">{stats?.avgRating ?? 0}</p></div>
+            <div className="flex justify-between"><p className="text-white text-sm">Completed</p><p className="text-white text-sm">{stats?.completed ?? 0}</p></div>
+            <div className="flex justify-between"><p className="text-white text-sm">Chapters Read</p><p className="text-white text-sm">{stats?.chaptersRead ?? 0}</p></div>
+            <div className="flex justify-between"><p className="text-white text-sm">Reading</p><p className="text-white text-sm">{stats?.reading ?? 0}</p></div>
+            <div className="flex justify-between"><p className="text-white text-sm">Plan To Read</p><p className="text-white text-sm">{stats?.planToRead ?? 0}</p></div>
+            <div className="flex justify-between"><p className="text-white text-sm">On Hold</p><p className="text-white text-sm">{stats?.onHold ?? 0}</p></div>
+            <div className="flex justify-between"><p className="text-white text-sm">Dropped</p><p className="text-white text-sm">{stats?.dropped ?? 0}</p></div>
           </CardContent>
         </Card>
 
-        {/* Genres Chart */}
-        <Card className="col-span-2 max-w-fit max-h-xl bg-light-navy ring-0 border border-white/10 hover:border-white/50">
-          <CardHeader>
+        <Card className="bg-light-navy border border-white/10 hover:border-white/50 flex flex-col overflow-hidden">
+          <CardHeader className="flex-shrink-0 pb-2">
             <CardTitle className="font-display text-xl">Genres Chart</CardTitle>
           </CardHeader>
-          <CardContent>
+          {/* overflow-hidden clips the fixed-size Recharts canvas if the card is smaller */}
+          <CardContent className="flex-1 overflow-hidden flex items-center justify-center p-0">
             <GenreChart genres={genreData} />
           </CardContent>
         </Card>
 
-        {/* Reading Streak Card */}
+        <Card className="bg-light-navy border border-white/10 hover:border-white/50 flex flex-col overflow-hidden">
+          <CardHeader className="flex-shrink-0 pb-2">
+            <CardTitle className="font-display text-xl flex items-center gap-2">
+              <Flame className="w-5 h-5 text-orange-400" />
+              Reading Streak
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="flex-1 flex flex-col items-center justify-center gap-2 text-white/25">
+            <Flame className="w-8 h-8" />
+            <span className="text-sm">Coming soon</span>
+          </CardContent>
+        </Card>
 
-        {/* Currently Reading Carousel Card */}
-        <Card className="col-span-1 max-w-xs max-h-xl bg-light-navy ring-0 border border-white/10 hover:border-white/50">
-          <CardHeader>
+        {/* ── Row 2 ── */}
+        <Card className="bg-light-navy border border-white/10 hover:border-white/50 flex flex-col overflow-hidden">
+          <CardHeader className="flex-shrink-0 pb-2">
             <CardTitle className="font-display text-xl">Currently Reading</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="flex-1 overflow-y-auto">
             {readingList.length === 0 ? (
-              <p>No Manga Currently Reading</p>
+              <p className="text-white/40 text-sm">No manga currently reading.</p>
             ) : (
-              <div>
-              {readingList.map((entry) => (
-                <div key={(entry.id)}>
-                  {entry.title}
-                  {entry.imageUrl && (
-                    <Image src={entry.imageUrl} alt={entry.title} width={80} height={120} />
-                  )}
-                  {entry.chaptersRead} / {entry.totalChapters ?? "?"} chapters
-                </div>
-              ))}
+              <div className="space-y-3">
+                {readingList.map((entry) => (
+                  <div key={entry.id} className="flex items-center gap-3">
+                    {entry.imageUrl && (
+                      <Image src={entry.imageUrl} alt={entry.title} width={40} height={60} className="rounded object-cover flex-shrink-0" />
+                    )}
+                    <div className="min-w-0">
+                      <p className="text-white text-sm truncate">{entry.title}</p>
+                      <p className="text-white/40 text-xs">{entry.chaptersRead} / {entry.totalChapters ?? "?"} ch</p>
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
           </CardContent>
         </Card>
 
-        {/* Recently Updated Strip Card */}
-
-        {/* Favorites Card */}
-
-        {/* Profile Card */}
-        <Card className="col-span-1 row-span-2 max-w-fit max-h-fit bg-light-navy ring-0 border border-white/10 hover:border-white/50">
-          <CardHeader>
-            <CardTitle>Social</CardTitle>
-            
+        <Card className="col-span-2 bg-light-navy border border-white/10 hover:border-white/50 flex flex-col overflow-hidden">
+          <CardHeader className="flex-shrink-0 pb-2">
+            <CardTitle className="font-display text-xl flex items-center gap-2">
+              <Clock className="w-5 h-5 text-blue-400" />
+              Recently Updated
+            </CardTitle>
           </CardHeader>
+          <CardContent className="flex-1 flex flex-col items-center justify-center gap-2 text-white/25">
+            <Clock className="w-7 h-7" />
+            <span className="text-sm">Coming soon</span>
+          </CardContent>
+        </Card>
+
+        {/* ── Row 3 ── */}
+        <Card className="col-span-3 bg-light-navy border border-white/10 hover:border-white/50 flex flex-col overflow-hidden">
+          <CardHeader className="flex-shrink-0 pb-2">
+            <CardTitle className="font-display text-xl flex items-center gap-2">
+              <Heart className="w-5 h-5 text-pink-400" />
+              Favorites
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="flex-1 flex flex-col items-center justify-center gap-2 text-white/25">
+            <Heart className="w-8 h-8" />
+            <span className="text-sm">Coming soon</span>
+          </CardContent>
         </Card>
       </div>
+
+      {/* ── Right: Social panel — full height, fixed width ── */}
+      {/* flex-shrink-0 prevents it from compressing when the left grid needs space */}
+      <Card className="w-64 flex-shrink-0 bg-light-navy border border-white/10 hover:border-white/50 flex flex-col overflow-hidden">
+        <CardHeader className="flex-shrink-0 pb-2">
+          <CardTitle className="font-display text-xl flex items-center gap-2">
+            <Users className="w-5 h-5 text-emerald-400" />
+            Social
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="flex-1 flex flex-col items-center justify-center gap-2 text-white/25">
+          <Users className="w-8 h-8" />
+          <span className="text-sm">Coming soon</span>
+        </CardContent>
+      </Card>
+
     </div>
-    
   );
 }
