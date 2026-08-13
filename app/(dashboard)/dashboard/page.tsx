@@ -102,7 +102,7 @@ export default function DashboardPage() {
       <div className="flex-1 grid grid-cols-3 grid-rows-3 gap-4 min-h-0">
 
         {/* ── Row 1 ── */}
-        <Card className="bg-light-navy border border-white/10 hover:border-white/50 flex flex-col overflow-hidden">
+        <Card className="bg-light-navy/30 hover:bg-light-navy/50 border border-white/5 hover:border-white/10 rounded-2xl ring-0 transition-all duration-300 flex flex-col overflow-hidden">
           <CardHeader className="flex-shrink-0 pb-2">
             <CardTitle className="font-display text-xl">Statistics</CardTitle>
           </CardHeader>
@@ -119,7 +119,7 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="bg-light-navy border border-white/10 hover:border-white/50 flex flex-col overflow-hidden">
+        <Card className="bg-light-navy/30 hover:bg-light-navy/50 border border-white/5 hover:border-white/10 rounded-2xl ring-0 transition-all duration-300 flex flex-col overflow-hidden">
           <CardHeader className="flex-shrink-0 pb-2">
             <CardTitle className="font-display text-xl">Genres Chart</CardTitle>
           </CardHeader>
@@ -129,7 +129,7 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="bg-light-navy border border-white/10 hover:border-white/50 flex flex-col overflow-hidden">
+        <Card className="bg-light-navy/30 hover:bg-light-navy/50 border border-white/5 hover:border-white/10 rounded-2xl ring-0 transition-all duration-300 flex flex-col overflow-hidden">
           <CardHeader className="flex-shrink-0 pb-2">
             <CardTitle className="font-display text-xl flex items-center gap-2">
               <Flame className="w-5 h-5 text-orange-400" />
@@ -143,7 +143,7 @@ export default function DashboardPage() {
         </Card>
 
         {/* ── Row 2 ── */}
-        <Card className="bg-light-navy border border-white/10 hover:border-white/50 flex flex-col overflow-hidden">
+        <Card className="bg-light-navy/30 hover:bg-light-navy/50 border border-white/5 hover:border-white/10 rounded-2xl ring-0 transition-all duration-300 flex flex-col overflow-hidden">
           <CardHeader className="flex-shrink-0 pb-2">
             <CardTitle className="font-display text-xl">Currently Reading</CardTitle>
           </CardHeader>
@@ -168,7 +168,7 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="col-span-2 bg-light-navy border border-white/10 hover:border-white/50 flex flex-col overflow-hidden">
+        <Card className="col-span-2 bg-light-navy/30 hover:bg-light-navy/50 border border-white/5 hover:border-white/10 rounded-2xl ring-0 transition-all duration-300 flex flex-col overflow-hidden">
           <CardHeader className="flex-shrink-0 pb-2">
             <CardTitle className="font-display text-xl flex items-center gap-2">
               <Clock className="w-5 h-5 text-blue-400" />
@@ -182,7 +182,7 @@ export default function DashboardPage() {
         </Card>
 
         {/* ── Row 3 ── */}
-        <Card className="col-span-3 bg-light-navy border border-white/10 hover:border-white/50 flex flex-col overflow-hidden">
+        <Card className="col-span-3 bg-light-navy/30 hover:bg-light-navy/50 border border-white/5 hover:border-white/10 rounded-2xl ring-0 transition-all duration-300 flex flex-col overflow-hidden">
           <CardHeader className="flex-shrink-0 pb-2">
             <CardTitle className="font-display text-xl flex items-center gap-2">
               <Heart className="w-5 h-5 text-pink-400" />
@@ -198,7 +198,7 @@ export default function DashboardPage() {
 
       {/* ── Right: Social panel — full height, fixed width ── */}
       {/* flex-shrink-0 prevents it from compressing when the left grid needs space */}
-      <Card className="w-64 flex-shrink-0 bg-light-navy border border-white/10 hover:border-white/50 flex flex-col overflow-hidden">
+      <Card className="w-64 flex-shrink-0 bg-light-navy/30 hover:bg-light-navy/50 border border-white/5 hover:border-white/10 rounded-2xl ring-0 transition-all duration-300 flex flex-col overflow-hidden">
         <CardHeader className="flex-shrink-0 pb-2">
           <CardTitle className="font-display text-xl flex items-center gap-2">
             <Users className="w-5 h-5 text-emerald-400" />
