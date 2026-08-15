@@ -6,6 +6,7 @@ import { Loader2, Flame, Clock, Heart, Users } from "lucide-react";
 import { GenreChart } from "@/components/GenreChart";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Image from "next/image";
+import { ReadingStreakCalendar } from "@/components/ReadingStreakCalendar";
 
 interface Stats {
   total: number;
@@ -29,12 +30,23 @@ interface ReadingEntry {
   totalChapters: number | null;
 }
 
+interface Activity {
+  date: string;
+  count: number;
+  level: 0 | 1 | 2 | 3 | 4;
+}
+
 export default function DashboardPage() {
   const { data: session, status } = useSession();
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
   const [genreData, setGenreData] = useState<{ genre: string; count: number }[]>([]);
   const [readingList, setReadingList] = useState<ReadingEntry[]>([]);
+  const [activityData, setActivityData] = useState<{
+    activities: Activity[];
+    streak: number;
+    totalChapters: number;
+  } | null>(null);
 
   useEffect(() => {
     if (status === "authenticated") {
@@ -44,16 +56,18 @@ export default function DashboardPage() {
 
   const fetchData = async () => {
     try {
-      const [statsRes, genreRes, readingRes] = await Promise.all([
+      const [statsRes, genreRes, readingRes, activityRes] = await Promise.all([
         fetch("/api/library/stats"),
         fetch("/api/profile/stats/genres"),
         fetch("/api/library?status=READING"),
+        fetch("/api/activity"),
       ]);
 
-      const [statsData, genreJson, readingJson] = await Promise.all([
+      const [statsData, genreJson, readingJson, activityJson] = await Promise.all([
         statsRes.json(),
         genreRes.json(),
         readingRes.json(),
+        activityRes.json(),
       ]);
 
       if (statsRes.ok) {
@@ -70,6 +84,11 @@ export default function DashboardPage() {
         setReadingList(readingJson.library)
       } else {
         console.error("Reading stats fetch failed:", readingJson);
+      }
+      if (activityRes.ok) {
+        setActivityData(activityJson);
+      } else {
+        console.error("Activity fetch failed", activityJson);
       }
     } catch (err) {
       console.error("Failed to fetch profile data:", err);
@@ -99,9 +118,49 @@ export default function DashboardPage() {
 
       {/* ── Left: 3-column × 3-row grid, fills all available height ── */}
       {/* grid-rows-3 = equal thirds; min-h-0 lets flex shrink below content size */}
-      <div className="flex-1 grid grid-cols-3 grid-rows-3 gap-4 min-h-0">
+      <div className="flex-1 grid grid-cols-3 grid-rows-[1.5fr_1fr_1fr_1fr] gap-4 min-h-0">
 
         {/* ── Row 1 ── */}
+        <Card className="col-span-3 bg-light-navy/30 hover:bg-light-navy/50 border border-white/5 hover:border-white/10 rounded-2xl ring-0 transition-all duration-300 flex flex-col overflow-hidden">
+          <CardHeader className="flex-shrink-0 pb-2">
+            <CardTitle className="font-display text-xl flex items-center justify-between">
+              <span className="flex items-center gap-2">
+                <Flame className="w-5 h-5 text-orange-400" />
+                Reading Streak
+              </span>
+              <div className="flex items-center gap-4 font-sans">
+                <div className="flex items-center gap-1.5">
+                  <Flame className={`w-4 h-4 ${(activityData?.streak ?? 0) > 0 ?
+          "text-orange-400" : "text-white/25"}`} />
+                  <span className="text-white text-sm font-semibold">{activityData?.streak
+          ?? 0}</span>
+                  <span className="text-white/40 text-xs font-normal">day streak</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-white text-sm
+          font-semibold">{activityData?.totalChapters ?? 0}</span>
+                  <span className="text-white/40 text-xs font-normal">chapters this
+          year</span>
+                </div>
+              </div>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="flex-1 overflow-hidden p-3">
+            {activityData ? (
+              <ReadingStreakCalendar
+                activities={ activityData.activities }
+              />
+            ) : (
+              <div className="flex flex-col items-center justify-center h-full gap-2 text-white/25">
+                <Flame className="w-8 h-8" />
+                <span className="text-sm">No activity yet</span>
+              </div>
+
+            )}
+          </CardContent>
+        </Card>
+
+        {/* ── Row 2 ── */}
         <Card className="bg-light-navy/30 hover:bg-light-navy/50 border border-white/5 hover:border-white/10 rounded-2xl ring-0 transition-all duration-300 flex flex-col overflow-hidden">
           <CardHeader className="flex-shrink-0 pb-2">
             <CardTitle className="font-display text-xl">Statistics</CardTitle>
@@ -119,7 +178,7 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="bg-light-navy/30 hover:bg-light-navy/50 border border-white/5 hover:border-white/10 rounded-2xl ring-0 transition-all duration-300 flex flex-col overflow-hidden">
+        <Card className="bg-light-navy/30 hover:bg-light-navy/50 border border-white/5 hover:border-white/10 rounded-2xl ring-0 transition-all duration-300 flex flex-col col-span-2 overflow-hidden">
           <CardHeader className="flex-shrink-0 pb-2">
             <CardTitle className="font-display text-xl">Genres Chart</CardTitle>
           </CardHeader>
@@ -129,20 +188,6 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="bg-light-navy/30 hover:bg-light-navy/50 border border-white/5 hover:border-white/10 rounded-2xl ring-0 transition-all duration-300 flex flex-col overflow-hidden">
-          <CardHeader className="flex-shrink-0 pb-2">
-            <CardTitle className="font-display text-xl flex items-center gap-2">
-              <Flame className="w-5 h-5 text-orange-400" />
-              Reading Streak
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="flex-1 flex flex-col items-center justify-center gap-2 text-white/25">
-            <Flame className="w-8 h-8" />
-            <span className="text-sm">Coming soon</span>
-          </CardContent>
-        </Card>
-
-        {/* ── Row 2 ── */}
         <Card className="bg-light-navy/30 hover:bg-light-navy/50 border border-white/5 hover:border-white/10 rounded-2xl ring-0 transition-all duration-300 flex flex-col overflow-hidden">
           <CardHeader className="flex-shrink-0 pb-2">
             <CardTitle className="font-display text-xl">Currently Reading</CardTitle>

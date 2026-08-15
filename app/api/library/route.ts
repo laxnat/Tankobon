@@ -4,8 +4,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { PrismaClient } from "@prisma/client";
-import { error } from "console";
-import { Limelight } from "next/font/google";
 
 const prisma = new PrismaClient();
 
@@ -177,7 +175,17 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: "Entry ID required" }, { status: 400 });
     }
 
-    const updatedEntry = await prisma.mangaLibrary.update({
+    const current = await prisma.mangaLibrary.findUnique({
+      where: { id, userId: user.id },
+      select: { chaptersRead: true },
+    });
+
+    if (!current) {
+      return NextResponse.json({ error: "Entry not found" }, { status: 404 });
+    }
+
+    const updatedEntry = await prisma.$transaction(async (tx) => { 
+      const entry = await tx.mangaLibrary.update({
       where: {
         id,
         userId: user.id,
@@ -192,6 +200,27 @@ export async function PATCH(request: NextRequest) {
         ...(startedAt !== undefined && { startedAt: startedAt ? new Date(startedAt) : null }),
         ...(completedAt !== undefined && { completedAt: completedAt ? new Date(completedAt) : null }),
       },
+    });
+
+    const prev = current.chaptersRead ?? 0;
+    const next = chaptersRead ?? prev;
+    const delta = next - prev;
+
+    if (delta > 0) {
+      const today = new Date();
+      today.setUTCHours(0, 0, 0, 0);
+
+      await tx.readingActivity.create({
+        data: {
+          userId: user.id,
+          mangaLibraryId: id,
+          chapters: delta,
+          date: today,
+        },
+      });
+    }
+    
+    return entry;
     });
 
     return NextResponse.json({ entry: updatedEntry });
