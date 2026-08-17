@@ -39,7 +39,7 @@ function withPlaceholder(activities: Activity[]): Activity[] {
 
 export function ReadingStreakCalendar({ activities }: Props) {
     return (
-        <div className="overflow-hidden w-full h-full flex items-start">
+        <div className="overflow-hidden w-full h-full flex font-sans items-start">
           <ActivityCalendar
             data={withPlaceholder(activities)}                                            
             colorScheme="dark"
@@ -54,7 +54,7 @@ export function ReadingStreakCalendar({ activities }: Props) {
               weekdays: ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"],
               totalCount: "{{count}} chapters in {{year}}",
             }}
-            style={{ width: "100%", fontSize: "11px" }}
+            style={{ width: "100%", fontSize: "10px" }}
           />                                                                              
         </div>                            
     );
