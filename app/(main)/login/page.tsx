@@ -2,12 +2,14 @@
 
 import { Suspense } from "react";
 import { useState, useEffect } from "react";
-import { signIn } from "next-auth/react";
-import { useSearchParams } from "next/navigation";
+import { signIn, useSession } from "next-auth/react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
 
 function LoginForm() {
+  const { status } = useSession();
+  const router = useRouter();
   const searchParams = useSearchParams();
   const [formData, setFormData] = useState({
     email: "",
@@ -16,6 +18,15 @@ function LoginForm() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState("");
+
+  // If the user is already signed in, send them where they wanted to go.
+  // This prevents a logged-in user from getting stuck on the login page.
+  useEffect(() => {
+    if (status === "authenticated") {
+      const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
+      router.replace(callbackUrl);
+    }
+  }, [status, router, searchParams]);
 
   useEffect(() => {
     if (searchParams.get("registered") === "true") {
