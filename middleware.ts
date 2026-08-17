@@ -11,7 +11,9 @@ export async function middleware(request: NextRequest) {
     const token = await getToken({
         req: request,
         secret: process.env.NEXTAUTH_SECRET,
-        secureCookie: process.env.NEXTAUTH_URL?.startsWith("https://") ?? false,
+        // Derive from the actual request protocol instead of NEXTAUTH_URL so
+        // this works correctly even if that env var isn't set in production.
+        secureCookie: request.nextUrl.protocol === "https:",
     })
 
     const { pathname } = request.nextUrl
