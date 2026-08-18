@@ -65,6 +65,7 @@ model MangaLibrary {
   userId      String
   malId       Int
   title       String
+  author      String?  // nullable — older entries won't have this
   imageUrl    String?
   genres      String[] @default([])
   status      ReadingStatus @default(PLAN_TO_READ)

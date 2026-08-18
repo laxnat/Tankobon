@@ -53,6 +53,7 @@ export async function GET(request: NextRequest) {
         id: true,
         malId: true,
         title: true,
+        author: true,
         imageUrl: true,
         status: true,
         rating: true,
@@ -99,7 +100,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { malId, title, imageUrl, status, totalChapters, totalVolumes, ownedVolumes, genres } = body;
+    const { malId, title, author, imageUrl, status, totalChapters, totalVolumes, ownedVolumes, genres } = body;
 
     if (!malId || !title) {
       return NextResponse.json(
@@ -131,6 +132,7 @@ export async function POST(request: NextRequest) {
         userId: user.id,
         malId: parseInt(malId),
         title,
+        author: author ?? null,
         imageUrl,
         status: status || "PLAN_TO_READ",
         totalChapters: totalChapters ? parseInt(totalChapters) : null,

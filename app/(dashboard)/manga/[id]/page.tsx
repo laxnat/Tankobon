@@ -103,6 +103,7 @@ export default function MangaDetailsPage() {
         body: JSON.stringify({
           malId: manga.malId,
           title: manga.title,
+          author: manga.authors?.[0]?.name ?? null,
           imageUrl: manga.imageUrl,
           totalChapters: manga.chapters,
           totalVolumes: manga.volumes,
