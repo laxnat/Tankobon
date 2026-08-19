@@ -41,18 +41,17 @@ export function ReadingStreakCalendar({ activities }: Props) {
     return (
         <div className="overflow-hidden w-full h-full flex font-sans items-start">
           <ActivityCalendar
-            data={withPlaceholder(activities)}                                            
+            data={withPlaceholder(activities)}
             colorScheme="dark"
             weekStart={0}
             theme={{
               dark: ["#1e293b", "#1d4ed8", "#2563eb", "#3b82f6", "#93c5fd"],
-            }}        
-            showWeekdayLabels                    
+            }}
+            showWeekdayLabels
             labels={{
               months:
   ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
               weekdays: ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"],
-              totalCount: "{{count}} chapters in {{year}}",
             }}
             style={{ width: "100%", fontSize: "10px" }}
           />                                                                              

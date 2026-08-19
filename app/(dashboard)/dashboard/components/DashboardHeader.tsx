@@ -81,7 +81,7 @@ export default function DashboardHeader() {
   }, []);
 
   return (
-    <header className="max-w-full px-16 sticky top-0 z-10 flex items-center justify-between py-8">
+    <header className="max-w-full px-16 sticky top-0 z-10 flex items-center justify-between pt-10">
       <Breadcrumbs />
 
       {/* ── Profile: avatar + name ── */}
