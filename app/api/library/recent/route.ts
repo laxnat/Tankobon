@@ -51,7 +51,7 @@ export async function GET() {
     id: e.id,
     title: e.title,
     imageUrl: e.imageUrl,
-    change: e.chaptersRead > 0 ? `Ch. ${e.chaptersRead} read` : "Added to library",
+    change: (e.chaptersRead ?? 0) > 0 ? `Ch. ${e.chaptersRead} read` : "Added to library",
     at: relativeTime(e.updatedAt),
   }));
 
