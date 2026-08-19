@@ -16,22 +16,18 @@ export interface ActivityData {
   totalChapters: number;
 }
 
-export function ReadingStreakCard({ activityData }: { activityData: ActivityData | null }) {
+export function ReadingStreakCard({ activityData, className }: { activityData: ActivityData | null; className?: string }) {
   const streak = activityData?.streak ?? 0;
 
   return (
-    <Card className="col-span-2 bg-light-navy/30 hover:bg-light-navy/50 border border-white/5 hover:border-white/10 rounded-2xl ring-0 transition-all duration-300 flex flex-col overflow-hidden">
+    <Card className={`bg-light-navy/30 hover:bg-light-navy/50 border border-white/5 hover:border-white/10 rounded-2xl ring-0 transition-all duration-300 flex flex-col overflow-hidden ${className ?? ""}`}>
       <CardHeader className="flex-shrink-0">
-        <CardTitle className="font-display text-lg flex items-center justify-between">
+        <CardTitle className="font-sans text-xs tracking-widest uppercase text-white flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-1.5">
               <Flame className={`w-8 h-6 ${streak > 0 ? "text-orange-400" : "text-white/50"}`} />
               <span className="text-white">{streak}</span>
               <span className="text-white">day streak</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <span className="text-white">{activityData?.totalChapters ?? 0}</span>
-              <span className="text-white">chapter(s) this year</span>
             </div>
           </div>
         </CardTitle>

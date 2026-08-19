@@ -28,9 +28,9 @@ const BREAKDOWN: Array<[string, keyof Stats, string]> = [
   ["Dropped",      "dropped",     "bg-red-400"],
 ];
 
-export function StatisticsCard({ stats }: { stats: Stats | null }) {
+export function StatisticsCard({ stats, className }: { stats: Stats | null; className?: string }) {
   return (
-    <Card className="bg-light-navy/30 hover:bg-light-navy/50 border border-white/5 hover:border-white/10 rounded-2xl ring-0 transition-all duration-300 flex flex-col overflow-hidden">
+    <Card className={`bg-light-navy/30 hover:bg-light-navy/50 border border-white/5 hover:border-white/10 rounded-2xl ring-0 transition-all duration-300 flex flex-col overflow-hidden ${className ?? ""}`}>
       <CardHeader className="flex-shrink-0 pb-2">
         <CardTitle className="font-sans text-xs font-semibold tracking-widest uppercase text-white/40">
           Statistics
