@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Star, ChevronDown, Loader2, LayoutList, LayoutGrid } from "lucide-react";
+import { Star, ChevronDown, Loader2, LayoutList, LayoutGrid, Heart } from "lucide-react";
 import { EditEntryModal } from "@/components/edit-entry-modal";
 import type { LibraryEntry } from "@/components/edit-entry-modal";
 
@@ -14,10 +14,12 @@ import type { LibraryEntry } from "@/components/edit-entry-modal";
 const LibraryItem = memo(({ 
   entry, 
   onEdit, 
-  getStatusColor 
+  onToggleFavorite,
+  getStatusColor
 }: { 
   entry: LibraryEntry; 
   onEdit: (entry: LibraryEntry) => void;
+  onToggleFavorite: (entry: LibraryEntry, e: React.MouseEvent) => void;
   getStatusColor: (status: string) => string;
 }) => {
   return (
@@ -102,6 +104,16 @@ const LibraryItem = memo(({
             </span>
           )}
         </div>
+
+        <button
+          onClick={(e) => onToggleFavorite(entry, e)}
+          className="absolute top-1 left-1 z-20 p-1 rounded-md"
+          aria-label={entry.isFavorite ? "Remove from favorites" : "Add to favorites"}
+        >
+          <Heart
+            className={`w-4 h-4 transition-colors ${entry.isFavorite ? "fill-pink-400 text-pink-400" : "text-white/40 hover:text-pink-400"}`}
+          />
+        </button>
       </div>
     </div>
   );
@@ -114,10 +126,12 @@ LibraryItem.displayName = "LibraryItem";
 const BookshelfView = memo(({
   entries,
   onEdit,
+  onToggleFavorite,
   getStatusColor,
 }: {
   entries: LibraryEntry[];
   onEdit: (entry: LibraryEntry) => void;
+  onToggleFavorite: (entry: LibraryEntry, e: React.MouseEvent) => void;
   getStatusColor: (status: string) => string;
 }) => (
   <div className="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-4">
@@ -159,6 +173,19 @@ const BookshelfView = memo(({
             <span className="text-white text-[10px] font-bold">{entry.rating}</span>
           </div>
         )}
+
+        {/* Favorite button */}
+        <button
+          onClick={(e) => onToggleFavorite(entry, e)}
+          className="absolute top-1.5 left-1.5 p-1 rounded-md bg-black/70"
+          aria-label={entry.isFavorite ? "Remove from favorites" : "Add to favorites"}
+        >
+          <Heart
+            className={`w-3 h-3 transition-colors ${
+              entry.isFavorite ? "fill-pink-400 text-pink-400" : "text-white/50 hover:text-pink-400"
+            }`}
+          />
+        </button>
       </div>
     ))}
   </div>
@@ -237,6 +264,19 @@ export default function LibraryPage() {
       case "ON_HOLD": return "text-yellow-400";
       case "DROPPED": return "text-red-400";
       default: return "text-white-purple";
+    }
+  }, []);
+
+  const toggleFavorite = useCallback(async (entry: LibraryEntry, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const res = await fetch("/api/library", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: entry.id, isFavorite: !entry.isFavorite }),
+    });
+    if (res.ok) {
+      setLibrary((prev) =>
+      prev.map((item) => item.id === entry.id ? { ...item, isFavorite: !item.isFavorite } : item));
     }
   }, []);
 
@@ -331,6 +371,7 @@ export default function LibraryPage() {
           <BookshelfView
             entries={sortedLibrary}
             onEdit={openModal}
+            onToggleFavorite={toggleFavorite}
             getStatusColor={getStatusColor}
           />
         ) : (
@@ -360,6 +401,7 @@ export default function LibraryPage() {
                   key={entry.id}
                   entry={entry}
                   onEdit={openModal}
+                  onToggleFavorite={toggleFavorite}
                   getStatusColor={getStatusColor}
                 />
               ))}

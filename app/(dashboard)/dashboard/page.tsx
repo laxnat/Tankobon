@@ -19,6 +19,7 @@ export default function DashboardPage() {
   const [readingList, setReadingList] = useState<ReadingEntry[]>([]);
   const [activityData, setActivityData] = useState<ActivityData | null>(null);
   const [recentItems, setRecentItems] = useState<RecentlyUpdatedEntry[]>([]);
+  const [favorites, setFavorites] = useState<{ id: string; title: string; imageUrl: string | null; malId: number }[]>([]);
 
   useEffect(() => {
     if (status === "authenticated") {
@@ -28,20 +29,22 @@ export default function DashboardPage() {
 
   const fetchData = async () => {
     try {
-      const [statsRes, genreRes, readingRes, activityRes, recentRes] = await Promise.all([
+      const [statsRes, genreRes, readingRes, activityRes, recentRes, favoritesRes] = await Promise.all([
         fetch("/api/library/stats"),
         fetch("/api/profile/stats/genres"),
         fetch("/api/library?status=READING"),
         fetch("/api/activity"),
         fetch("/api/library/recent"),
+        fetch("/api/library/favorites"),
       ]);
 
-      const [statsData, genreJson, readingJson, activityJson, recentJson] = await Promise.all([
+      const [statsData, genreJson, readingJson, activityJson, recentJson, favoritesJson] = await Promise.all([
         statsRes.json(),
         genreRes.json(),
         readingRes.json(),
         activityRes.json(),
         recentRes.json(),
+        favoritesRes.json(),
       ]);
 
       if (statsRes.ok) setStats(statsData);
@@ -58,6 +61,9 @@ export default function DashboardPage() {
 
       if (recentRes.ok) setRecentItems(recentJson.items);
       else console.error("Recent fetch failed:", recentJson);
+
+      if (favoritesRes.ok) setFavorites(favoritesJson.favorites);
+      else console.error("Favorites fetch failed:", favoritesJson);
     } catch (err) {
       console.error("Failed to fetch dashboard data:", err);
     } finally {
@@ -84,9 +90,9 @@ export default function DashboardPage() {
       <ReadingStreakCard activityData={activityData} className="col-span-12 md:col-span-9" />
       <CurrentlyReadingCard entries={readingList} className="col-span-12 md:col-span-3" />
       <StatisticsCard stats={stats} className="col-span-12 md:col-span-3 self-start" />
-      <RecentlyUpdatedCard items={recentItems} className="col-span-12 md:col-span-4 self-start" />
-      <GenresChartCard genres={genreData} className="col-span-12 md:col-span-5" />
-      <FavoritesCard className="col-span-12 md:col-span-5" />
+      <GenresChartCard genres={genreData} className="col-span-12 md:col-span-5 self-start" />
+      <RecentlyUpdatedCard items={recentItems} className="col-span-12 md:col-span-4" />
+      <FavoritesCard favorites={favorites} className="col-span-12 md:col-span-12" />
     </div>
   );
 }

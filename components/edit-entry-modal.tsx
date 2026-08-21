@@ -18,6 +18,7 @@ export interface LibraryEntry {
   volumesRead: number | null;
   totalVolumes: number | null;
   ownedVolumes: number[];
+  isFavorite: boolean;
   notes: string | null;
 }
 

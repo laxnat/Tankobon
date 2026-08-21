@@ -62,6 +62,7 @@ export async function GET(request: NextRequest) {
         volumesRead: true,
         totalVolumes: true,
         ownedVolumes: true,
+        isFavorite: true,
         notes: true,
         updatedAt: true,
       },
@@ -171,7 +172,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { id, status, rating, chaptersRead, volumesRead, notes, startedAt, completedAt, ownedVolumes } = body;
+    const { id, status, rating, chaptersRead, volumesRead, notes, startedAt, completedAt, ownedVolumes, isFavorite } = body;
 
     if (!id) {
       return NextResponse.json({ error: "Entry ID required" }, { status: 400 });
@@ -199,6 +200,7 @@ export async function PATCH(request: NextRequest) {
         ...(volumesRead !== undefined && { volumesRead }),
         ...(notes !== undefined && { notes }),
         ...(ownedVolumes !== undefined && { ownedVolumes }),
+        ...(isFavorite !== undefined && { isFavorite }),
         ...(startedAt !== undefined && { startedAt: startedAt ? new Date(startedAt) : null }),
         ...(completedAt !== undefined && { completedAt: completedAt ? new Date(completedAt) : null }),
       },
