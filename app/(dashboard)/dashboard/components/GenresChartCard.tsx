@@ -6,11 +6,12 @@ import { GenreChart } from "@/components/GenreChart";
 export function GenresChartCard({ genres, className }: { genres: { genre: string; count: number }[]; className?: string }) {
   return (
     <Card className={`bg-light-navy/30 hover:bg-light-navy/50 border border-white/5 hover:border-white/10 rounded-2xl ring-0 transition-all duration-300 flex flex-col overflow-hidden ${className ?? ""}`}>
-      <CardHeader className="flex-shrink-0 pb-2">
-        <CardTitle className="font-display text-xl">Genres Chart</CardTitle>
+      <CardHeader className="flex-shrink-0 px-4 pt-1 pb-0">
+        <CardTitle className="font-sans text-xs tracking-widest uppercase text-white">
+          Genres
+        </CardTitle>
       </CardHeader>
-      {/* overflow-hidden clips the fixed-size Recharts canvas if the card is smaller */}
-      <CardContent className="flex-1 overflow-hidden flex items-center justify-center p-0">
+      <CardContent className="flex-1 overflow-hidden p-0">
         <GenreChart genres={genres} />
       </CardContent>
     </Card>
