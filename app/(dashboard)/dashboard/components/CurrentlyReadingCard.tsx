@@ -36,7 +36,7 @@ export function CurrentlyReadingCard({ entries, className }: { entries: ReadingE
 
   return (
     <Card className={`min-h-44 md:min-h-52 bg-light-navy/30 hover:bg-light-navy/50 border border-white/5 hover:border-white/10 rounded-2xl ring-0 flex flex-col overflow-hidden ${className ?? ""}`}>
-      <CardHeader className="flex-shrink-0 px-4 py-3">
+      <CardHeader className="flex-shrink-0 px-4 py-1">
         <CardTitle className="font-sans text-xs tracking-widest uppercase text-white">
           Currently Reading
         </CardTitle>

@@ -31,12 +31,12 @@ const BREAKDOWN: Array<[string, keyof Stats, string]> = [
 export function StatisticsCard({ stats, className }: { stats: Stats | null; className?: string }) {
   return (
     <Card className={`bg-light-navy/30 hover:bg-light-navy/50 border border-white/5 hover:border-white/10 rounded-2xl ring-0 transition-all duration-300 flex flex-col overflow-hidden ${className ?? ""}`}>
-      <CardHeader className="flex-shrink-0 pb-2">
-        <CardTitle className="font-sans text-xs font-semibold tracking-widest uppercase text-white/40">
+      <CardHeader className="flex-shrink-0 px-4 py-1">
+        <CardTitle className="font-sans text-xs tracking-widest uppercase text-white">
           Statistics
         </CardTitle>
       </CardHeader>
-      <CardContent className="flex-1 space-y-4 overflow-y-auto px-4 pb-4">
+      <CardContent className="flex-1 space-y-4 overflow-y-auto px-4">
 
         {/* 2×2 key-number tiles */}
         <dl className="grid grid-cols-2 gap-2">

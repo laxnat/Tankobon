@@ -13,9 +13,8 @@ export interface RecentlyUpdatedEntry {
 export function RecentlyUpdatedCard({ items, className }: { items: RecentlyUpdatedEntry[]; className?: string }) {
   return (
     <Card className={`bg-light-navy/30 hover:bg-light-navy/50 border border-white/5 hover:border-white/10 rounded-2xl ring-0 transition-all duration-300 flex flex-col overflow-hidden ${className ?? ""}`}>
-      <CardHeader className="flex-shrink-0 px-4 py-3">
-        <CardTitle className="font-sans text-xs font-semibold tracking-widest uppercase text-white/40 flex items-center gap-2">
-          <Clock className="w-3.5 h-3.5" />
+      <CardHeader className="flex-shrink-0 px-4 py-1">
+        <CardTitle className="font-sans text-xs tracking-widest uppercase text-white flex items-center gap-2">
           Recently Updated
         </CardTitle>
       </CardHeader>
@@ -26,7 +25,7 @@ export function RecentlyUpdatedCard({ items, className }: { items: RecentlyUpdat
           <span className="text-sm">No updates in the last 30 days.</span>
         </CardContent>
       ) : (
-        <ul className="scroll-slim flex-1 divide-y divide-white/5 overflow-y-auto">
+        <ul className="scroll-slim divide-y divide-white/5 overflow-y-auto max-h-[288px]">
           {items.map(({ id, title, imageUrl, change, at }) => (
             <li
               key={id}

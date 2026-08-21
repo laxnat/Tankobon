@@ -21,7 +21,7 @@ export function ReadingStreakCard({ activityData, className }: { activityData: A
 
   return (
     <Card className={`bg-light-navy/30 hover:bg-light-navy/50 border border-white/5 hover:border-white/10 rounded-2xl ring-0 transition-all duration-300 flex flex-col overflow-hidden ${className ?? ""}`}>
-      <CardHeader className="flex-shrink-0">
+      <CardHeader className="flex-shrink-0 px-4 py-1">
         <CardTitle className="font-sans text-xs tracking-widest uppercase text-white flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-1.5">
