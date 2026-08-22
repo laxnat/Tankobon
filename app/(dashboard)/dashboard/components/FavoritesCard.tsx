@@ -18,14 +18,13 @@ interface Props {
 export function FavoritesCard({ favorites, className }: Props) {
   return (
     <Card className={`bg-light-navy/30 hover:bg-light-navy/50 border border-white/5 hover:border-white/10 rounded-2xl ring-0 transition-all duration-300 flex flex-col overflow-hidden ${className ?? ""}`}>
-      <CardHeader className="flex-shrink-0 px-4 py-1">
+      <CardHeader className="flex-shrink-0 px-4">
         <CardTitle className="font-sans text-xs tracking-widest uppercase text-white flex items-center gap-2">
-          <Heart className="w-3.5 h-3.5 text-pink-400" />
           Favorites
         </CardTitle>
       </CardHeader>
 
-      <CardContent className="flex-1 p-4">
+      <CardContent className="flex-1 px-4">
         {favorites.length === 0 ? (
           <div className="flex flex-1 flex-col items-center justify-center gap-2 text-white/25 py-6">
             <Heart className="w-7 h-7" />
