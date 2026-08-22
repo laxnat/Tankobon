@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
-import { Loader2, Plus, Star, Search } from "lucide-react";
+import { Loader2, Plus, Star, Search, ChevronDown } from "lucide-react";
 
 interface Manga {
   malId: number;
@@ -36,10 +36,6 @@ export default function DiscoverPage() {
   const [sortFilter, setSortFilter] = useState("score");
   const [statusFilter, setStatusFilter] = useState("any");
   const [adultFilter, setAdultFilter] = useState("sfw");
-  const [showTypeMenu, setShowTypeMenu] = useState(false);
-  const [showSortMenu, setShowSortMenu] = useState(false);
-  const [showStatusMenu, setShowStatusMenu] = useState(false);
-  const [show18Menu, setShow18Menu] = useState(false);
 
   const [showPopup, setShowPopup] = useState(false);
   const [popupMessage, setPopupMessage] = useState("");
@@ -249,118 +245,60 @@ export default function DiscoverPage() {
             </form>
 
             {/* Filters */}
-            <div className="flex flex-wrap justify-center sm:justify-end gap-4 text-md text-white/70">
-              {/* Type Filter */}
+            <div className="flex flex-wrap justify-center sm:justify-end gap-3">
+              {/* Type */}
               <div className="relative">
-                <button
-                  onClick={() => {
-                    setShowTypeMenu(!showTypeMenu);
-                    setShowSortMenu(false);
-                    setShowStatusMenu(false);
-                    setShow18Menu(false);
-                  }}
-                  className="bg-light-navy border border-white/5 rounded-md px-3 py-2 text-white/80 hover:border-blue-500/40 focus:border-blue-500/60 focus:ring-2 focus:ring-blue-500/30 outline-none transition-all cursor-pointer w-[200px] flex justify-between items-center"
+                <select
+                  value={typeFilter}
+                  onChange={(e) => setTypeFilter(e.target.value)}
+                  className="appearance-none pl-4 pr-9 py-2 bg-white/5 border border-white/10 rounded-xl text-white text-sm focus:outline-none focus:border-blue-500 transition cursor-pointer capitalize"
                 >
-                  <span>
-                    Type:{" "}
-                    <span className="text-blue-400 capitalize">
-                      {typeFilter.replace("_", " ")}
-                    </span>
-                  </span>
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-white/60" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.21 8.27a.75.75 0 01.02-1.06z" clipRule="evenodd" />
-                  </svg>
-                </button>
-                {showTypeMenu && (
-                  <div className="absolute mt-1 w-full bg-[#0E1118] border border-white/10 rounded-md shadow-lg z-20">
-                    {["manga", "novel", "oneshot", "doujin", "manhwa", "manhua"].map((option) => {
-                      const isSelected = typeFilter === option;
-                      return (
-                        <button key={option} onClick={() => { setTypeFilter(option); setShowTypeMenu(false); }}
-                          className={`block w-full text-left px-3 py-2 transition-colors duration-150 ${isSelected ? "text-blue-400 bg-blue-600/10" : "text-white/80 hover:bg-blue-600/20"} capitalize`}>
-                          {option.replace("_", " ")}
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
+                  {["manga", "novel", "oneshot", "doujin", "manhwa", "manhua"].map((opt) => (
+                    <option key={opt} value={opt} className="bg-[#0E1118] capitalize">{opt}</option>
+                  ))}
+                </select>
+                <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
               </div>
 
-              {/* Sort Filter */}
+              {/* Sort */}
               <div className="relative">
-                <button
-                  onClick={() => { setShowSortMenu(!showSortMenu); setShowTypeMenu(false); setShowStatusMenu(false); setShow18Menu(false); }}
-                  className="bg-light-navy border border-white/5 rounded-md px-3 py-2 text-white/80 hover:border-purple-500/40 focus:border-purple-500/60 focus:ring-2 focus:ring-purple-500/30 outline-none transition-all cursor-pointer w-[200px] flex justify-between items-center"
+                <select
+                  value={sortFilter}
+                  onChange={(e) => setSortFilter(e.target.value)}
+                  className="appearance-none pl-4 pr-9 py-2 bg-white/5 border border-white/10 rounded-xl text-white text-sm focus:outline-none focus:border-blue-500 transition cursor-pointer"
                 >
-                  <span>Sort By: <span className="text-purple-400 capitalize">{sortFilter.replace("_", " ")}</span></span>
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-white/60" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.21 8.27a.75.75 0 01.02-1.06z" clipRule="evenodd" />
-                  </svg>
-                </button>
-                {showSortMenu && (
-                  <div className="absolute mt-1 w-full bg-[#0E1118] border border-white/10 rounded-md shadow-lg z-20">
-                    {["score", "popularity", "newest"].map((option) => {
-                      const isSelected = sortFilter === option;
-                      return (
-                        <button key={option} onClick={() => { setSortFilter(option); setShowSortMenu(false); }}
-                          className={`block w-full text-left px-3 py-2 transition-colors duration-150 ${isSelected ? "text-purple-400 bg-purple-600/10" : "text-white/80 hover:bg-purple-600/20"} capitalize`}>
-                          {option}
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
+                  <option value="score" className="bg-[#0E1118]">Score</option>
+                  <option value="popularity" className="bg-[#0E1118]">Popularity</option>
+                  <option value="newest" className="bg-[#0E1118]">Newest</option>
+                </select>
+                <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
               </div>
 
-              {/* Status Filter */}
+              {/* Status */}
               <div className="relative">
-                <button
-                  onClick={() => { setShowStatusMenu(!showStatusMenu); setShowTypeMenu(false); setShowSortMenu(false); setShow18Menu(false); }}
-                  className="bg-light-navy border border-white/5 rounded-md px-3 py-2 text-white/80 hover:border-emerald-500/40 focus:border-emerald-500/60 focus:ring-2 focus:ring-emerald-500/30 outline-none transition-all cursor-pointer w-[200px] flex justify-between items-center"
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className="appearance-none pl-4 pr-9 py-2 bg-white/5 border border-white/10 rounded-xl text-white text-sm focus:outline-none focus:border-blue-500 transition cursor-pointer capitalize"
                 >
-                  <span>Status: <span className="text-emerald-400 capitalize">{statusFilter.replace("_", " ")}</span></span>
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-white/60" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.21 8.27a.75.75 0 01.02-1.06z" clipRule="evenodd" />
-                  </svg>
-                </button>
-                {showStatusMenu && (
-                  <div className="absolute mt-1 w-full bg-[#0E1118] border border-white/10 rounded-md shadow-lg z-20">
-                    {["any", "publishing", "complete", "hiatus", "discontinued"].map((option) => {
-                      const isSelected = statusFilter === option;
-                      return (
-                        <button key={option} onClick={() => { setStatusFilter(option); setShowStatusMenu(false); }}
-                          className={`block w-full text-left px-3 py-2 transition-colors duration-150 ${isSelected ? "text-emerald-400 bg-emerald-600/10" : "text-white/80 hover:bg-emerald-600/20"} capitalize`}>
-                          {option}
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
+                  {["any", "publishing", "complete", "hiatus", "discontinued"].map((opt) => (
+                    <option key={opt} value={opt} className="bg-[#0E1118] capitalize">{opt}</option>
+                  ))}
+                </select>
+                <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
               </div>
 
-              {/* 18+ Filter */}
+              {/* 18+ */}
               <div className="relative">
-                <button
-                  onClick={() => { setShow18Menu(!show18Menu); setShowTypeMenu(false); setShowSortMenu(false); setShowStatusMenu(false); }}
-                  className="bg-light-navy border border-white/5 rounded-md px-3 py-2 text-white/80 w-[200px] flex justify-between items-center"
+                <select
+                  value={adultFilter}
+                  onChange={(e) => setAdultFilter(e.target.value)}
+                  className="appearance-none pl-4 pr-9 py-2 bg-white/5 border border-white/10 rounded-xl text-white text-sm focus:outline-none focus:border-blue-500 transition cursor-pointer"
                 >
-                  <span>18+ Filter: <span className="text-red-400">{adultFilter === "all" ? "Show" : "Hide"}</span></span>
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-white/60" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.21 8.27a.75.75 0 01.02-1.06z" clipRule="evenodd" />
-                  </svg>
-                </button>
-                {show18Menu && (
-                  <div className="absolute mt-1 w-full bg-[#0E1118] border border-white/10 rounded-md shadow-lg z-20">
-                    <button onClick={() => { setAdultFilter("sfw"); setShow18Menu(false); }}
-                      className={`block w-full px-3 py-2 text-left ${adultFilter === "sfw" ? "text-red-400 bg-red-600/10" : "text-white/80 hover:bg-white/10"}`}>
-                      Hide 18+
-                    </button>
-                    <button onClick={() => { setAdultFilter("all"); setShow18Menu(false); }}
-                      className={`block w-full px-3 py-2 text-left ${adultFilter === "all" ? "text-red-400 bg-red-600/10" : "text-white/80 hover:bg-white/10"}`}>
-                      Show 18+
-                    </button>
-                  </div>
-                )}
+                  <option value="sfw" className="bg-[#0E1118]">Hide 18+</option>
+                  <option value="all" className="bg-[#0E1118]">Show 18+</option>
+                </select>
+                <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
               </div>
             </div>
           </div>
