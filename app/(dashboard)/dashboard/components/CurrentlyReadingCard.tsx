@@ -42,7 +42,7 @@ export function CurrentlyReadingCard({ entries, className }: { entries: ReadingE
         </CardTitle>
       </CardHeader>
 
-      <CardContent className="flex-1 p-0 md:pr-10 lg:pr-16 flex flex-col min-h-0 overflow-y-auto">
+      <CardContent className="flex-1 p-0 flex flex-col min-h-0 overflow-y-auto">
         {!entry ? (
           <div className="flex flex-1 flex-col items-center justify-center gap-2 p-6 text-white/40">
             <BookOpen className="h-7 w-7" />
@@ -50,8 +50,8 @@ export function CurrentlyReadingCard({ entries, className }: { entries: ReadingE
           </div>
         ) : (
           <>
-            {/* Cover left, info right */}
-            <div className="flex flex-1 items-center gap-4 px-4 pb-2">
+            {/* Cover left, info right — right padding keeps cover from hitting the edge */}
+            <div className="flex flex-1 items-center gap-4 px-4 pb-2 md:pr-10 lg:pr-16">
               {entry.imageUrl ? (
                 <Image
                   src={entry.imageUrl}
