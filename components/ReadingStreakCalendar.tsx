@@ -52,6 +52,7 @@ export function ReadingStreakCalendar({ activities }: Props) {
               months:
   ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
               weekdays: ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"],
+              totalCount: "{{count}} chapters read in the past year",
             }}
             style={{ width: "100%", fontSize: "10px" }}
           />                                                                              
